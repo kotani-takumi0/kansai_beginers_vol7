@@ -1,5 +1,35 @@
 # Implementation Plan
 
+> **進捗管理について**
+> - このファイルは設計書（読み取り専用）です。チェックボックスは更新しません
+> - 進捗管理は [GitHub Issues](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues) の open/close で行います
+> - Issue番号との対応: タスク X.Y → Issue は下表を参照
+
+| タスク | Issue | 担当 |
+|--------|-------|------|
+| 1.1 プロジェクト初期設定 | [#1](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/1) | リード |
+| 1.2 サーバー設定 | [#2](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/2) | リード |
+| 2.1 型定義 | [#3](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/3) | リード |
+| 2.2 Encoder | [#4](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/4) | リード |
+| 2.3 比較ロジック | [#5](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/5) | リード |
+| 3.1 AI API | [#6](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/6) | リード |
+| 4.1 出身地選択 | [#7](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/7) | 相方 |
+| 4.2 ネタ生成画面 | [#8](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/8) | 相方 |
+| 4.3 名刺カード | [#9](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/9) | 相方 |
+| 5.1 共有画面 | [#10](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/10) | 相方 |
+| 5.2 受信画面 | [#11](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/11) | 相方 |
+| 6.1 比較表示 | [#12](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/12) | 相方 |
+| 7.1 Socket.IOサーバー | [#13](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/13) | リード |
+| 7.2 bump検知フック | [#14](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/14) | リード |
+| 7.3 Socket.IOクライアント | [#15](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/15) | リード |
+| 8.1 交換画面 | [#16](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/16) | リード |
+| 8.2 交換演出 | [#17](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/17) | リード |
+| 9.1 全体統合 | [#18](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/18) | リード |
+| 9.2 モバイル最適化 | [#19](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/19) | 相方 |
+| 9.3 E2Eテスト | [#20](https://github.com/kotani-takumi0/kansai_beginers_vol7/issues/20) | リード |
+
+---
+
 - [ ] 1. プロジェクト初期セットアップ
 - [ ] 1.1 React + Vite + TypeScript プロジェクトの作成と基本設定
   - Vite でReact + TypeScript のプロジェクトを作成する
