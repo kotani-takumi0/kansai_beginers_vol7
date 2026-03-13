@@ -36,7 +36,10 @@ Kiro-style Spec Driven Development implementation on AI-DLC (AI Development Life
 ### ファイル配置ルール
 - 担当外のディレクトリのファイルを編集しない
 - 共通部品（`src/components/common/`）の変更はリードが行う
-- 1 Issue = 1 ブランチ（`feature/#Issue番号-短い説明`）
+
+### Git運用
+- **リード**: Issue単位でブランチを切る（`feature/#Issue番号-短い説明`）
+- **相方**: mainに直接push（作業前に必ず `git pull`）
 
 ## Minimal Workflow
 - Phase 0 (optional): `/kiro:steering`, `/kiro:steering-custom`

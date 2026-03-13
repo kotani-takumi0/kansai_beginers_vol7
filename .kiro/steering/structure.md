@@ -63,14 +63,25 @@ server/
 
 - **Files**: PascalCase（コンポーネント・ページ）、camelCase（ユーティリティ・フック）
 - **Components**: PascalCase（例: MeishiCard, ComparisonPage）
-- **ブランチ**: `feature/#Issue番号-短い説明`（例: `feature/#7-prefecture-select`）
+- **ブランチ（リード）**: `feature/#Issue番号-短い説明`（例: `feature/#7-prefecture-select`）
+- **ブランチ（相方）**: mainに直接push（ファイルが被らないためコンフリクトしない）
 
 ## Code Organization Principles
 
 - **同じファイルを同時に編集しない** — 最大のコンフリクト防止策
 - `common/` や `types/` の変更はリードが実施 → 相方はpullで取り込む
-- Issue単位でブランチを切る（1ブランチ = 1つの小さな機能）
 - コミットは論理単位で分割（AIで一気に生成してもコミットは分ける）
+
+## Git運用ルール
+
+### リード
+- Issue単位でブランチを切る → PR → merge
+- 基盤・共通部品はレビュー後にmerge
+
+### 相方
+- **mainに直接push**（ブランチ不要）
+- 作業前に必ず `git pull` する
+- 担当外のファイルは触らない（これがコンフリクト防止の前提）
 
 ---
 _Document patterns, not file trees. New files following patterns shouldn't require updates_
