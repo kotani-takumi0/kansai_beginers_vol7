@@ -1,5 +1,83 @@
 # Development Roadmap
 
+## リードの作業フロー
+
+### 1タスクの流れ
+
+```bash
+# 1. Issueを確認する
+#    → GitHub Issue を開く
+#    → 「ブロック」欄の前提Issueがcloseされているか確認
+
+# 2. ブランチを切る
+git pull
+git checkout -b feature/#3-type-definitions
+
+# 3. Claude Code で実装
+/kiro:spec-impl jimoto-meishi-app 2.1
+#   → spec-impl が design.md の型定義・インターフェースを読んで実装してくれる
+#   → 完了したら動作確認
+
+# 4. push して merge
+git add .
+git commit -m "feat: Issue #3 名刺データの型定義を追加"
+git push -u origin feature/#3-type-definitions
+gh pr create --title "Issue #3: 型定義" --body "closes #3"
+gh pr merge --merge
+git checkout main
+git pull
+
+# 5. 相方に「pull して」と声をかける（型定義など共有ファイルを変えた場合）
+```
+
+### Issue を進める順番
+
+```
+#1 プロジェクト初期設定
+ ↓
+#2 サーバー設定（#1と並行可）
+ ↓
+#3 型定義                          ← ここで相方に「pull して #7 始めて」と声をかける
+ ↓
+#4 Encoder  ┐
+#5 比較     ├ 3つ並行可
+#6 AI API   ┘                      ← ここで相方に「pull して #8 始めて」と声をかける
+ ↓
+#13 Socket.IOサーバー ┐
+#14 bump検知フック    ┘ 並行可
+ ↓
+#15 Socket.IOクライアント
+ ↓
+#16 ぶつけ交換画面
+ ↓
+#17 交換演出
+ ↓
+#18 全体統合（相方の全タスク完了を待つ）
+ ↓
+#20 E2Eテスト
+```
+
+### 相方への声かけタイミング
+
+| 自分が完了したもの | 相方に伝えること |
+|-------------------|-----------------|
+| #1 プロジェクト初期設定 | 「pull して。npm install して npm run dev で動くよ」 |
+| #3 型定義 | 「pull して。src/types/ に型が入ったから #7 始めて」 |
+| #6 AI API | 「pull して。API動くようになったから #8 始めて」 |
+| #4 MeishiEncoder | 「pull して。#10, #11 で使う encoder が入ったよ」 |
+| #5 比較ロジック | 「pull して。#12 で使う比較関数が入ったよ」 |
+
+### 困ったときの判断
+
+| 状況 | どうする |
+|------|---------|
+| spec-impl が変なコードを生成した | design.md の該当箇所を読み直して、手動で修正 |
+| 相方が詰まっている | 自分のタスクを一旦止めて横について5分サポート |
+| テストが通らない | まず動く状態を優先。テストは後で直す |
+| 予定より遅れている | Should機能（#13〜#17）を後回しにしてMust機能の統合を優先 |
+
+---
+
 ## 相方のgit操作（これだけでOK）
 
 ```bash
