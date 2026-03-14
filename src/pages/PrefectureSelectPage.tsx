@@ -66,7 +66,7 @@ export function PrefectureSelectPage() {
                     key={pref}
                     onClick={() => setSelectedPrefecture(pref)}
                     className={`
-                      py-2 px-1 text-sm rounded-lg transition-all duration-200 ease-in-out font-medium
+                      min-h-[44px] py-2.5 px-1 text-sm rounded-lg transition-all duration-200 ease-in-out font-medium
                       ${
                         isSelected
                           ? "bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-md transform scale-105"
@@ -84,7 +84,7 @@ export function PrefectureSelectPage() {
       </div>
 
       {/* フローティングアクションボタンエリア */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent pb-6">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}>
         <div className="max-w-md mx-auto">
           <button
             onClick={handleNext}
