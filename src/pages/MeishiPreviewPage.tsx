@@ -1,7 +1,12 @@
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import type { MeishiData } from "../types";
-import { loadSelectedPrefecture, loadSelectedTopics } from "../utils/appStorage";
+import {
+  loadSelectedPrefecture,
+  loadSelectedTopics,
+  loadPartnerMeishi,
+  clearPartnerMeishi,
+} from "../utils/appStorage";
 
 function createMeishiId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -15,6 +20,7 @@ export function MeishiPreviewPage() {
   const navigate = useNavigate();
   const prefecture = loadSelectedPrefecture();
   const topics = loadSelectedTopics();
+  const partnerMeishi = loadPartnerMeishi();
 
   const meishi = useMemo<MeishiData | null>(() => {
     if (!prefecture || topics.length === 0) {
@@ -113,13 +119,28 @@ export function MeishiPreviewPage() {
           QR表示とURL共有は次の画面で行います。気になるなら一度ネタ選択に戻って調整できます。
         </p>
         <div className="mt-5 flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={() => navigate("/share", { state: { meishi } })}
-            className="rounded-full bg-linear-to-r from-orange-500 to-pink-500 px-5 py-4 text-lg font-bold text-white shadow-lg transition hover:scale-[1.01] active:scale-95"
-          >
-            この名刺を共有する
-          </button>
+          {partnerMeishi ? (
+            <button
+              type="button"
+              onClick={() => {
+                clearPartnerMeishi();
+                navigate("/comparison", {
+                  state: { myMeishi: meishi, partnerMeishi },
+                });
+              }}
+              className="rounded-full bg-linear-to-r from-emerald-500 to-teal-500 px-5 py-4 text-lg font-bold text-white shadow-lg transition hover:scale-[1.01] active:scale-95"
+            >
+              名刺を比較する
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => navigate("/share", { state: { meishi } })}
+              className="rounded-full bg-linear-to-r from-orange-500 to-pink-500 px-5 py-4 text-lg font-bold text-white shadow-lg transition hover:scale-[1.01] active:scale-95"
+            >
+              この名刺を共有する
+            </button>
+          )}
           <button
             type="button"
             onClick={() => navigate("/topics")}

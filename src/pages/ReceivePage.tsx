@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { decode } from "../utils/meishiEncoder";
+import { savePartnerMeishi } from "../utils/appStorage";
 import type { MeishiData } from "../types";
 
 export function ReceivePage() {
@@ -80,9 +81,10 @@ export function ReceivePage() {
 
       {/* 自分の名刺作成への誘導 */}
       <button
-        onClick={() =>
-          navigate("/", { state: { partnerMeishi: meishi } })
-        }
+        onClick={() => {
+          savePartnerMeishi(meishi);
+          navigate("/");
+        }}
         className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-lg transition-colors mb-4"
       >
         自分の名刺も作る
