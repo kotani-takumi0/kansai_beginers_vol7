@@ -3,6 +3,7 @@ import type { MeishiData, TopicWithStance } from "../types";
 const PREFECTURE_KEY = "jimoto:selectedPrefecture";
 const TOPICS_KEY = "jimoto:selectedTopics";
 const PARTNER_MEISHI_KEY = "jimoto:partnerMeishi";
+const MY_MEISHI_KEY = "jimoto:myMeishi";
 
 function isBrowser() {
   return typeof window !== "undefined";
@@ -82,4 +83,30 @@ export function clearPartnerMeishi() {
   }
 
   window.sessionStorage.removeItem(PARTNER_MEISHI_KEY);
+}
+
+export function saveMyMeishi(meishi: MeishiData) {
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.localStorage.setItem(MY_MEISHI_KEY, JSON.stringify(meishi));
+}
+
+export function loadMyMeishi(): MeishiData | null {
+  if (!isBrowser()) {
+    return null;
+  }
+
+  const raw = window.localStorage.getItem(MY_MEISHI_KEY);
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    return JSON.parse(raw) as MeishiData;
+  } catch {
+    return null;
+  }
 }
