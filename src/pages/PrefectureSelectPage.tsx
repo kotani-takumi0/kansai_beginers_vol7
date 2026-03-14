@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { saveSelectedPrefecture } from "../utils/appStorage";
 
 // 地方ごとに都道府県をグループ化
 const PREFECTURE_GROUPS = [
@@ -39,8 +40,7 @@ export function PrefectureSelectPage() {
 
   const handleNext = () => {
     if (selectedPrefecture) {
-      // TODO: 選択した都道府県を状態管理に保存する処理（ContextやZustand等）を追加する
-      // 今回のタスクでは次画面への遷移までを実装
+      saveSelectedPrefecture(selectedPrefecture);
       navigate("/topics");
     }
   };
