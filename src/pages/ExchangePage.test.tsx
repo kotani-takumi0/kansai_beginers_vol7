@@ -75,11 +75,9 @@ const mockMeishi = {
 
 const mockLoadMyMeishi = vi.fn((): MeishiData | null => mockMeishi);
 const mockSavePartnerMeishi = vi.fn();
-const mockSaveMyMeishi = vi.fn();
 
 vi.mock("../utils/appStorage", () => ({
   loadMyMeishi: () => mockLoadMyMeishi(),
-  saveMyMeishi: (meishi: MeishiData) => mockSaveMyMeishi(meishi),
   savePartnerMeishi: (meishi: MeishiData) => mockSavePartnerMeishi(meishi),
 }));
 
@@ -120,26 +118,6 @@ describe("ExchangePage", () => {
 
     expect(screen.getByText("名刺がまだありません")).toBeDefined();
     expect(screen.getByText("名刺をつくる")).toBeDefined();
-  });
-
-  it("名前が未入力の場合は先に入力フォームを表示する", () => {
-    mockLoadMyMeishi.mockReturnValue({
-      ...mockMeishi,
-      name: undefined,
-    });
-
-    renderPage();
-
-    expect(screen.getByText("交換前に名前を入れましょう")).toBeDefined();
-    fireEvent.change(screen.getByLabelText("あなたの名前"), {
-      target: { value: "こたに" },
-    });
-    fireEvent.click(screen.getByText("名前を保存して交換へ進む"));
-
-    expect(mockSaveMyMeishi).toHaveBeenCalledWith(
-      expect.objectContaining({ name: "こたに" })
-    );
-    expect(screen.getByText("センサーをONにする")).toBeDefined();
   });
 
   // ── 許可取得前 ──

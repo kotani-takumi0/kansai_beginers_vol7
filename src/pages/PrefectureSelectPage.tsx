@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
-import { saveSelectedPrefecture, loadMyMeishi } from "../utils/appStorage";
+import {
+  saveSelectedPrefecture,
+  loadMyMeishi,
+  loadSelectedName,
+  saveSelectedName,
+} from "../utils/appStorage";
 
 const PREFECTURE_GROUPS = [
   {
@@ -35,6 +40,7 @@ const PREFECTURE_GROUPS = [
 
 export function PrefectureSelectPage() {
   const navigate = useNavigate();
+  const [name, setName] = useState(loadSelectedName());
   const [selectedPrefecture, setSelectedPrefecture] = useState<string | null>(null);
   const savedMeishi = loadMyMeishi();
 
@@ -43,7 +49,8 @@ export function PrefectureSelectPage() {
   }
 
   const handleNext = () => {
-    if (selectedPrefecture) {
+    if (selectedPrefecture && name.trim()) {
+      saveSelectedName(name.trim());
       saveSelectedPrefecture(selectedPrefecture);
       navigate("/topics");
     }
@@ -58,6 +65,23 @@ export function PrefectureSelectPage() {
       <p className="mb-5 text-center text-sm font-medium text-[#888]">
         あなたの地元の話題で盛り上がりましょう
       </p>
+
+      <div className="px-5 pb-3">
+        <div className="rounded-2xl border border-[#ececea] bg-white p-4">
+          <label htmlFor="selected-name" className="mb-2 block text-sm font-bold text-[#1a1a1a]">
+            まずは名前を教えてください
+          </label>
+          <input
+            id="selected-name"
+            type="text"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+            placeholder="例: みぞじり"
+            className="w-full rounded-xl border border-[#e0e0dc] bg-[#f8f8f6] px-4 py-3 text-[15px] text-[#1a1a1a] outline-none transition focus:border-[#e85d3a]"
+            maxLength={20}
+          />
+        </div>
+      </div>
 
       {/* Prefecture groups */}
       <div className="flex-1 space-y-3 overflow-y-auto px-5 scrollbar-hide">
@@ -96,14 +120,16 @@ export function PrefectureSelectPage() {
         <div className="mx-auto max-w-[420px]">
           <button
             onClick={handleNext}
-            disabled={!selectedPrefecture}
+            disabled={!selectedPrefecture || !name.trim()}
             className={`flex w-full items-center justify-center rounded-2xl py-4 text-[15px] font-semibold shadow-lg transition-all duration-200 ${
-              selectedPrefecture
+              selectedPrefecture && name.trim()
                 ? "bg-[#e85d3a] text-white active:scale-[0.98]"
                 : "bg-[#e0e0dc] text-[#aaa] cursor-not-allowed"
             }`}
           >
-            {selectedPrefecture ? `${selectedPrefecture}で決定！` : "出身地を選択してください"}
+            {selectedPrefecture
+              ? `${selectedPrefecture}で決定！`
+              : "名前と出身地を入力してください"}
           </button>
         </div>
       </div>

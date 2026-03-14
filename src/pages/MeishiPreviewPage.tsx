@@ -5,6 +5,7 @@ import { toShareUrl } from "../utils/meishiEncoder";
 import type { ExchangeHistoryEntry, MeishiData } from "../types";
 import {
   loadExchangeHistory,
+  loadSelectedName,
   loadSelectedPrefecture,
   loadSelectedTopics,
   loadPartnerMeishi,
@@ -221,7 +222,7 @@ export function MeishiPreviewPage() {
     if (prefecture && topics.length > 0) {
       return {
         id: createMeishiId(),
-        name: savedMeishi?.name,
+        name: loadSelectedName() || savedMeishi?.name,
         prefecture,
         topics,
         createdAt: new Date().toISOString(),
