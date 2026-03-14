@@ -288,7 +288,7 @@ export function MeishiPreviewPage() {
             type="button"
             onClick={() => {
               clearPartnerMeishi();
-              navigate("/comparison", {
+              navigate("/gacha", {
                 state: { myMeishi: meishi, partnerMeishi },
               });
             }}
