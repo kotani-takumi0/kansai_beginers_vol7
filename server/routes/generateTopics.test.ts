@@ -3,11 +3,11 @@ import express from "express";
 import request from "supertest";
 import { createGenerateTopicsRouter } from "./generateTopics";
 
-// Anthropic SDK のモック
+// OpenAI SDK のモック
 const mockCreate = vi.fn();
-vi.mock("@anthropic-ai/sdk", () => ({
+vi.mock("openai", () => ({
   default: class {
-    messages = { create: mockCreate };
+    chat = { completions: { create: mockCreate } };
   },
 }));
 
@@ -35,10 +35,11 @@ describe("POST /api/generate-topics", () => {
 
   it("有効な都道府県名で3〜5個のTopicが返る", async () => {
     mockCreate.mockResolvedValue({
-      content: [
+      choices: [
         {
-          type: "text",
-          text: JSON.stringify(mockTopicsResponse),
+          message: {
+            content: JSON.stringify(mockTopicsResponse),
+          },
         },
       ],
     });
@@ -90,10 +91,11 @@ describe("POST /api/generate-topics", () => {
 
   it("レスポンスがTopic型（id, text, category）に準拠している", async () => {
     mockCreate.mockResolvedValue({
-      content: [
+      choices: [
         {
-          type: "text",
-          text: JSON.stringify(mockTopicsResponse),
+          message: {
+            content: JSON.stringify(mockTopicsResponse),
+          },
         },
       ],
     });
@@ -116,10 +118,11 @@ describe("POST /api/generate-topics", () => {
 
   it("47都道府県すべてが有効な入力として受け付けられる", async () => {
     mockCreate.mockResolvedValue({
-      content: [
+      choices: [
         {
-          type: "text",
-          text: JSON.stringify(mockTopicsResponse),
+          message: {
+            content: JSON.stringify(mockTopicsResponse),
+          },
         },
       ],
     });
