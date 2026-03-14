@@ -11,7 +11,6 @@ const renderPreviewPage = () =>
         <Route path="/preview" element={<MeishiPreviewPage />} />
         <Route path="/topics" element={<div>topics page</div>} />
         <Route path="/share" element={<div>share page</div>} />
-        <Route path="/exchange" element={<div>exchange page</div>} />
         <Route path="/" element={<div>home page</div>} />
       </Routes>
     </MemoryRouter>
@@ -56,7 +55,6 @@ describe("MeishiPreviewPage", () => {
 
     expect(screen.getAllByText("大阪府").length).toBeGreaterThan(0);
     expect(screen.getAllByText("たこ焼きは主食").length).toBeGreaterThan(0);
-    expect(screen.getByText("ぶつけて交換")).toBeDefined();
     expect(screen.getByText("URLで共有する")).toBeDefined();
   });
 
