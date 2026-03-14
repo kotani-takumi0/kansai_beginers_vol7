@@ -1,12 +1,12 @@
 import type { GenerateTopicsResponse, Topic } from "../types";
 
-const CATEGORY_LABELS = ["食文化", "習慣", "ことば", "学生生活", "地元あるある"];
+const CATEGORY_LABELS = ["食文化", "習慣", "ことば", "くらし", "地元あるある"];
 
 const FALLBACK_PATTERNS = [
-  "{prefecture}では、初対面でも地元トークが始まるのが普通だ",
+  "{prefecture}では、お好み焼き定食はアリ",
   "{prefecture}の人は、地元チェーンの話になると急に熱量が上がる",
   "{prefecture}では、方言を少し混ぜたほうが親しみやすい",
-  "{prefecture}の学生は、通学や放課後の感覚が全国標準だと思っている",
+  "都会より田舎の方が住みやすい",
   "{prefecture}では、有名スポットを日常使いしている感覚がある",
 ];
 
