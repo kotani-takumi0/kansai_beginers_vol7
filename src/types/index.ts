@@ -14,6 +14,7 @@ export interface TopicWithStance {
 /** 名刺データ */
 export interface MeishiData {
   readonly id: string;
+  readonly name?: string;
   readonly prefecture: string;
   readonly topics: ReadonlyArray<TopicWithStance>;
   readonly createdAt: string; // ISO 8601
