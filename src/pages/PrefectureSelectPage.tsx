@@ -76,7 +76,7 @@ export function PrefectureSelectPage() {
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            placeholder="例: みぞじり"
+            placeholder="例: たろう"
             className="w-full rounded-xl border border-[#e0e0dc] bg-[#f8f8f6] px-4 py-3 text-[15px] text-[#1a1a1a] outline-none transition focus:border-[#e85d3a]"
             maxLength={20}
           />
