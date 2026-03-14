@@ -23,6 +23,7 @@ describe("MeishiPreviewPage", () => {
 
   beforeEach(() => {
     window.sessionStorage.clear();
+    window.localStorage.clear();
     vi.restoreAllMocks();
     vi.spyOn(Date.prototype, "toISOString").mockReturnValue("2026-03-14T00:00:00.000Z");
   });
@@ -52,9 +53,10 @@ describe("MeishiPreviewPage", () => {
 
     renderPreviewPage();
 
-    expect(screen.getByText("大阪府")).toBeDefined();
+    expect(screen.getAllByText("大阪府")).toHaveLength(2);
     expect(screen.getByText("たこ焼きは主食")).toBeDefined();
-    expect(screen.getAllByText(/派/)).toHaveLength(2);
+    expect(screen.getByText("わかる")).toBeDefined();
+    expect(screen.getByText("違う")).toBeDefined();
     expect(screen.getByText("この名刺を共有する")).toBeDefined();
   });
 
@@ -74,5 +76,61 @@ describe("MeishiPreviewPage", () => {
     fireEvent.click(screen.getByText("この名刺を共有する"));
 
     expect(screen.getByText("share page")).toBeDefined();
+  });
+
+  it("交換履歴がある場合は一覧を表示する", () => {
+    window.localStorage.setItem(
+      "jimoto:myMeishi",
+      JSON.stringify({
+        id: "my-1",
+        prefecture: "大阪府",
+        topics: [
+          {
+            topic: { id: "1", text: "たこ焼きは主食", category: "食文化" },
+            agrees: true,
+          },
+        ],
+        createdAt: "2026-03-14T00:00:00.000Z",
+      })
+    );
+    window.localStorage.setItem(
+      "jimoto:exchangeHistory",
+      JSON.stringify([
+        {
+          id: "my-1:partner-1",
+          exchangedAt: "2026-03-14T01:23:45.000Z",
+          myMeishi: {
+            id: "my-1",
+            prefecture: "大阪府",
+            topics: [
+              {
+                topic: { id: "1", text: "たこ焼きは主食", category: "食文化" },
+                agrees: true,
+              },
+            ],
+            createdAt: "2026-03-14T00:00:00.000Z",
+          },
+          partnerMeishi: {
+            id: "partner-1",
+            prefecture: "東京都",
+            topics: [
+              {
+                topic: { id: "1", text: "おでんはおかず", category: "食文化" },
+                agrees: false,
+              },
+            ],
+            createdAt: "2026-03-14T00:10:00.000Z",
+          },
+          matchCount: 2,
+          mismatchCount: 1,
+        },
+      ])
+    );
+
+    renderPreviewPage();
+
+    expect(screen.getByText("交換履歴")).toBeDefined();
+    expect(screen.getByText("東京都の人と交換")).toBeDefined();
+    expect(screen.getByText("2一致 / 1不一致")).toBeDefined();
   });
 });

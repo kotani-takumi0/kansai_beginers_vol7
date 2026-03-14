@@ -37,6 +37,16 @@ export interface ComparisonResult {
   readonly mismatchCount: number;
 }
 
+/** 交換履歴 */
+export interface ExchangeHistoryEntry {
+  readonly id: string;
+  readonly exchangedAt: string; // ISO 8601
+  readonly myMeishi: MeishiData;
+  readonly partnerMeishi: MeishiData;
+  readonly matchCount: number;
+  readonly mismatchCount: number;
+}
+
 /** AI ネタ生成APIのレスポンス */
 export interface GenerateTopicsResponse {
   readonly topics: ReadonlyArray<Topic>;

@@ -1,7 +1,8 @@
 import { useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import type { MeishiData } from "../types";
+import type { ExchangeHistoryEntry, MeishiData } from "../types";
 import {
+  loadExchangeHistory,
   loadSelectedPrefecture,
   loadSelectedTopics,
   loadPartnerMeishi,
@@ -49,11 +50,49 @@ function RefreshIcon() {
   );
 }
 
+function formatHistoryDate(value: string) {
+  return new Date(value).toLocaleDateString("ja-JP", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function ExchangeHistoryCard({ entry }: { readonly entry: ExchangeHistoryEntry }) {
+  return (
+    <div className="rounded-2xl border border-[#ececea] bg-[#f8f8f6] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-bold text-[#1a1a1a]">
+            {entry.partnerMeishi.prefecture}の人と交換
+          </p>
+          <p className="mt-1 text-xs text-[#888]">{formatHistoryDate(entry.exchangedAt)}</p>
+        </div>
+        <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#555]">
+          {entry.matchCount}一致 / {entry.mismatchCount}不一致
+        </span>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {entry.partnerMeishi.topics.slice(0, 3).map(({ topic }) => (
+          <span
+            key={topic.id}
+            className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-[#666]"
+          >
+            {topic.text}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function MeishiPreviewPage() {
   const navigate = useNavigate();
   const prefecture = loadSelectedPrefecture();
   const topics = loadSelectedTopics();
   const partnerMeishi = loadPartnerMeishi();
+  const exchangeHistory = loadExchangeHistory();
 
   const meishi = useMemo<MeishiData | null>(() => {
     if (prefecture && topics.length > 0) {
@@ -169,7 +208,7 @@ export function MeishiPreviewPage() {
             className="flex flex-col items-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-5 text-[15px] font-semibold text-white"
           >
             <ShareIcon />
-            共有する
+            この名刺を共有する
           </button>
         )}
         <button
@@ -217,6 +256,20 @@ export function MeishiPreviewPage() {
           ))}
         </div>
       </div>
+
+      {exchangeHistory.length > 0 && (
+        <div className="mx-5 mt-4 rounded-2xl border border-[#ececea] bg-white p-5">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-base font-bold text-[#1a1a1a]">交換履歴</h3>
+            <span className="text-xs font-medium text-[#888]">{exchangeHistory.length}件</span>
+          </div>
+          <div className="mt-4 space-y-3">
+            {exchangeHistory.map((entry) => (
+              <ExchangeHistoryCard key={entry.id} entry={entry} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

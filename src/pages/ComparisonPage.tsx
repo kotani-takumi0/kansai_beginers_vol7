@@ -1,6 +1,7 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { compareMeishi } from "../utils/comparison";
+import { saveExchangeHistoryEntry } from "../utils/appStorage";
 import type { MeishiData, TopicMatch } from "../types";
 
 const MATCH_MESSAGES = [
@@ -104,6 +105,21 @@ export function ComparisonPage() {
     if (!myMeishi || !partnerMeishi) return null;
     return compareMeishi(myMeishi, partnerMeishi);
   }, [myMeishi, partnerMeishi]);
+
+  useEffect(() => {
+    if (!result) {
+      return;
+    }
+
+    saveExchangeHistoryEntry({
+      id: `${result.myMeishi.id}:${result.partnerMeishi.id}`,
+      exchangedAt: new Date().toISOString(),
+      myMeishi: result.myMeishi,
+      partnerMeishi: result.partnerMeishi,
+      matchCount: result.matchCount,
+      mismatchCount: result.mismatchCount,
+    });
+  }, [result]);
 
   if (!result) {
     return (

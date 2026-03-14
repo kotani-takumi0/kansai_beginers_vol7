@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ComparisonPage } from "./ComparisonPage";
@@ -38,8 +38,14 @@ const renderWithState = (state?: Record<string, unknown>) =>
   );
 
 describe("ComparisonPage", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    vi.spyOn(Date.prototype, "toISOString").mockReturnValue("2026-03-14T01:23:45.000Z");
+  });
+
   afterEach(() => {
     cleanup();
+    vi.restoreAllMocks();
   });
 
   it("比較データがない場合はエラーメッセージを表示する", () => {
@@ -95,5 +101,17 @@ describe("ComparisonPage", () => {
   it("「もう一度名刺を作る」ボタンが表示される", () => {
     renderWithState({ myMeishi, partnerMeishi });
     expect(screen.getByText("もう一度名刺を作る")).toBeDefined();
+  });
+
+  it("比較結果を交換履歴へ保存する", () => {
+    renderWithState({ myMeishi, partnerMeishi });
+
+    const raw = window.localStorage.getItem("jimoto:exchangeHistory");
+    expect(raw).not.toBeNull();
+
+    const history = JSON.parse(raw ?? "[]") as Array<{ partnerMeishi: MeishiData; matchCount: number }>;
+    expect(history).toHaveLength(1);
+    expect(history[0].partnerMeishi.prefecture).toBe("東京都");
+    expect(history[0].matchCount).toBe(2);
   });
 });
