@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import type { MeishiData } from "../types";
 import {
@@ -6,6 +6,8 @@ import {
   loadSelectedTopics,
   loadPartnerMeishi,
   clearPartnerMeishi,
+  saveMyMeishi,
+  loadMyMeishi,
 } from "../utils/appStorage";
 
 function createMeishiId() {
@@ -23,17 +25,24 @@ export function MeishiPreviewPage() {
   const partnerMeishi = loadPartnerMeishi();
 
   const meishi = useMemo<MeishiData | null>(() => {
-    if (!prefecture || topics.length === 0) {
-      return null;
+    if (prefecture && topics.length > 0) {
+      return {
+        id: createMeishiId(),
+        prefecture,
+        topics,
+        createdAt: new Date().toISOString(),
+      };
     }
 
-    return {
-      id: createMeishiId(),
-      prefecture,
-      topics,
-      createdAt: new Date().toISOString(),
-    };
+    // sessionStorageにデータがなければlocalStorageから復元
+    return loadMyMeishi();
   }, [prefecture, topics]);
+
+  useEffect(() => {
+    if (meishi) {
+      saveMyMeishi(meishi);
+    }
+  }, [meishi]);
 
   if (!meishi) {
     return (
