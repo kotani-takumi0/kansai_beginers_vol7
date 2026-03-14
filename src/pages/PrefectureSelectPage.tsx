@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { saveSelectedPrefecture, loadMyMeishi } from "../utils/appStorage";
 
 // 地方ごとに都道府県をグループ化
@@ -39,6 +39,11 @@ export function PrefectureSelectPage() {
   const [selectedPrefecture, setSelectedPrefecture] = useState<string | null>(null);
   const savedMeishi = loadMyMeishi();
 
+  // 名刺が保存済みなら自動的にプレビューへリダイレクト
+  if (savedMeishi) {
+    return <Navigate to="/preview" replace />;
+  }
+
   const handleNext = () => {
     if (selectedPrefecture) {
       saveSelectedPrefecture(selectedPrefecture);
@@ -52,26 +57,6 @@ export function PrefectureSelectPage() {
         <h2 className="text-2xl font-bold text-gray-800 mb-2">出身地はどこ？</h2>
         <p className="text-sm text-gray-500">あなたの地元の話題で盛り上がりましょう</p>
       </div>
-
-      {savedMeishi && (
-        <div className="mb-4">
-          <button
-            onClick={() => navigate("/preview")}
-            className="w-full rounded-2xl border border-orange-200 bg-orange-50 px-5 py-4 text-left transition hover:bg-orange-100 active:scale-[0.98]"
-          >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-xs font-semibold tracking-wide text-orange-500">前回の名刺があります</p>
-                <p className="mt-1 text-lg font-bold text-gray-900">{savedMeishi.prefecture}</p>
-                <p className="mt-0.5 text-xs text-gray-500">ネタ {savedMeishi.topics.length}件</p>
-              </div>
-              <svg className="h-5 w-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </div>
-          </button>
-        </div>
-      )}
 
       <div className="flex-1 overflow-y-auto space-y-6 scrollbar-hide">
         {PREFECTURE_GROUPS.map((group) => (

@@ -93,6 +93,14 @@ export function saveMyMeishi(meishi: MeishiData) {
   window.localStorage.setItem(MY_MEISHI_KEY, JSON.stringify(meishi));
 }
 
+export function clearMyMeishi() {
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.localStorage.removeItem(MY_MEISHI_KEY);
+}
+
 export function loadMyMeishi(): MeishiData | null {
   if (!isBrowser()) {
     return null;

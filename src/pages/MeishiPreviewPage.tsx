@@ -8,6 +8,7 @@ import {
   clearPartnerMeishi,
   saveMyMeishi,
   loadMyMeishi,
+  clearMyMeishi,
 } from "../utils/appStorage";
 
 function createMeishiId() {
@@ -152,10 +153,13 @@ export function MeishiPreviewPage() {
           )}
           <button
             type="button"
-            onClick={() => navigate("/topics")}
+            onClick={() => {
+              clearMyMeishi();
+              navigate("/");
+            }}
             className="rounded-full border border-gray-200 px-5 py-4 font-semibold text-gray-700 transition hover:bg-gray-50"
           >
-            ネタ選択に戻る
+            名刺を作り直す
           </button>
         </div>
       </section>
