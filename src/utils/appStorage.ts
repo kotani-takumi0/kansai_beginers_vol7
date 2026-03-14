@@ -1,9 +1,10 @@
-import type { MeishiData, TopicWithStance } from "../types";
+import type { ExchangeHistoryEntry, MeishiData, TopicWithStance } from "../types";
 
 const PREFECTURE_KEY = "jimoto:selectedPrefecture";
 const TOPICS_KEY = "jimoto:selectedTopics";
 const PARTNER_MEISHI_KEY = "jimoto:partnerMeishi";
 const MY_MEISHI_KEY = "jimoto:myMeishi";
+const EXCHANGE_HISTORY_KEY = "jimoto:exchangeHistory";
 
 function isBrowser() {
   return typeof window !== "undefined";
@@ -116,5 +117,34 @@ export function loadMyMeishi(): MeishiData | null {
     return JSON.parse(raw) as MeishiData;
   } catch {
     return null;
+  }
+}
+
+export function saveExchangeHistoryEntry(entry: ExchangeHistoryEntry) {
+  if (!isBrowser()) {
+    return;
+  }
+
+  const currentHistory = loadExchangeHistory().filter((item) => item.id !== entry.id);
+  const nextHistory = [entry, ...currentHistory].slice(0, 20);
+  window.localStorage.setItem(EXCHANGE_HISTORY_KEY, JSON.stringify(nextHistory));
+}
+
+export function loadExchangeHistory(): ReadonlyArray<ExchangeHistoryEntry> {
+  if (!isBrowser()) {
+    return [];
+  }
+
+  const raw = window.localStorage.getItem(EXCHANGE_HISTORY_KEY);
+
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as ReadonlyArray<ExchangeHistoryEntry>;
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
   }
 }

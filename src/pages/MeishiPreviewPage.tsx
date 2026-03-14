@@ -1,7 +1,8 @@
 import { useMemo, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import type { MeishiData } from "../types";
+import type { ExchangeHistoryEntry, MeishiData } from "../types";
 import {
+  loadExchangeHistory,
   loadSelectedPrefecture,
   loadSelectedTopics,
   loadPartnerMeishi,
@@ -60,7 +61,20 @@ function FlipHint() {
   );
 }
 
-function MeishiCard({ meishi, isFlipped, onFlip }: {
+function formatHistoryDate(value: string) {
+  return new Date(value).toLocaleDateString("ja-JP", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function MeishiCard({
+  meishi,
+  isFlipped,
+  onFlip,
+}: {
   readonly meishi: MeishiData;
   readonly isFlipped: boolean;
   readonly onFlip: () => void;
@@ -79,7 +93,6 @@ function MeishiCard({ meishi, isFlipped, onFlip }: {
             transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
           }}
         >
-          {/* ── Front Face ── */}
           <div
             className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#2d2d3a] via-[#3a3a4a] to-[#2d2d3a] shadow-[0_8px_32px_rgba(0,0,0,.18)]"
             style={{
@@ -117,7 +130,6 @@ function MeishiCard({ meishi, isFlipped, onFlip }: {
             </div>
           </div>
 
-          {/* ── Back Face ── */}
           <div
             className="absolute inset-0 w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#3a3a2d] via-[#4a4a3a] to-[#3a3a2d] shadow-[0_8px_32px_rgba(0,0,0,.18)]"
             style={{
@@ -158,11 +170,40 @@ function MeishiCard({ meishi, isFlipped, onFlip }: {
   );
 }
 
+function ExchangeHistoryCard({ entry }: { readonly entry: ExchangeHistoryEntry }) {
+  return (
+    <div className="rounded-2xl border border-[#ececea] bg-[#f8f8f6] p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-bold text-[#1a1a1a]">
+            {entry.partnerMeishi.prefecture}の人と交換
+          </p>
+          <p className="mt-1 text-xs text-[#888]">{formatHistoryDate(entry.exchangedAt)}</p>
+        </div>
+        <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#555]">
+          {entry.matchCount}一致 / {entry.mismatchCount}不一致
+        </span>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {entry.partnerMeishi.topics.slice(0, 3).map(({ topic }) => (
+          <span
+            key={topic.id}
+            className="rounded-full bg-white px-2.5 py-1 text-[11px] font-medium text-[#666]"
+          >
+            {topic.text}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function MeishiPreviewPage() {
   const navigate = useNavigate();
   const prefecture = loadSelectedPrefecture();
   const topics = loadSelectedTopics();
   const partnerMeishi = loadPartnerMeishi();
+  const exchangeHistory = loadExchangeHistory();
   const [isFlipped, setIsFlipped] = useState(false);
 
   const meishi = useMemo<MeishiData | null>(() => {
@@ -208,7 +249,6 @@ export function MeishiPreviewPage() {
 
   return (
     <div className="mx-auto max-w-[420px] pb-8">
-      {/* ── Header ── */}
       <div className="relative flex items-center justify-center px-6 pt-5 pb-1">
         <span className="text-[17px] font-semibold text-[#1a1a1a]">じもと名刺</span>
       </div>
@@ -216,14 +256,12 @@ export function MeishiPreviewPage() {
         {meishi.prefecture}
       </p>
 
-      {/* ── 3D Flip Card ── */}
       <MeishiCard
         meishi={meishi}
         isFlipped={isFlipped}
         onFlip={() => setIsFlipped((prev) => !prev)}
       />
 
-      {/* ── Flip hint ── */}
       <button
         type="button"
         onClick={() => setIsFlipped((prev) => !prev)}
@@ -233,7 +271,6 @@ export function MeishiPreviewPage() {
         タップしてカードを{isFlipped ? "表に" : "裏返す"}
       </button>
 
-      {/* ── Action Buttons ── */}
       <div className="flex flex-col gap-3 px-5 pb-4">
         {partnerMeishi ? (
           <button
@@ -282,7 +319,6 @@ export function MeishiPreviewPage() {
         </button>
       </div>
 
-      {/* ── Topics Section ── */}
       <div className="mx-5 rounded-2xl border border-[#ececea] bg-white p-5">
         <h3 className="mb-4 text-base font-bold text-[#1a1a1a]">ネタ一覧</h3>
         <div className="divide-y divide-[#f0f0ee]">
@@ -314,6 +350,20 @@ export function MeishiPreviewPage() {
           ))}
         </div>
       </div>
+
+      {exchangeHistory.length > 0 && (
+        <div className="mx-5 mt-4 rounded-2xl border border-[#ececea] bg-white p-5">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-base font-bold text-[#1a1a1a]">交換履歴</h3>
+            <span className="text-xs font-medium text-[#888]">{exchangeHistory.length}件</span>
+          </div>
+          <div className="mt-4 space-y-3">
+            {exchangeHistory.map((entry) => (
+              <ExchangeHistoryCard key={entry.id} entry={entry} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
