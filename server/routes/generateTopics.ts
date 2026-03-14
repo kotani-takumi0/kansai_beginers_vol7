@@ -50,9 +50,18 @@ const parseTopicsFromResponse = (responseText: string): ReadonlyArray<Topic> => 
   });
 };
 
+const createOpenAIClient = () => {
+  if (!process.env.OPENAI_API_KEY) {
+    return null;
+  }
+
+  return new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+};
+
 export const createGenerateTopicsRouter = (): Router => {
   const router = Router();
-  const client = new OpenAI();
 
   router.post("/", async (req: Request, res: Response): Promise<void> => {
     const { prefecture } = req.body as { prefecture: unknown };
@@ -65,6 +74,15 @@ export const createGenerateTopicsRouter = (): Router => {
     }
 
     try {
+      const client = createOpenAIClient();
+
+      if (!client) {
+        res.status(503).json({
+          error: "ネタ生成APIの設定が未完了です。OPENAI_API_KEY を設定してください。",
+        });
+        return;
+      }
+
       const completion = await client.chat.completions.create({
         model: "gpt-4o-mini",
         max_tokens: 1024,

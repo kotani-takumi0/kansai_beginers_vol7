@@ -2,7 +2,7 @@ import { useEffect, useCallback, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useBumpDetection } from "../hooks/useBumpDetection";
 import { useExchangeSocket } from "../hooks/useExchangeSocket";
-import { loadMyMeishi, saveMyMeishi, savePartnerMeishi } from "../utils/appStorage";
+import { loadMyMeishi, savePartnerMeishi } from "../utils/appStorage";
 import { ExchangeAnimation } from "../components/ExchangeAnimation";
 import type { MeishiData } from "../types";
 
@@ -51,56 +51,6 @@ function MiniCard({ meishi }: { readonly meishi: MeishiData }) {
           />
         ))}
       </div>
-    </div>
-  );
-}
-
-function NameInputView({
-  name,
-  onChange,
-  onSubmit,
-}: {
-  readonly name: string;
-  readonly onChange: (value: string) => void;
-  readonly onSubmit: () => void;
-}) {
-  return (
-    <div className="flex flex-col gap-6 text-center">
-      <div className="text-5xl">📝</div>
-      <div>
-        <h2 className="text-lg font-bold text-[#1a1a1a]">
-          交換前に名前を入れましょう
-        </h2>
-        <p className="mt-2 text-sm text-[#888]">
-          交換相手の履歴に表示される名前です
-        </p>
-      </div>
-      <div className="text-left">
-        <label htmlFor="exchange-name" className="mb-2 block text-sm font-semibold text-[#555]">
-          あなたの名前
-        </label>
-        <input
-          id="exchange-name"
-          type="text"
-          value={name}
-          onChange={(event) => onChange(event.target.value)}
-          placeholder="例: みぞじり"
-          className="w-full rounded-2xl border border-[#e0e0dc] bg-[#f8f8f6] px-4 py-3.5 text-[15px] text-[#1a1a1a] outline-none transition focus:border-[#e85d3a]"
-          maxLength={20}
-        />
-      </div>
-      <button
-        type="button"
-        onClick={onSubmit}
-        disabled={name.trim().length === 0}
-        className={`rounded-2xl px-8 py-4 text-base font-bold text-white shadow-lg transition ${
-          name.trim().length > 0
-            ? "bg-[#e85d3a] active:scale-95"
-            : "cursor-not-allowed bg-[#e0e0dc] text-[#aaa] shadow-none"
-        }`}
-      >
-        名前を保存して交換へ進む
-      </button>
     </div>
   );
 }
@@ -235,8 +185,7 @@ function NoMeishiView({
 
 export function ExchangePage() {
   const navigate = useNavigate();
-  const [myMeishi, setMyMeishi] = useState<MeishiData | null>(() => loadMyMeishi());
-  const [nameInput, setNameInput] = useState(() => loadMyMeishi()?.name ?? "");
+  const myMeishi = loadMyMeishi();
   const [phase, setPhase] = useState<ExchangePhase>("permission");
   const hasNavigatedRef = useRef(false);
 
@@ -321,20 +270,6 @@ export function ExchangePage() {
     setPhase("waiting");
   };
 
-  const handleSaveName = () => {
-    if (!myMeishi || nameInput.trim().length === 0) {
-      return;
-    }
-
-    const updatedMeishi = {
-      ...myMeishi,
-      name: nameInput.trim(),
-    };
-
-    saveMyMeishi(updatedMeishi);
-    setMyMeishi(updatedMeishi);
-  };
-
   const handleGoToShare = () => {
     navigate("/share", { state: { meishi: myMeishi } });
   };
@@ -351,20 +286,6 @@ export function ExchangePage() {
     return (
       <div className="mx-auto flex min-h-[70vh] max-w-[420px] flex-col items-center justify-center px-5">
         <NoMeishiView onNavigate={() => navigate("/")} />
-      </div>
-    );
-  }
-
-  if (!myMeishi.name?.trim()) {
-    return (
-      <div className="mx-auto flex min-h-[70vh] max-w-[420px] flex-col items-center justify-center px-5">
-        <div className="w-full rounded-2xl border border-[#ececea] bg-white p-6 shadow-sm">
-          <NameInputView
-            name={nameInput}
-            onChange={setNameInput}
-            onSubmit={handleSaveName}
-          />
-        </div>
       </div>
     );
   }

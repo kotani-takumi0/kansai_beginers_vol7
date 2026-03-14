@@ -1,6 +1,7 @@
 import type { ExchangeHistoryEntry, MeishiData, TopicWithStance } from "../types";
 
 const PREFECTURE_KEY = "jimoto:selectedPrefecture";
+const NAME_KEY = "jimoto:selectedName";
 const TOPICS_KEY = "jimoto:selectedTopics";
 const PARTNER_MEISHI_KEY = "jimoto:partnerMeishi";
 const MY_MEISHI_KEY = "jimoto:myMeishi";
@@ -16,6 +17,22 @@ export function saveSelectedPrefecture(prefecture: string) {
   }
 
   window.sessionStorage.setItem(PREFECTURE_KEY, prefecture);
+}
+
+export function saveSelectedName(name: string) {
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.localStorage.setItem(NAME_KEY, name);
+}
+
+export function loadSelectedName(): string {
+  if (!isBrowser()) {
+    return "";
+  }
+
+  return window.localStorage.getItem(NAME_KEY) ?? "";
 }
 
 export function loadSelectedPrefecture(): string | null {

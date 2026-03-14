@@ -31,6 +31,19 @@ const createApp = () => {
 describe("POST /api/generate-topics", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    process.env.OPENAI_API_KEY = "test-key";
+  });
+
+  it("OPENAI_API_KEY が未設定でもルーター作成では落ちず、API呼び出し時に503を返す", async () => {
+    delete process.env.OPENAI_API_KEY;
+
+    const app = createApp();
+    const res = await request(app)
+      .post("/api/generate-topics")
+      .send({ prefecture: "大阪府" });
+
+    expect(res.status).toBe(503);
+    expect(res.body.error).toContain("OPENAI_API_KEY");
   });
 
   it("有効な都道府県名で3〜5個のTopicが返る", async () => {
