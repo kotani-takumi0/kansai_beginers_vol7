@@ -5,6 +5,7 @@ import { TopicGenerationPage } from "./pages/TopicGenerationPage";
 import { MeishiPreviewPage } from "./pages/MeishiPreviewPage";
 import { SharePage } from "./pages/SharePage";
 import { ReceivePage } from "./pages/ReceivePage";
+import { ScanPage } from "./pages/ScanPage";
 import { ComparisonPage } from "./pages/ComparisonPage";
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <Route path="/preview" element={<MeishiPreviewPage />} />
           <Route path="/share" element={<SharePage />} />
           <Route path="/receive" element={<ReceivePage />} />
+          <Route path="/scan" element={<ScanPage />} />
           <Route path="/comparison" element={<ComparisonPage />} />
         </Route>
       </Routes>

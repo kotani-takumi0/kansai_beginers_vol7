@@ -11,6 +11,7 @@ const renderPreviewPage = () =>
         <Route path="/preview" element={<MeishiPreviewPage />} />
         <Route path="/topics" element={<div>topics page</div>} />
         <Route path="/share" element={<div>share page</div>} />
+        <Route path="/scan" element={<div>scan page</div>} />
         <Route path="/" element={<div>home page</div>} />
       </Routes>
     </MemoryRouter>
@@ -55,10 +56,10 @@ describe("MeishiPreviewPage", () => {
 
     expect(screen.getAllByText("大阪府").length).toBeGreaterThan(0);
     expect(screen.getAllByText("たこ焼きは主食").length).toBeGreaterThan(0);
-    expect(screen.getByText("URLで共有する")).toBeDefined();
+    expect(screen.getByText("QRコードを読み取る")).toBeDefined();
   });
 
-  it("共有ボタンで共有画面へ進める", () => {
+  it("QR読み取りボタンでスキャン画面へ進める", () => {
     window.sessionStorage.setItem("jimoto:selectedPrefecture", "大阪府");
     window.sessionStorage.setItem(
       "jimoto:selectedTopics",
@@ -71,9 +72,9 @@ describe("MeishiPreviewPage", () => {
     );
 
     renderPreviewPage();
-    fireEvent.click(screen.getByText("URLで共有する"));
+    fireEvent.click(screen.getByText("QRコードを読み取る"));
 
-    expect(screen.getByText("share page")).toBeDefined();
+    expect(screen.getByText("scan page")).toBeDefined();
   });
 
   it("交換履歴がある場合は一覧を表示する", () => {

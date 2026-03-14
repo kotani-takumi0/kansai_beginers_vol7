@@ -1,5 +1,7 @@
 import { useMemo, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { QRCodeSVG } from "qrcode.react";
+import { toShareUrl } from "../utils/meishiEncoder";
 import type { ExchangeHistoryEntry, MeishiData } from "../types";
 import {
   loadExchangeHistory,
@@ -20,12 +22,16 @@ function createMeishiId() {
   return `meishi-${Date.now()}`;
 }
 
-function ShareIcon() {
+function QrIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
-      <polyline points="16 6 12 2 8 6" />
-      <line x1="12" y1="2" x2="12" y2="15" />
+      <rect x="3" y="3" width="7" height="7" />
+      <rect x="14" y="3" width="7" height="7" />
+      <rect x="3" y="14" width="7" height="7" />
+      <rect x="14" y="14" width="3" height="3" />
+      <line x1="21" y1="14" x2="21" y2="17" />
+      <line x1="14" y1="21" x2="17" y2="21" />
+      <line x1="21" y1="21" x2="21" y2="21" />
     </svg>
   );
 }
@@ -81,10 +87,12 @@ function formatHistoryDate(value: string) {
 
 function MeishiCard({
   meishi,
+  shareUrl,
   isFlipped,
   onFlip,
 }: {
   readonly meishi: MeishiData;
+  readonly shareUrl: string;
   readonly isFlipped: boolean;
   readonly onFlip: () => void;
 }) {
@@ -148,30 +156,22 @@ function MeishiCard({
             }}
           >
             <span className="absolute top-3 left-5 text-[10px] font-semibold tracking-[0.2em] text-white/50">
-              TOPICS
+              SCAN ME
             </span>
 
-            <div className="absolute top-8 right-5 left-5 bottom-3 flex flex-col justify-center gap-1.5 overflow-hidden">
-              {meishi.topics.map(({ topic, agrees }, index) => (
-                <div key={topic.id} className="flex items-center gap-2">
-                  <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-white/10 text-[9px] font-bold text-white/60">
-                    {index + 1}
-                  </span>
-                  <p className="flex-1 truncate text-[12px] leading-tight text-white/85">
-                    {topic.text}
-                  </p>
-                  <span
-                    className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
-                      agrees
-                        ? "bg-emerald-400/20 text-emerald-300"
-                        : "bg-orange-400/20 text-orange-300"
-                    }`}
-                  >
-                    {agrees ? "わかる" : "違う"}
-                  </span>
-                </div>
-              ))}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="rounded-xl bg-white p-2">
+                <QRCodeSVG
+                  value={shareUrl}
+                  size={100}
+                  level="M"
+                />
+              </div>
             </div>
+
+            <span className="absolute bottom-3 left-0 right-0 text-center text-[10px] font-medium text-white/40">
+              {meishi.prefecture}
+            </span>
           </div>
         </div>
       </div>
@@ -268,6 +268,7 @@ export function MeishiPreviewPage() {
 
       <MeishiCard
         meishi={meishi}
+        shareUrl={toShareUrl(meishi)}
         isFlipped={isFlipped}
         onFlip={() => setIsFlipped((prev) => !prev)}
       />
@@ -278,11 +279,11 @@ export function MeishiPreviewPage() {
         className="mx-auto mb-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-[#888] transition active:scale-95"
       >
         <FlipHint />
-        タップしてカードを{isFlipped ? "表に" : "裏返す"}
+        タップして{isFlipped ? "表に戻す" : "QRコードを表示"}
       </button>
 
       <div className="flex flex-col gap-3 px-5 pb-4">
-        {partnerMeishi ? (
+        {partnerMeishi && (
           <button
             type="button"
             onClick={() => {
@@ -296,16 +297,15 @@ export function MeishiPreviewPage() {
             <CompareIcon />
             名刺を比較
           </button>
-        ) : (
-          <button
-            type="button"
-            onClick={() => navigate("/share", { state: { meishi } })}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-4 text-[15px] font-semibold text-white shadow-lg transition active:scale-[0.98]"
-          >
-            <ShareIcon />
-            URLで共有する
-          </button>
         )}
+        <button
+          type="button"
+          onClick={() => navigate("/scan")}
+          className="flex items-center justify-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-4 text-[15px] font-semibold text-white shadow-lg transition active:scale-[0.98]"
+        >
+          <QrIcon />
+          QRコードを読み取る
+        </button>
         <button
           type="button"
           onClick={() => {
