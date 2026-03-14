@@ -177,7 +177,7 @@ describe("ExchangePage", () => {
   });
 
   // ── マッチング成功 ──
-  it("マッチング成功時はpartnerMeishiを保存して比較画面へ遷移する", async () => {
+  it("マッチング成功時はpartnerMeishiを保存して演出画面を表示する", async () => {
     mockBump.permissionState = "granted";
     mockBump.isListening = true;
     mockSocket.isMatched = true;
@@ -199,12 +199,10 @@ describe("ExchangePage", () => {
       expect(mockSavePartnerMeishi).toHaveBeenCalledWith(
         mockSocket.partnerMeishi
       );
-      expect(mockNavigate).toHaveBeenCalledWith("/comparison", {
-        state: {
-          myMeishi: mockMeishi,
-          partnerMeishi: mockSocket.partnerMeishi,
-        },
-      });
+      // 演出コンポーネントが表示される（直接遷移ではなく演出を挟む）
+      expect(
+        document.querySelector("[data-stage='impact']")
+      ).not.toBeNull();
     });
   });
 

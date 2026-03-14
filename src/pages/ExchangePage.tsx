@@ -3,12 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { useBumpDetection } from "../hooks/useBumpDetection";
 import { useExchangeSocket } from "../hooks/useExchangeSocket";
 import { loadMyMeishi, savePartnerMeishi } from "../utils/appStorage";
+import { ExchangeAnimation } from "../components/ExchangeAnimation";
 import type { MeishiData } from "../types";
 
 type ExchangePhase =
   | "permission"    // DeviceMotion許可取得前
   | "waiting"       // ぶつけ待機中
   | "bumped"        // bump検知→マッチング待ち
+  | "matched"       // マッチング成功→演出中
   | "timeout"       // マッチング失敗
   | "fallback";     // DeviceMotion非対応 or 許可denied
 
@@ -229,11 +231,17 @@ export function ExchangePage() {
     }
   }, [phase, socket.isWaiting, socket.isMatched]);
 
-  // マッチング成功 → 保存して遷移
+  // マッチング成功 → 演出フェーズへ
   useEffect(() => {
     if (socket.isMatched && socket.partnerMeishi && !hasNavigatedRef.current) {
       hasNavigatedRef.current = true;
       savePartnerMeishi(socket.partnerMeishi);
+      setPhase("matched");
+    }
+  }, [socket.isMatched, socket.partnerMeishi]);
+
+  const handleAnimationComplete = useCallback(() => {
+    if (myMeishi && socket.partnerMeishi) {
       navigate("/comparison", {
         state: {
           myMeishi: myMeishi,
@@ -241,7 +249,7 @@ export function ExchangePage() {
         },
       });
     }
-  }, [socket.isMatched, socket.partnerMeishi, myMeishi, navigate]);
+  }, [myMeishi, socket.partnerMeishi, navigate]);
 
   // クリーンアップ
   useEffect(() => {
@@ -276,6 +284,17 @@ export function ExchangePage() {
       <div className="mx-auto flex min-h-[70vh] max-w-[420px] flex-col items-center justify-center px-5">
         <NoMeishiView onNavigate={() => navigate("/")} />
       </div>
+    );
+  }
+
+  // ── 演出中（フルスクリーン） ──
+  if (phase === "matched" && socket.partnerMeishi) {
+    return (
+      <ExchangeAnimation
+        myMeishi={myMeishi}
+        partnerMeishi={socket.partnerMeishi}
+        onComplete={handleAnimationComplete}
+      />
     );
   }
 
