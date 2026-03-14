@@ -41,7 +41,7 @@ describe("SharePage", () => {
 
   it("名刺データがある場合はQRコードと共有URLを表示する", () => {
     renderWithRouter({ meishi: mockMeishi });
-    expect(screen.getByText("名刺を共有しよう")).toBeDefined();
+    expect(screen.getByText("名刺を共有")).toBeDefined();
     expect(screen.getByText("URLをコピー")).toBeDefined();
     // QRコードのSVGが存在する
     const svg = document.querySelector("svg");
@@ -115,8 +115,8 @@ describe("SharePage", () => {
     });
   });
 
-  it("トップに戻るボタンが表示される", () => {
+  it("名刺に戻るボタンが表示される", () => {
     renderWithRouter({ meishi: mockMeishi });
-    expect(screen.getByText("トップに戻る")).toBeDefined();
+    expect(screen.getByText("名刺に戻る")).toBeDefined();
   });
 });

@@ -19,6 +19,36 @@ function createMeishiId() {
   return `meishi-${Date.now()}`;
 }
 
+function ShareIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" y1="2" x2="12" y2="15" />
+    </svg>
+  );
+}
+
+function CompareIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M16 3h5v5" />
+      <line x1="21" y1="3" x2="14" y2="10" />
+      <path d="M8 21H3v-5" />
+      <line x1="3" y1="21" x2="10" y2="14" />
+    </svg>
+  );
+}
+
+function RefreshIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="23 4 23 10 17 10" />
+      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+    </svg>
+  );
+}
+
 export function MeishiPreviewPage() {
   const navigate = useNavigate();
   const prefecture = loadSelectedPrefecture();
@@ -35,7 +65,6 @@ export function MeishiPreviewPage() {
       };
     }
 
-    // sessionStorageにデータがなければlocalStorageから復元
     return loadMyMeishi();
   }, [prefecture, topics]);
 
@@ -47,27 +76,19 @@ export function MeishiPreviewPage() {
 
   if (!meishi) {
     return (
-      <div className="mx-auto flex min-h-[40vh] max-w-md flex-col items-center justify-center px-4 text-center">
-        <div className="rounded-[32px] border border-orange-100 bg-white px-6 py-8 shadow-sm">
-          <p className="text-sm font-semibold tracking-[0.2em] text-orange-500">PREVIEW</p>
-          <h2 className="mt-3 text-2xl font-bold text-gray-900">名刺データがありません</h2>
-          <p className="mt-3 text-sm leading-6 text-gray-500">
+      <div className="mx-auto flex min-h-[60vh] max-w-[420px] flex-col items-center justify-center px-5">
+        <div className="w-full rounded-2xl border border-[#ececea] bg-white p-6">
+          <h2 className="text-center text-lg font-bold text-[#1a1a1a]">名刺データがありません</h2>
+          <p className="mt-2 text-center text-sm text-[#888]">
             先に出身地を選んで、ネタの立場を決めてください。
           </p>
-          <div className="mt-6 flex flex-col gap-3">
+          <div className="mt-5 flex flex-col gap-3">
             <button
               type="button"
               onClick={() => navigate("/")}
-              className="rounded-full bg-linear-to-r from-orange-500 to-pink-500 px-5 py-3 font-bold text-white"
+              className="rounded-xl bg-[#e85d3a] px-5 py-3.5 text-[15px] font-semibold text-white"
             >
               最初からつくる
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/topics")}
-              className="rounded-full border border-gray-200 px-5 py-3 font-semibold text-gray-700"
-            >
-              ネタ選択に戻る
             </button>
           </div>
         </div>
@@ -76,93 +97,126 @@ export function MeishiPreviewPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-5 pb-8">
-      <section className="rounded-[28px] bg-linear-to-br from-slate-950 via-slate-900 to-orange-950 px-5 py-6 text-white shadow-xl">
-        <p className="text-xs font-semibold tracking-[0.24em] text-orange-300">JIMOTO MEISHI</p>
-        <div className="mt-4 flex items-start justify-between gap-4">
-          <div>
-            <h2 className="text-3xl font-bold tracking-tight">{meishi.prefecture}</h2>
-            <p className="mt-2 text-sm leading-6 text-white/70">
-              地元では普通。でも外に出ると会話になる、わたしの論点カード。
-            </p>
-          </div>
-          <div className="rounded-2xl border border-white/10 bg-white/10 px-3 py-2 text-right backdrop-blur-sm">
-            <p className="text-[10px] tracking-[0.18em] text-white/50">TOPICS</p>
-            <p className="text-2xl font-bold">{meishi.topics.length}</p>
-          </div>
-        </div>
+    <div className="mx-auto max-w-[420px] pb-8">
+      {/* ── Header ── */}
+      <div className="relative flex items-center justify-center px-6 pt-5 pb-1">
+        <span className="text-[17px] font-semibold text-[#1a1a1a]">じもと名刺</span>
+      </div>
+      <p className="mb-4 text-center text-sm font-medium text-[#888]">
+        {meishi.prefecture}
+      </p>
 
-        <div className="mt-6 space-y-3">
-          {meishi.topics.map(({ topic, agrees }, index) => (
-            <article
-              key={topic.id}
-              className="rounded-2xl border border-white/10 bg-white/8 px-4 py-4 backdrop-blur-sm"
-            >
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex h-7 min-w-7 items-center justify-center rounded-full bg-white/12 px-2 text-xs font-bold">
-                    {index + 1}
-                  </span>
-                  <span className="rounded-full bg-orange-400/15 px-2.5 py-1 text-[11px] font-semibold text-orange-200">
-                    {topic.category}
-                  </span>
-                </div>
+      {/* ── Card Visual ── */}
+      <div className="flex justify-center px-8 pb-6">
+        <div className="relative w-full max-w-[320px] overflow-hidden rounded-2xl bg-gradient-to-br from-[#2d2d3a] via-[#3a3a4a] to-[#2d2d3a] shadow-[0_8px_32px_rgba(0,0,0,.18)]"
+          style={{ aspectRatio: "1.586 / 1" }}
+        >
+          {/* JIMOTO MEISHI label */}
+          <span className="absolute top-4 left-5 text-[10px] font-semibold tracking-[0.2em] text-white/50">
+            JIMOTO MEISHI
+          </span>
+
+          {/* Prefecture */}
+          <h2 className="absolute top-10 left-5 text-2xl font-bold tracking-tight text-white">
+            {meishi.prefecture}
+          </h2>
+
+          {/* Topic count */}
+          <div className="absolute top-4 right-5 text-right">
+            <p className="text-[9px] tracking-[0.15em] text-white/40">TOPICS</p>
+            <p className="text-xl font-bold text-white/80">{meishi.topics.length}</p>
+          </div>
+
+          {/* Decorative accent */}
+          <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between">
+            <span className="text-[11px] font-medium text-white/30">
+              {new Date(meishi.createdAt).toLocaleDateString("ja-JP")}
+            </span>
+            <div className="flex gap-1">
+              {meishi.topics.map(({ agrees }, i) => (
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${
-                    agrees
-                      ? "bg-emerald-400/20 text-emerald-200"
-                      : "bg-sky-400/20 text-sky-200"
+                  key={i}
+                  className={`inline-block h-2 w-2 rounded-full ${
+                    agrees ? "bg-emerald-400/60" : "bg-orange-400/60"
                   }`}
-                >
-                  {agrees ? "わかる派" : "違う派"}
-                </span>
-              </div>
-              <p className="mt-3 text-sm leading-6 text-white/92">{topic.text}</p>
-            </article>
-          ))}
+                />
+              ))}
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
 
-      <section className="rounded-[28px] border border-gray-100 bg-white p-5 shadow-sm">
-        <h3 className="text-lg font-bold text-gray-900">この名刺でよければ共有へ</h3>
-        <p className="mt-2 text-sm leading-6 text-gray-500">
-          QR表示とURL共有は次の画面で行います。気になるなら一度ネタ選択に戻って調整できます。
-        </p>
-        <div className="mt-5 flex flex-col gap-3">
-          {partnerMeishi ? (
-            <button
-              type="button"
-              onClick={() => {
-                clearPartnerMeishi();
-                navigate("/comparison", {
-                  state: { myMeishi: meishi, partnerMeishi },
-                });
-              }}
-              className="rounded-full bg-linear-to-r from-emerald-500 to-teal-500 px-5 py-4 text-lg font-bold text-white shadow-lg transition hover:scale-[1.01] active:scale-95"
-            >
-              名刺を比較する
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => navigate("/share", { state: { meishi } })}
-              className="rounded-full bg-linear-to-r from-orange-500 to-pink-500 px-5 py-4 text-lg font-bold text-white shadow-lg transition hover:scale-[1.01] active:scale-95"
-            >
-              この名刺を共有する
-            </button>
-          )}
+      {/* ── Action Buttons ── */}
+      <div className="grid grid-cols-2 gap-3 px-5 pb-4">
+        {partnerMeishi ? (
           <button
             type="button"
             onClick={() => {
-              clearMyMeishi();
-              navigate("/");
+              clearPartnerMeishi();
+              navigate("/comparison", {
+                state: { myMeishi: meishi, partnerMeishi },
+              });
             }}
-            className="rounded-full border border-gray-200 px-5 py-4 font-semibold text-gray-700 transition hover:bg-gray-50"
+            className="flex flex-col items-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-5 text-[15px] font-semibold text-white"
           >
-            名刺を作り直す
+            <CompareIcon />
+            名刺を比較
           </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => navigate("/share", { state: { meishi } })}
+            className="flex flex-col items-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-5 text-[15px] font-semibold text-white"
+          >
+            <ShareIcon />
+            共有する
+          </button>
+        )}
+        <button
+          type="button"
+          onClick={() => {
+            clearMyMeishi();
+            navigate("/");
+          }}
+          className="flex flex-col items-center gap-2 rounded-2xl border border-[#e0e0dc] bg-white px-4 py-5 text-[15px] font-semibold text-[#e85d3a]"
+        >
+          <RefreshIcon />
+          作り直す
+        </button>
+      </div>
+
+      {/* ── Topics Section ── */}
+      <div className="mx-5 rounded-2xl border border-[#ececea] bg-white p-5">
+        <h3 className="mb-4 text-base font-bold text-[#1a1a1a]">ネタ一覧</h3>
+        <div className="divide-y divide-[#f0f0ee]">
+          {meishi.topics.map(({ topic, agrees }, index) => (
+            <div key={topic.id} className="flex items-start justify-between gap-3 py-3.5">
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f0f0ee] text-[11px] font-bold text-[#888]">
+                    {index + 1}
+                  </span>
+                  <span className="text-[11px] font-semibold text-[#888]">
+                    {topic.category}
+                  </span>
+                </div>
+                <p className="mt-1.5 text-[15px] leading-relaxed text-[#1a1a1a]">
+                  {topic.text}
+                </p>
+              </div>
+              <span
+                className={`mt-0.5 shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${
+                  agrees
+                    ? "bg-emerald-50 text-emerald-600"
+                    : "bg-orange-50 text-orange-600"
+                }`}
+              >
+                {agrees ? "わかる" : "違う"}
+              </span>
+            </div>
+          ))}
         </div>
-      </section>
+      </div>
     </div>
   );
 }
