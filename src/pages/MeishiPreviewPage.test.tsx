@@ -54,6 +54,8 @@ describe("MeishiPreviewPage", () => {
 
     renderPreviewPage();
 
+    expect(screen.getByText("大阪府の名刺が完成")).toBeDefined();
+    expect(screen.getByText("粉もん魂")).toBeDefined();
     expect(screen.getAllByText("大阪府").length).toBeGreaterThan(0);
     expect(screen.getAllByText("たこ焼きは主食").length).toBeGreaterThan(0);
     expect(screen.getByText("QRコードを読み取る")).toBeDefined();
