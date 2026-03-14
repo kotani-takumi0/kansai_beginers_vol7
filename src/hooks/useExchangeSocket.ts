@@ -49,12 +49,12 @@ export const useExchangeSocket: UseExchangeSocket = (myMeishi: MeishiData) => {
       setState((prev) => ({ ...prev, isConnected: false }));
     });
 
-    socket.on("matched", (partnerMeishi: MeishiData) => {
+    socket.on("matched", (data: { partnerMeishi: MeishiData }) => {
       setState((prev) => ({
         ...prev,
         isMatched: true,
         isWaiting: false,
-        partnerMeishi,
+        partnerMeishi: data.partnerMeishi,
       }));
     });
 
