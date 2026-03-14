@@ -215,19 +215,21 @@ export function MeishiPreviewPage() {
   const exchangeHistory = loadExchangeHistory();
   const [isFlipped, setIsFlipped] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const savedMeishi = loadMyMeishi();
 
   const meishi = useMemo<MeishiData | null>(() => {
     if (prefecture && topics.length > 0) {
       return {
         id: createMeishiId(),
+        name: savedMeishi?.name,
         prefecture,
         topics,
         createdAt: new Date().toISOString(),
       };
     }
 
-    return loadMyMeishi();
-  }, [prefecture, topics]);
+    return savedMeishi;
+  }, [prefecture, savedMeishi, topics]);
 
   useEffect(() => {
     if (meishi) {

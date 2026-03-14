@@ -158,11 +158,17 @@ export function ComparisonPage() {
       {/* 出身地表示 */}
       <div className="flex gap-4 mb-6 w-full">
         <div className="flex-1 text-center">
+          {result.myMeishi.name && (
+            <p className="mb-2 text-sm font-semibold text-gray-700">{result.myMeishi.name}</p>
+          )}
           <span className="inline-block px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-bold">
             {result.myMeishi.prefecture}
           </span>
         </div>
         <div className="flex-1 text-center">
+          {result.partnerMeishi.name && (
+            <p className="mb-2 text-sm font-semibold text-gray-700">{result.partnerMeishi.name}</p>
+          )}
           <span className="inline-block px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-sm font-bold">
             {result.partnerMeishi.prefecture}
           </span>
