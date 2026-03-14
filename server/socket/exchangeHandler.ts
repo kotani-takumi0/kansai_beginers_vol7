@@ -62,11 +62,12 @@ const validateBumpPayload = (
 export const setupExchangeSocket = (httpServer: HttpServer): SocketIOServer => {
   const pendingBumps: Map<string, BumpSession> = new Map();
 
+  const isProduction = process.env.NODE_ENV === "production";
+
   const io = new SocketIOServer(httpServer, {
-    cors: {
-      origin: "*",
-      methods: ["GET", "POST"],
-    },
+    cors: isProduction
+      ? undefined
+      : { origin: "*", methods: ["GET", "POST"] },
   });
 
   io.on("connection", (socket) => {
