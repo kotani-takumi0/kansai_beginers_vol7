@@ -129,7 +129,14 @@ describe("MeishiPreviewPage", () => {
 
     renderPreviewPage();
 
-    expect(screen.getByText("交換履歴")).toBeDefined();
+    const historyButton = screen.getByRole("button", { name: /交換履歴/ });
+    expect(historyButton).toBeDefined();
+
+    // ボタン押下前は履歴カードが非表示
+    expect(screen.queryByText("東京都の人と交換")).toBeNull();
+
+    // ボタンを押して履歴を表示
+    fireEvent.click(historyButton);
     expect(screen.getByText("東京都の人と交換")).toBeDefined();
     expect(screen.getByText("2一致 / 1不一致")).toBeDefined();
   });
