@@ -1,4 +1,5 @@
 import type { GenerateTopicsResponse, Topic } from "../types";
+import { buildBackendUrl } from "./backendUrl";
 
 const CATEGORY_LABELS = ["食文化", "習慣", "ことば", "くらし", "地元あるある"];
 
@@ -20,7 +21,7 @@ function buildFallbackTopics(prefecture: string): ReadonlyArray<Topic> {
 
 export async function generateTopics(prefecture: string): Promise<GenerateTopicsResponse> {
   try {
-    const response = await fetch("/api/topics", {
+    const response = await fetch(buildBackendUrl("/api/generate-topics"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

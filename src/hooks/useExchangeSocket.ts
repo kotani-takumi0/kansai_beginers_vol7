@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { io, type Socket } from "socket.io-client";
 import type { MeishiData } from "../types";
+import { resolveBackendOrigin } from "../utils/backendUrl";
 
 export interface ExchangeSocketState {
   readonly isConnected: boolean;
@@ -31,10 +32,7 @@ export const useExchangeSocket: UseExchangeSocket = (myMeishi: MeishiData) => {
   meishiRef.current = myMeishi;
 
   useEffect(() => {
-    const serverUrl =
-      typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
-
-    const socket = io(serverUrl, {
+    const socket = io(resolveBackendOrigin(), {
       autoConnect: true,
       reconnection: true,
     });

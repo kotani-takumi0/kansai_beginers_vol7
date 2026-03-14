@@ -4,6 +4,15 @@ import { renderHook, act } from "@testing-library/react";
 import { useExchangeSocket } from "./useExchangeSocket";
 import type { MeishiData } from "../types";
 
+const { mockResolveBackendOrigin, mockIo } = vi.hoisted(() => ({
+  mockResolveBackendOrigin: vi.fn(() => "http://192.168.0.10:3001"),
+  mockIo: vi.fn(),
+}));
+
+vi.mock("../utils/backendUrl", () => ({
+  resolveBackendOrigin: mockResolveBackendOrigin,
+}));
+
 // --- socket.io-client mock ---
 const mockOn = vi.fn();
 const mockEmit = vi.fn();
@@ -13,13 +22,15 @@ const mockOff = vi.fn();
 
 let connectHandler: (() => void) | undefined;
 let disconnectHandler: (() => void) | undefined;
-let matchedHandler: ((data: MeishiData) => void) | undefined;
+let matchedHandler: ((data: { partnerMeishi: MeishiData }) => void) | undefined;
 let timeoutHandler: (() => void) | undefined;
 
 mockOn.mockImplementation((event: string, handler: (...args: unknown[]) => void) => {
   if (event === "connect") connectHandler = handler;
   if (event === "disconnect") disconnectHandler = handler;
-  if (event === "matched") matchedHandler = handler as (data: MeishiData) => void;
+  if (event === "matched") {
+    matchedHandler = handler as (data: { partnerMeishi: MeishiData }) => void;
+  }
   if (event === "timeout") timeoutHandler = handler as () => void;
   return mockSocket;
 });
@@ -33,8 +44,10 @@ const mockSocket = {
   connected: false,
 };
 
+mockIo.mockImplementation(() => mockSocket);
+
 vi.mock("socket.io-client", () => ({
-  io: vi.fn(() => mockSocket),
+  io: mockIo,
 }));
 
 // --- test data ---
@@ -150,12 +163,22 @@ describe("useExchangeSocket", () => {
     });
 
     act(() => {
-      matchedHandler?.(partnerMeishi);
+      matchedHandler?.({ partnerMeishi });
     });
 
     expect(result.current.isMatched).toBe(true);
     expect(result.current.partnerMeishi).toEqual(partnerMeishi);
     expect(result.current.isWaiting).toBe(false);
+  });
+
+  it("ソケット接続先に解決済みのバックエンド URL を使う", () => {
+    renderHook(() => useExchangeSocket(myMeishi));
+
+    expect(mockResolveBackendOrigin).toHaveBeenCalledTimes(1);
+    expect(mockIo).toHaveBeenCalledWith("http://192.168.0.10:3001", {
+      autoConnect: true,
+      reconnection: true,
+    });
   });
 
   it("timeout イベントで isWaiting が false にリセットされる", () => {
@@ -184,7 +207,7 @@ describe("useExchangeSocket", () => {
     });
 
     act(() => {
-      matchedHandler?.(partnerMeishi);
+      matchedHandler?.({ partnerMeishi });
     });
     expect(result.current.isMatched).toBe(true);
 
