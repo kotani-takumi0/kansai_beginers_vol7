@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, Navigate } from "react-router-dom";
 import { saveSelectedPrefecture, loadMyMeishi } from "../utils/appStorage";
 
-// 地方ごとに都道府県をグループ化
 const PREFECTURE_GROUPS = [
   {
     region: "北海道・東北",
@@ -39,7 +38,6 @@ export function PrefectureSelectPage() {
   const [selectedPrefecture, setSelectedPrefecture] = useState<string | null>(null);
   const savedMeishi = loadMyMeishi();
 
-  // 名刺が保存済みなら自動的にプレビューへリダイレクト
   if (savedMeishi) {
     return <Navigate to="/preview" replace />;
   }
@@ -52,16 +50,20 @@ export function PrefectureSelectPage() {
   };
 
   return (
-    <div className="flex flex-col h-full max-w-md mx-auto relative pb-20">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-2">出身地はどこ？</h2>
-        <p className="text-sm text-gray-500">あなたの地元の話題で盛り上がりましょう</p>
+    <div className="mx-auto flex h-full max-w-[420px] flex-col pb-24">
+      {/* Header */}
+      <div className="px-6 pt-5 pb-1 text-center">
+        <h2 className="text-[17px] font-semibold text-[#1a1a1a]">出身地はどこ？</h2>
       </div>
+      <p className="mb-5 text-center text-sm font-medium text-[#888]">
+        あなたの地元の話題で盛り上がりましょう
+      </p>
 
-      <div className="flex-1 overflow-y-auto space-y-6 scrollbar-hide">
+      {/* Prefecture groups */}
+      <div className="flex-1 space-y-3 overflow-y-auto px-5 scrollbar-hide">
         {PREFECTURE_GROUPS.map((group) => (
-          <div key={group.region} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100">
-            <h3 className="text-md font-semibold text-pink-500 mb-3 border-b border-pink-100 pb-2">
+          <div key={group.region} className="rounded-2xl border border-[#ececea] bg-white p-4">
+            <h3 className="mb-3 border-b border-[#f0f0ee] pb-2 text-sm font-bold text-[#e85d3a]">
               {group.region}
             </h3>
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
@@ -71,14 +73,11 @@ export function PrefectureSelectPage() {
                   <button
                     key={pref}
                     onClick={() => setSelectedPrefecture(pref)}
-                    className={`
-                      min-h-[44px] py-2.5 px-1 text-sm rounded-lg transition-all duration-200 ease-in-out font-medium
-                      ${
-                        isSelected
-                          ? "bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-md transform scale-105"
-                          : "bg-gray-50 text-gray-700 hover:bg-orange-50 active:bg-orange-100 border border-transparent shadow-sm"
-                      }
-                    `}
+                    className={`min-h-[44px] rounded-xl px-1 py-2.5 text-sm font-medium transition-all duration-200 ${
+                      isSelected
+                        ? "bg-[#e85d3a] text-white shadow-md"
+                        : "border border-[#e0e0dc] bg-[#f8f8f6] text-[#555] active:bg-[#e8e8e4]"
+                    }`}
                   >
                     {pref}
                   </button>
@@ -89,28 +88,22 @@ export function PrefectureSelectPage() {
         ))}
       </div>
 
-      {/* フローティングアクションボタンエリア */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}>
-        <div className="max-w-md mx-auto">
+      {/* Floating action button */}
+      <div
+        className="fixed right-0 bottom-0 left-0 bg-gradient-to-t from-[#f8f8f6] via-[#f8f8f6] to-transparent p-4"
+        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}
+      >
+        <div className="mx-auto max-w-[420px]">
           <button
             onClick={handleNext}
             disabled={!selectedPrefecture}
-            className={`
-              w-full py-4 rounded-full font-bold text-lg shadow-lg flex items-center justify-center
-              transition-all duration-300 ease-out
-              ${
-                selectedPrefecture
-                  ? "bg-gradient-to-r from-orange-500 to-pink-500 text-white transform hover:scale-[1.02] active:scale-95 cursor-pointer"
-                  : "bg-gray-200 text-gray-400 cursor-not-allowed"
-              }
-            `}
+            className={`flex w-full items-center justify-center rounded-2xl py-4 text-[15px] font-semibold shadow-lg transition-all duration-200 ${
+              selectedPrefecture
+                ? "bg-[#e85d3a] text-white active:scale-[0.98]"
+                : "bg-[#e0e0dc] text-[#aaa] cursor-not-allowed"
+            }`}
           >
             {selectedPrefecture ? `${selectedPrefecture}で決定！` : "出身地を選択してください"}
-            {selectedPrefecture && (
-              <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            )}
           </button>
         </div>
       </div>
