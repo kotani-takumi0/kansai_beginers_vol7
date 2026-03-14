@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { saveSelectedPrefecture } from "../utils/appStorage";
+import { useNavigate, Navigate } from "react-router-dom";
+import { saveSelectedPrefecture, loadMyMeishi } from "../utils/appStorage";
 
 // 地方ごとに都道府県をグループ化
 const PREFECTURE_GROUPS = [
@@ -37,6 +37,12 @@ const PREFECTURE_GROUPS = [
 export function PrefectureSelectPage() {
   const navigate = useNavigate();
   const [selectedPrefecture, setSelectedPrefecture] = useState<string | null>(null);
+  const savedMeishi = loadMyMeishi();
+
+  // 名刺が保存済みなら自動的にプレビューへリダイレクト
+  if (savedMeishi) {
+    return <Navigate to="/preview" replace />;
+  }
 
   const handleNext = () => {
     if (selectedPrefecture) {
@@ -66,7 +72,7 @@ export function PrefectureSelectPage() {
                     key={pref}
                     onClick={() => setSelectedPrefecture(pref)}
                     className={`
-                      py-2 px-1 text-sm rounded-lg transition-all duration-200 ease-in-out font-medium
+                      min-h-[44px] py-2.5 px-1 text-sm rounded-lg transition-all duration-200 ease-in-out font-medium
                       ${
                         isSelected
                           ? "bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-md transform scale-105"
@@ -84,7 +90,7 @@ export function PrefectureSelectPage() {
       </div>
 
       {/* フローティングアクションボタンエリア */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent pb-6">
+      <div className="fixed bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-white via-white to-transparent" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}>
         <div className="max-w-md mx-auto">
           <button
             onClick={handleNext}

@@ -115,8 +115,8 @@ describe("SharePage", () => {
     });
   });
 
-  it("交換画面への導線が表示される", () => {
+  it("トップに戻るボタンが表示される", () => {
     renderWithRouter({ meishi: mockMeishi });
-    expect(screen.getByText("ぶつけて交換する")).toBeDefined();
+    expect(screen.getByText("トップに戻る")).toBeDefined();
   });
 });

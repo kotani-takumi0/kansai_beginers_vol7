@@ -1,6 +1,6 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
-import Anthropic from "@anthropic-ai/sdk";
+import OpenAI from "openai";
 import type { Topic } from "../../src/types";
 
 const PREFECTURES = [
@@ -52,7 +52,7 @@ const parseTopicsFromResponse = (responseText: string): ReadonlyArray<Topic> => 
 
 export const createGenerateTopicsRouter = (): Router => {
   const router = Router();
-  const client = new Anthropic();
+  const client = new OpenAI();
 
   router.post("/", async (req: Request, res: Response): Promise<void> => {
     const { prefecture } = req.body as { prefecture: unknown };
@@ -65,8 +65,8 @@ export const createGenerateTopicsRouter = (): Router => {
     }
 
     try {
-      const message = await client.messages.create({
-        model: "claude-haiku-4-5-20241022",
+      const completion = await client.chat.completions.create({
+        model: "gpt-4o-mini",
         max_tokens: 1024,
         messages: [
           {
@@ -76,15 +76,15 @@ export const createGenerateTopicsRouter = (): Router => {
         ],
       });
 
-      const textBlock = message.content.find((block) => block.type === "text");
-      if (!textBlock || textBlock.type !== "text") {
+      const content = completion.choices[0]?.message?.content;
+      if (!content) {
         res.status(500).json({
           error: "AIからのレスポンスを取得できませんでした。再試行してください。",
         });
         return;
       }
 
-      const topics = parseTopicsFromResponse(textBlock.text);
+      const topics = parseTopicsFromResponse(content);
 
       res.json({ topics, prefecture });
     } catch (error) {

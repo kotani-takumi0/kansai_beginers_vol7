@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: jimoto-meishi-app
+    runtime: node
+    plan: free
+    buildCommand: NODE_ENV=development npm install && npm run build
+    startCommand: NODE_ENV=production npx tsx server/index.ts
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
