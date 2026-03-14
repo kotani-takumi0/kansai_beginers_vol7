@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { MeishiData } from "../types";
 import {
@@ -49,11 +49,121 @@ function RefreshIcon() {
   );
 }
 
+function FlipHint() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="1 4 1 10 7 10" />
+      <polyline points="23 20 23 14 17 14" />
+      <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10" />
+      <path d="M3.51 15A9 9 0 0 0 18.36 18.36L23 14" />
+    </svg>
+  );
+}
+
+function MeishiCard({ meishi, isFlipped, onFlip }: {
+  readonly meishi: MeishiData;
+  readonly isFlipped: boolean;
+  readonly onFlip: () => void;
+}) {
+  return (
+    <div className="flex justify-center px-8 pb-2">
+      <div
+        className="w-full max-w-[320px] cursor-pointer"
+        style={{ perspective: "1000px" }}
+        onClick={onFlip}
+      >
+        <div
+          className="relative transition-transform duration-600 ease-in-out"
+          style={{
+            transformStyle: "preserve-3d",
+            transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
+          }}
+        >
+          {/* ── Front Face ── */}
+          <div
+            className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#2d2d3a] via-[#3a3a4a] to-[#2d2d3a] shadow-[0_8px_32px_rgba(0,0,0,.18)]"
+            style={{
+              aspectRatio: "1.586 / 1",
+              backfaceVisibility: "hidden",
+            }}
+          >
+            <span className="absolute top-4 left-5 text-[10px] font-semibold tracking-[0.2em] text-white/50">
+              JIMOTO MEISHI
+            </span>
+
+            <h2 className="absolute top-10 left-5 text-2xl font-bold tracking-tight text-white">
+              {meishi.prefecture}
+            </h2>
+
+            <div className="absolute top-4 right-5 text-right">
+              <p className="text-[9px] tracking-[0.15em] text-white/40">TOPICS</p>
+              <p className="text-xl font-bold text-white/80">{meishi.topics.length}</p>
+            </div>
+
+            <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between">
+              <span className="text-[11px] font-medium text-white/30">
+                {new Date(meishi.createdAt).toLocaleDateString("ja-JP")}
+              </span>
+              <div className="flex gap-1">
+                {meishi.topics.map(({ agrees }, i) => (
+                  <span
+                    key={i}
+                    className={`inline-block h-2 w-2 rounded-full ${
+                      agrees ? "bg-emerald-400/60" : "bg-orange-400/60"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ── Back Face ── */}
+          <div
+            className="absolute inset-0 w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#3a3a2d] via-[#4a4a3a] to-[#3a3a2d] shadow-[0_8px_32px_rgba(0,0,0,.18)]"
+            style={{
+              aspectRatio: "1.586 / 1",
+              backfaceVisibility: "hidden",
+              transform: "rotateY(180deg)",
+            }}
+          >
+            <span className="absolute top-3 left-5 text-[10px] font-semibold tracking-[0.2em] text-white/50">
+              TOPICS
+            </span>
+
+            <div className="absolute top-8 right-5 left-5 bottom-3 flex flex-col justify-center gap-1.5 overflow-hidden">
+              {meishi.topics.map(({ topic, agrees }, index) => (
+                <div key={topic.id} className="flex items-center gap-2">
+                  <span className="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-white/10 text-[9px] font-bold text-white/60">
+                    {index + 1}
+                  </span>
+                  <p className="flex-1 truncate text-[12px] leading-tight text-white/85">
+                    {topic.text}
+                  </p>
+                  <span
+                    className={`shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-bold ${
+                      agrees
+                        ? "bg-emerald-400/20 text-emerald-300"
+                        : "bg-orange-400/20 text-orange-300"
+                    }`}
+                  >
+                    {agrees ? "わかる" : "違う"}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function MeishiPreviewPage() {
   const navigate = useNavigate();
   const prefecture = loadSelectedPrefecture();
   const topics = loadSelectedTopics();
   const partnerMeishi = loadPartnerMeishi();
+  const [isFlipped, setIsFlipped] = useState(false);
 
   const meishi = useMemo<MeishiData | null>(() => {
     if (prefecture && topics.length > 0) {
@@ -106,45 +216,22 @@ export function MeishiPreviewPage() {
         {meishi.prefecture}
       </p>
 
-      {/* ── Card Visual ── */}
-      <div className="flex justify-center px-8 pb-6">
-        <div className="relative w-full max-w-[320px] overflow-hidden rounded-2xl bg-gradient-to-br from-[#2d2d3a] via-[#3a3a4a] to-[#2d2d3a] shadow-[0_8px_32px_rgba(0,0,0,.18)]"
-          style={{ aspectRatio: "1.586 / 1" }}
-        >
-          {/* JIMOTO MEISHI label */}
-          <span className="absolute top-4 left-5 text-[10px] font-semibold tracking-[0.2em] text-white/50">
-            JIMOTO MEISHI
-          </span>
+      {/* ── 3D Flip Card ── */}
+      <MeishiCard
+        meishi={meishi}
+        isFlipped={isFlipped}
+        onFlip={() => setIsFlipped((prev) => !prev)}
+      />
 
-          {/* Prefecture */}
-          <h2 className="absolute top-10 left-5 text-2xl font-bold tracking-tight text-white">
-            {meishi.prefecture}
-          </h2>
-
-          {/* Topic count */}
-          <div className="absolute top-4 right-5 text-right">
-            <p className="text-[9px] tracking-[0.15em] text-white/40">TOPICS</p>
-            <p className="text-xl font-bold text-white/80">{meishi.topics.length}</p>
-          </div>
-
-          {/* Decorative accent */}
-          <div className="absolute bottom-4 left-5 right-5 flex items-end justify-between">
-            <span className="text-[11px] font-medium text-white/30">
-              {new Date(meishi.createdAt).toLocaleDateString("ja-JP")}
-            </span>
-            <div className="flex gap-1">
-              {meishi.topics.map(({ agrees }, i) => (
-                <span
-                  key={i}
-                  className={`inline-block h-2 w-2 rounded-full ${
-                    agrees ? "bg-emerald-400/60" : "bg-orange-400/60"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* ── Flip hint ── */}
+      <button
+        type="button"
+        onClick={() => setIsFlipped((prev) => !prev)}
+        className="mx-auto mb-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-[#888] transition active:scale-95"
+      >
+        <FlipHint />
+        タップしてカードを{isFlipped ? "表に" : "裏返す"}
+      </button>
 
       {/* ── Action Buttons ── */}
       <div className="grid grid-cols-2 gap-3 px-5 pb-4">
