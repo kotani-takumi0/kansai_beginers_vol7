@@ -62,6 +62,7 @@ vi.mock("../hooks/useExchangeSocket", () => ({
 
 const mockMeishi = {
   id: "test-id",
+  name: "みぞじり",
   prefecture: "大阪府",
   topics: [
     {
@@ -74,9 +75,11 @@ const mockMeishi = {
 
 const mockLoadMyMeishi = vi.fn((): MeishiData | null => mockMeishi);
 const mockSavePartnerMeishi = vi.fn();
+const mockSaveMyMeishi = vi.fn();
 
 vi.mock("../utils/appStorage", () => ({
   loadMyMeishi: () => mockLoadMyMeishi(),
+  saveMyMeishi: (meishi: MeishiData) => mockSaveMyMeishi(meishi),
   savePartnerMeishi: (meishi: MeishiData) => mockSavePartnerMeishi(meishi),
 }));
 
@@ -98,6 +101,7 @@ describe("ExchangePage", () => {
     mockSocket.isWaiting = false;
     mockSocket.isMatched = false;
     mockSocket.partnerMeishi = null;
+    mockLoadMyMeishi.mockReturnValue(mockMeishi);
   });
 
   afterEach(() => {
@@ -116,6 +120,26 @@ describe("ExchangePage", () => {
 
     expect(screen.getByText("名刺がまだありません")).toBeDefined();
     expect(screen.getByText("名刺をつくる")).toBeDefined();
+  });
+
+  it("名前が未入力の場合は先に入力フォームを表示する", () => {
+    mockLoadMyMeishi.mockReturnValue({
+      ...mockMeishi,
+      name: undefined,
+    });
+
+    renderPage();
+
+    expect(screen.getByText("交換前に名前を入れましょう")).toBeDefined();
+    fireEvent.change(screen.getByLabelText("あなたの名前"), {
+      target: { value: "こたに" },
+    });
+    fireEvent.click(screen.getByText("名前を保存して交換へ進む"));
+
+    expect(mockSaveMyMeishi).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "こたに" })
+    );
+    expect(screen.getByText("センサーをONにする")).toBeDefined();
   });
 
   // ── 許可取得前 ──
@@ -183,6 +207,7 @@ describe("ExchangePage", () => {
     mockSocket.isMatched = true;
     mockSocket.partnerMeishi = {
       id: "partner-id",
+      name: "たなか",
       prefecture: "京都府",
       topics: [
         {
