@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { SharePage } from "./SharePage";
 import type { MeishiData } from "../types";
@@ -67,6 +67,52 @@ describe("SharePage", () => {
     expect(writeText).toHaveBeenCalledWith(
       expect.stringContaining("/receive?d=")
     );
+  });
+
+  it("クリップボードAPIが失敗してもフォールバックで例外にならない", () => {
+    const writeText = vi.fn().mockRejectedValue(new Error("copy failed"));
+    const execCommand = vi.fn().mockReturnValue(false);
+
+    Object.assign(navigator, {
+      clipboard: { writeText },
+    });
+    Object.defineProperty(document, "execCommand", {
+      value: execCommand,
+      configurable: true,
+    });
+
+    renderWithRouter({ meishi: mockMeishi });
+    fireEvent.click(screen.getByText("URLをコピー"));
+
+    return waitFor(() => {
+      expect(writeText).toHaveBeenCalled();
+      expect(execCommand).toHaveBeenCalledWith("copy");
+    });
+  });
+
+  it("ネイティブ共有が失敗した場合はコピーにフォールバックする", () => {
+    const share = vi.fn().mockRejectedValue(new Error("share failed"));
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    Object.assign(navigator, {
+      share,
+      clipboard: { writeText },
+    });
+
+    renderWithRouter({ meishi: mockMeishi });
+    fireEvent.click(screen.getByText("共有メニューで送る"));
+
+    return waitFor(() => {
+      expect(share).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "地元名刺",
+          text: "大阪府の地元名刺を見てね！",
+        })
+      );
+      expect(writeText).toHaveBeenCalledWith(
+        expect.stringContaining("/receive?d=")
+      );
+    });
   });
 
   it("交換画面への導線が表示される", () => {
