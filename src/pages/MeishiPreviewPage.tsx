@@ -299,24 +299,14 @@ export function MeishiPreviewPage() {
             名刺を比較
           </button>
         ) : (
-          <>
-            <button
-              type="button"
-              onClick={() => navigate("/exchange")}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-4 text-[15px] font-semibold text-white shadow-lg transition active:scale-[0.98]"
-            >
-              <span className="text-lg">📱</span>
-              ぶつけて交換
-            </button>
-            <button
-              type="button"
-              onClick={() => navigate("/share", { state: { meishi } })}
-              className="flex items-center justify-center gap-2 rounded-2xl border border-[#e0e0dc] bg-white px-4 py-3.5 text-[14px] font-semibold text-[#888] transition active:scale-[0.98]"
-            >
-              <ShareIcon />
-              URLで共有する
-            </button>
-          </>
+          <button
+            type="button"
+            onClick={() => navigate("/share", { state: { meishi } })}
+            className="flex items-center justify-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-4 text-[15px] font-semibold text-white shadow-lg transition active:scale-[0.98]"
+          >
+            <ShareIcon />
+            URLで共有する
+          </button>
         )}
         <button
           type="button"
