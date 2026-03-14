@@ -103,12 +103,12 @@ export function SharePage() {
         </button>
       )}
 
-      {/* 交換画面への導線 */}
+      {/* トップに戻る */}
       <button
-        onClick={() => navigate("/exchange", { state: { meishi } })}
-        className="w-full py-3 border-2 border-blue-500 text-blue-500 rounded-xl font-bold hover:bg-blue-50 transition-colors"
+        onClick={() => navigate("/")}
+        className="w-full py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-bold hover:bg-gray-50 transition-colors"
       >
-        ぶつけて交換する
+        トップに戻る
       </button>
     </div>
   );
