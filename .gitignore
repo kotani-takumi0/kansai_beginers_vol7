@@ -1,2 +1,4 @@
 .claude/
 .kiro/settings/
+node_modules/
+dist/
