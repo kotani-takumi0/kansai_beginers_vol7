@@ -12,8 +12,14 @@ export const compareMeishi = (
   myMeishi: MeishiData,
   partnerMeishi: MeishiData
 ): ComparisonResult => {
-  const matches: ReadonlyArray<TopicMatch> = myMeishi.topics.map(
-    (myTopic, index) => {
+  const minLength = Math.min(
+    myMeishi.topics.length,
+    partnerMeishi.topics.length
+  );
+
+  const matches: ReadonlyArray<TopicMatch> = myMeishi.topics
+    .slice(0, minLength)
+    .map((myTopic, index) => {
       const partnerTopic = partnerMeishi.topics[index];
       const isMatch = myTopic.agrees === partnerTopic.agrees;
 
@@ -24,8 +30,7 @@ export const compareMeishi = (
         partnerStance: partnerTopic.agrees,
         isMatch,
       };
-    }
-  );
+    });
 
   const matchCount = matches.filter((m) => m.isMatch).length;
 
