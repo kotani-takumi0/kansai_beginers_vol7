@@ -1,11 +1,9 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createServer } from "node:http";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import { createGenerateTopicsRouter } from "./routes/generateTopics";
-import { setupExchangeSocket } from "./socket/exchangeHandler";
 
 dotenv.config();
 
@@ -36,9 +34,6 @@ if (isProduction) {
   });
 }
 
-const httpServer = createServer(app);
-setupExchangeSocket(httpServer);
-
-httpServer.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
