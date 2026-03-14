@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { render, screen, fireEvent, cleanup, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { SharePage } from "./SharePage";
 import type { MeishiData } from "../types";
@@ -41,7 +41,7 @@ describe("SharePage", () => {
 
   it("名刺データがある場合はQRコードと共有URLを表示する", () => {
     renderWithRouter({ meishi: mockMeishi });
-    expect(screen.getByText("名刺を共有しよう")).toBeDefined();
+    expect(screen.getByText("名刺を共有")).toBeDefined();
     expect(screen.getByText("URLをコピー")).toBeDefined();
     // QRコードのSVGが存在する
     const svg = document.querySelector("svg");
@@ -69,8 +69,54 @@ describe("SharePage", () => {
     );
   });
 
-  it("トップに戻るボタンが表示される", () => {
+  it("クリップボードAPIが失敗してもフォールバックで例外にならない", () => {
+    const writeText = vi.fn().mockRejectedValue(new Error("copy failed"));
+    const execCommand = vi.fn().mockReturnValue(false);
+
+    Object.assign(navigator, {
+      clipboard: { writeText },
+    });
+    Object.defineProperty(document, "execCommand", {
+      value: execCommand,
+      configurable: true,
+    });
+
     renderWithRouter({ meishi: mockMeishi });
-    expect(screen.getByText("トップに戻る")).toBeDefined();
+    fireEvent.click(screen.getByText("URLをコピー"));
+
+    return waitFor(() => {
+      expect(writeText).toHaveBeenCalled();
+      expect(execCommand).toHaveBeenCalledWith("copy");
+    });
+  });
+
+  it("ネイティブ共有が失敗した場合はコピーにフォールバックする", () => {
+    const share = vi.fn().mockRejectedValue(new Error("share failed"));
+    const writeText = vi.fn().mockResolvedValue(undefined);
+
+    Object.assign(navigator, {
+      share,
+      clipboard: { writeText },
+    });
+
+    renderWithRouter({ meishi: mockMeishi });
+    fireEvent.click(screen.getByText("共有メニューで送る"));
+
+    return waitFor(() => {
+      expect(share).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "地元名刺",
+          text: "大阪府の地元名刺を見てね！",
+        })
+      );
+      expect(writeText).toHaveBeenCalledWith(
+        expect.stringContaining("/receive?d=")
+      );
+    });
+  });
+
+  it("名刺に戻るボタンが表示される", () => {
+    renderWithRouter({ meishi: mockMeishi });
+    expect(screen.getByText("名刺に戻る")).toBeDefined();
   });
 });

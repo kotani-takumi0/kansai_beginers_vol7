@@ -4,6 +4,31 @@ import { QRCodeSVG } from "qrcode.react";
 import { toShareUrl } from "../utils/meishiEncoder";
 import type { MeishiData } from "../types";
 
+function resetCopiedState(setCopied: (value: boolean) => void) {
+  setCopied(true);
+  window.setTimeout(() => setCopied(false), 2000);
+}
+
+function fallbackCopyToClipboard(text: string): boolean {
+  if (typeof document === "undefined" || typeof document.execCommand !== "function") {
+    return false;
+  }
+
+  const textArea = document.createElement("textarea");
+  textArea.value = text;
+  textArea.setAttribute("readonly", "");
+  textArea.style.position = "absolute";
+  textArea.style.left = "-9999px";
+  document.body.appendChild(textArea);
+  textArea.select();
+
+  try {
+    return document.execCommand("copy");
+  } finally {
+    document.body.removeChild(textArea);
+  }
+}
+
 export function SharePage() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -11,37 +36,49 @@ export function SharePage() {
   const [copied, setCopied] = useState(false);
 
   const shareUrl = meishi ? toShareUrl(meishi) : "";
+  const shareText = meishi ? `${meishi.prefecture}の地元名刺を見てね！` : "";
 
   const handleCopy = useCallback(async () => {
     if (!shareUrl) return;
+
     try {
       await navigator.clipboard.writeText(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      resetCopiedState(setCopied);
     } catch {
-      const textArea = document.createElement("textarea");
-      textArea.value = shareUrl;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand("copy");
-      document.body.removeChild(textArea);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+      if (fallbackCopyToClipboard(shareUrl)) {
+        resetCopiedState(setCopied);
+      }
     }
   }, [shareUrl]);
 
   const handleNativeShare = useCallback(async () => {
-    if (!navigator.share || !shareUrl) return;
-    try {
-      await navigator.share({
-        title: "地元名刺",
-        text: `${meishi?.prefecture}の地元名刺を見てね！`,
-        url: shareUrl,
-      });
-    } catch {
-      // ユーザーがキャンセルした場合は何もしない
+    if (!shareUrl) return;
+
+    if (typeof navigator === "undefined" || typeof navigator.share !== "function") {
+      await handleCopy();
+      return;
     }
-  }, [shareUrl, meishi?.prefecture]);
+
+    try {
+      const shareData = {
+        title: "地元名刺",
+        text: shareText,
+        url: shareUrl,
+      };
+
+      if (
+        typeof navigator.canShare === "function" &&
+        !navigator.canShare({ url: shareUrl })
+      ) {
+        await handleCopy();
+        return;
+      }
+
+      await navigator.share(shareData);
+    } catch {
+      await handleCopy();
+    }
+  }, [handleCopy, shareText, shareUrl]);
 
   if (!meishi) {
     return (
