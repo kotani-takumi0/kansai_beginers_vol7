@@ -19,7 +19,6 @@ export function SharePage() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // フォールバック: 古いブラウザ対応
       const textArea = document.createElement("textarea");
       textArea.value = shareUrl;
       document.body.appendChild(textArea);
@@ -46,70 +45,80 @@ export function SharePage() {
 
   if (!meishi) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[40vh] px-4">
-        <p className="text-gray-600 text-lg mb-4">名刺データがありません</p>
-        <button
-          onClick={() => navigate("/")}
-          className="px-6 py-3 min-h-[44px] bg-blue-500 text-white rounded-xl font-bold"
-        >
-          名刺を作る
-        </button>
+      <div className="mx-auto flex min-h-[60vh] max-w-[420px] flex-col items-center justify-center px-5">
+        <div className="w-full rounded-2xl border border-[#ececea] bg-white p-6 text-center">
+          <h2 className="text-lg font-bold text-[#1a1a1a]">名刺データがありません</h2>
+          <button
+            onClick={() => navigate("/")}
+            className="mt-4 w-full rounded-xl bg-[#e85d3a] px-5 py-3.5 text-[15px] font-semibold text-white"
+          >
+            名刺を作る
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col items-center px-4 py-8 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-2">名刺を共有しよう</h1>
-      <p className="text-gray-500 text-sm mb-8">
+    <div className="mx-auto max-w-[420px] pb-8">
+      {/* Header */}
+      <div className="px-6 pt-5 pb-1 text-center">
+        <span className="text-[17px] font-semibold text-[#1a1a1a]">名刺を共有</span>
+      </div>
+      <p className="mb-6 text-center text-sm font-medium text-[#888]">
         QRコードを見せるか、URLを送ってね
       </p>
 
-      {/* QRコード */}
-      <div className="bg-white p-6 rounded-2xl shadow-lg mb-8">
+      {/* QR Code */}
+      <div className="mx-5 mb-4 flex justify-center rounded-2xl border border-[#ececea] bg-white p-6">
         <QRCodeSVG
           value={shareUrl}
-          size={220}
+          size={200}
           level="M"
           includeMargin
         />
       </div>
 
-      {/* 共有URL表示 & コピー */}
-      <div className="w-full mb-6">
+      {/* URL & Copy */}
+      <div className="mx-5 mb-4 rounded-2xl border border-[#ececea] bg-white p-5">
+        <h3 className="mb-3 text-base font-bold text-[#1a1a1a]">共有URL</h3>
         <div
-          onClick={handleCopy}
-          className="w-full p-4 bg-gray-100 rounded-xl text-sm text-gray-700 break-all cursor-pointer hover:bg-gray-200 transition-colors"
+          onClick={() => void handleCopy()}
+          className="cursor-pointer rounded-xl bg-[#f8f8f6] p-3 text-[13px] leading-relaxed text-[#555] break-all transition hover:bg-[#f0f0ee]"
         >
           {shareUrl}
         </div>
         <button
-          onClick={handleCopy}
-          className={`w-full mt-3 py-3 rounded-xl font-bold text-white transition-colors ${
-            copied ? "bg-green-500" : "bg-blue-500 hover:bg-blue-600"
+          onClick={() => void handleCopy()}
+          className={`mt-3 w-full rounded-xl py-3.5 text-[15px] font-semibold text-white transition ${
+            copied ? "bg-emerald-500" : "bg-[#e85d3a]"
           }`}
         >
           {copied ? "コピーしました！" : "URLをコピー"}
         </button>
       </div>
 
-      {/* ネイティブ共有（対応端末のみ） */}
+      {/* Native share */}
       {typeof navigator !== "undefined" && "share" in navigator && (
-        <button
-          onClick={handleNativeShare}
-          className="w-full py-3 bg-purple-500 hover:bg-purple-600 text-white rounded-xl font-bold mb-6 transition-colors"
-        >
-          共有メニューで送る
-        </button>
+        <div className="mx-5 mb-4">
+          <button
+            onClick={() => void handleNativeShare()}
+            className="w-full rounded-2xl border border-[#e0e0dc] bg-white px-4 py-4 text-[15px] font-semibold text-[#e85d3a] transition"
+          >
+            共有メニューで送る
+          </button>
+        </div>
       )}
 
-      {/* トップに戻る */}
-      <button
-        onClick={() => navigate("/")}
-        className="w-full py-3 border-2 border-gray-300 text-gray-600 rounded-xl font-bold hover:bg-gray-50 transition-colors"
-      >
-        トップに戻る
-      </button>
+      {/* Back */}
+      <div className="mx-5">
+        <button
+          onClick={() => navigate("/preview")}
+          className="w-full rounded-2xl border border-[#e0e0dc] bg-white px-4 py-4 text-[15px] font-semibold text-[#555] transition"
+        >
+          名刺に戻る
+        </button>
+      </div>
     </div>
   );
 }
