@@ -37,7 +37,7 @@ export function MeishiPreviewPage() {
 
   if (!meishi) {
     return (
-      <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-4 text-center">
+      <div className="mx-auto flex min-h-[40vh] max-w-md flex-col items-center justify-center px-4 text-center">
         <div className="rounded-[32px] border border-orange-100 bg-white px-6 py-8 shadow-sm">
           <p className="text-sm font-semibold tracking-[0.2em] text-orange-500">PREVIEW</p>
           <h2 className="mt-3 text-2xl font-bold text-gray-900">名刺データがありません</h2>

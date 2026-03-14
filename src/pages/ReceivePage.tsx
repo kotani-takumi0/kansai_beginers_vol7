@@ -23,12 +23,12 @@ export function ReceivePage() {
 
   if (error || !meishi) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+      <div className="flex flex-col items-center justify-center min-h-[40vh] px-4">
         <p className="text-red-500 text-lg font-bold mb-2">エラー</p>
         <p className="text-gray-600 mb-6">{error}</p>
         <button
           onClick={() => navigate("/")}
-          className="px-6 py-3 bg-blue-500 text-white rounded-xl font-bold"
+          className="px-6 py-3 min-h-[44px] bg-blue-500 text-white rounded-xl font-bold"
         >
           自分の名刺を作る
         </button>

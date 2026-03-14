@@ -154,7 +154,7 @@ export function TopicGenerationPage() {
             type="button"
             onClick={() => void handleRegenerate()}
             disabled={isLoading}
-            className="rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+            className="rounded-full border border-white/30 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60 min-h-[44px]"
           >
             別のネタにする
           </button>
@@ -256,7 +256,7 @@ export function TopicGenerationPage() {
           })}
       </section>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent px-4 pb-6 pt-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-gradient-to-t from-white via-white to-transparent px-4 pt-4" style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}>
         <div className="mx-auto max-w-md">
           <button
             type="button"
