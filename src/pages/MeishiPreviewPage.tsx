@@ -234,7 +234,7 @@ export function MeishiPreviewPage() {
       </button>
 
       {/* ── Action Buttons ── */}
-      <div className="grid grid-cols-2 gap-3 px-5 pb-4">
+      <div className="flex flex-col gap-3 px-5 pb-4">
         {partnerMeishi ? (
           <button
             type="button"
@@ -244,20 +244,30 @@ export function MeishiPreviewPage() {
                 state: { myMeishi: meishi, partnerMeishi },
               });
             }}
-            className="flex flex-col items-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-5 text-[15px] font-semibold text-white"
+            className="flex items-center justify-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-4 text-[15px] font-semibold text-white"
           >
             <CompareIcon />
             名刺を比較
           </button>
         ) : (
-          <button
-            type="button"
-            onClick={() => navigate("/share", { state: { meishi } })}
-            className="flex flex-col items-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-5 text-[15px] font-semibold text-white"
-          >
-            <ShareIcon />
-            共有する
-          </button>
+          <>
+            <button
+              type="button"
+              onClick={() => navigate("/exchange")}
+              className="flex items-center justify-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-4 text-[15px] font-semibold text-white shadow-lg transition active:scale-[0.98]"
+            >
+              <span className="text-lg">📱</span>
+              ぶつけて交換
+            </button>
+            <button
+              type="button"
+              onClick={() => navigate("/share", { state: { meishi } })}
+              className="flex items-center justify-center gap-2 rounded-2xl border border-[#e0e0dc] bg-white px-4 py-3.5 text-[14px] font-semibold text-[#888] transition active:scale-[0.98]"
+            >
+              <ShareIcon />
+              URLで共有する
+            </button>
+          </>
         )}
         <button
           type="button"
@@ -265,7 +275,7 @@ export function MeishiPreviewPage() {
             clearMyMeishi();
             navigate("/");
           }}
-          className="flex flex-col items-center gap-2 rounded-2xl border border-[#e0e0dc] bg-white px-4 py-5 text-[15px] font-semibold text-[#e85d3a]"
+          className="flex items-center justify-center gap-2 rounded-2xl border border-[#e0e0dc] bg-white px-4 py-3.5 text-[14px] font-semibold text-[#e85d3a] transition active:scale-[0.98]"
         >
           <RefreshIcon />
           作り直す

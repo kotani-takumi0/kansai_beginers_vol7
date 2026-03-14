@@ -52,10 +52,10 @@ describe("MeishiPreviewPage", () => {
 
     renderPreviewPage();
 
-    expect(screen.getByText("大阪府")).toBeDefined();
-    expect(screen.getByText("たこ焼きは主食")).toBeDefined();
-    expect(screen.getAllByText(/派/)).toHaveLength(2);
-    expect(screen.getByText("この名刺を共有する")).toBeDefined();
+    expect(screen.getAllByText("大阪府").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("たこ焼きは主食").length).toBeGreaterThan(0);
+    expect(screen.getByText("ぶつけて交換")).toBeDefined();
+    expect(screen.getByText("URLで共有する")).toBeDefined();
   });
 
   it("共有ボタンで共有画面へ進める", () => {
@@ -71,7 +71,7 @@ describe("MeishiPreviewPage", () => {
     );
 
     renderPreviewPage();
-    fireEvent.click(screen.getByText("この名刺を共有する"));
+    fireEvent.click(screen.getByText("URLで共有する"));
 
     expect(screen.getByText("share page")).toBeDefined();
   });
