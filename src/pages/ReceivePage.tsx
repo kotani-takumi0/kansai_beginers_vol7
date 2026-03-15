@@ -31,6 +31,9 @@ export function ReceivePage() {
     }
   }, [searchParams]);
 
+  const hasSamePrefectureError =
+    Boolean(myMeishi) && Boolean(meishi) && myMeishi.prefecture === meishi.prefecture;
+
   if (error || !meishi) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[40vh] px-4">
@@ -47,6 +50,10 @@ export function ReceivePage() {
   }
 
   const handleReceiveAndGo = () => {
+    if (hasSamePrefectureError) {
+      return;
+    }
+
     savePartnerMeishi(meishi);
 
     if (myMeishi) {
@@ -93,10 +100,20 @@ export function ReceivePage() {
 
         <button
           onClick={handleReceiveAndGo}
-          className="w-full rounded-[24px] border-[3px] border-[#744b2e] bg-[#1f8f5f] px-5 py-4 text-[16px] font-black text-white shadow-[0_6px_0_#166647] transition active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
+          disabled={hasSamePrefectureError}
+          className={`w-full rounded-[24px] border-[3px] px-5 py-4 text-[16px] font-black transition ${
+            hasSamePrefectureError
+              ? "border-[#b8a282] bg-[#e7dcc8] text-[#9f8d76]"
+              : "border-[#744b2e] bg-[#1f8f5f] text-white shadow-[0_6px_0_#166647] active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
+          }`}
         >
           {myMeishi ? "話のタネを見る" : "自分の名刺も作る"}
         </button>
+        {hasSamePrefectureError && (
+          <p className="text-center text-sm font-bold text-[#d94841]">
+            相手と同じ県を選択できません。
+          </p>
+        )}
         <p className="text-[#888] text-xs text-center">
           {myMeishi
             ? "あなたの名刺も相手に届きます"
