@@ -28,8 +28,8 @@ describe("MeishiPreviewPage", () => {
 
   it("保存済みデータがない場合は案内を表示する", () => {
     renderPreviewPage();
-    expect(screen.getByText("名刺データがありません")).toBeDefined();
-    expect(screen.getByText("名刺をつくる")).toBeDefined();
+    expect(screen.getByText("カードがありません")).toBeDefined();
+    expect(screen.getByText("カードをつくる")).toBeDefined();
   });
 
   it("保存済みデータがある場合は名刺プレビューを表示する", () => {

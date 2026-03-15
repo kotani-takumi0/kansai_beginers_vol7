@@ -27,7 +27,7 @@ export function ReceivePage() {
       const decoded = decode(encoded);
       return { meishi: decoded as MeishiData, error: null };
     } catch {
-      return { meishi: null, error: "名刺データの読み取りに失敗しました" };
+      return { meishi: null, error: "カードデータの読み取りに失敗しました" };
     }
   }, [searchParams]);
 
@@ -40,7 +40,7 @@ export function ReceivePage() {
           onClick={() => navigate("/")}
           className="px-6 py-3 min-h-[44px] bg-[#e85d3a] text-white rounded-xl font-bold"
         >
-          自分の名刺を作る
+          自分のカードを作る
         </button>
       </div>
     );
@@ -75,9 +75,9 @@ export function ReceivePage() {
         <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
           <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
             <p className="text-[11px] font-black tracking-[0.28em]">CARD RECEIVED</p>
-            <h1 className="mt-1 text-[27px] font-black leading-tight">名刺が届きました！</h1>
+            <h1 className="mt-1 text-[27px] font-black leading-tight">カードが届きました！</h1>
             <p className="mt-2 text-sm font-bold text-[#fff4dc]">
-              {meishi.prefecture}の{meishi.name}さんから名刺が届いたよ
+              {meishi.prefecture}の{meishi.name}さんからカードが届いたよ
             </p>
           </div>
 
@@ -95,12 +95,12 @@ export function ReceivePage() {
           onClick={handleReceiveAndGo}
           className="w-full rounded-[24px] border-[3px] border-[#744b2e] bg-[#1f8f5f] px-5 py-4 text-[16px] font-black text-white shadow-[0_6px_0_#166647] transition active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
         >
-          {myMeishi ? "話のタネを見る" : "自分の名刺も作る"}
+          {myMeishi ? "話のタネを見る" : "自分のカードも作る"}
         </button>
         <p className="text-[#888] text-xs text-center">
           {myMeishi
-            ? "あなたの名刺も相手に届きます"
-            : "名刺を作ると、AIが2人の話のタネを生成するよ！"}
+            ? "あなたのカードも相手に届きます"
+            : "カードを作ると、AIが2人の話のタネを生成するよ！"}
         </p>
       </div>
     </div>

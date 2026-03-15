@@ -41,9 +41,9 @@ export function LoginPage() {
           <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
             <p className="text-[11px] font-black tracking-[0.28em]">WELCOME BACK</p>
             <span className="mt-1 block text-[17px] font-semibold">ログイン</span>
-            <h1 className="mt-1 text-[27px] font-black leading-tight">地元名刺に戻る</h1>
+            <h1 className="mt-1 text-[27px] font-black leading-tight">ジモカに戻る</h1>
             <p className="mt-2 text-sm font-bold text-[#fff4dc]">
-              アカウントに入って、名刺づくりと交換を再開します。
+              アカウントに入って、カードづくりと交換を再開します。
             </p>
           </div>
 

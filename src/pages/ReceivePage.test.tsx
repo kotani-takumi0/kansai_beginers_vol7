@@ -43,14 +43,14 @@ describe("ReceivePage", () => {
     renderWithParams("?d=invalid-data!!!");
     expect(screen.getByText("エラー")).toBeDefined();
     expect(
-      screen.getByText("名刺データの読み取りに失敗しました")
+      screen.getByText("カードデータの読み取りに失敗しました")
     ).toBeDefined();
   });
 
   it("正しいデータの場合は送信者の名刺を表示する", () => {
     const encoded = encode(mockMeishi);
     renderWithParams(`?d=${encoded}`);
-    expect(screen.getByText("名刺が届きました！")).toBeDefined();
+    expect(screen.getByText("カードが届きました！")).toBeDefined();
     expect(screen.getAllByText(/大阪府/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/はなこ/).length).toBeGreaterThan(0);
   });
@@ -58,7 +58,7 @@ describe("ReceivePage", () => {
   it("自分の名刺がない場合は「自分の名刺も作る」ボタンを表示する", () => {
     const encoded = encode(mockMeishi);
     renderWithParams(`?d=${encoded}`);
-    expect(screen.getByText("自分の名刺も作る")).toBeDefined();
+    expect(screen.getByText("自分のカードも作る")).toBeDefined();
   });
 
   it("自分の名刺がある場合は「話のタネを見る」ボタンを表示する", () => {
@@ -73,6 +73,6 @@ describe("ReceivePage", () => {
 
   it("エラー時に「自分の名刺を作る」ボタンが表示される", () => {
     renderWithParams("");
-    expect(screen.getByText("自分の名刺を作る")).toBeDefined();
+    expect(screen.getByText("自分のカードを作る")).toBeDefined();
   });
 });

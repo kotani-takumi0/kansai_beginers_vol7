@@ -14,7 +14,7 @@ export function Layout() {
           <div className="min-w-0">
             <p className="text-[11px] font-black tracking-[0.24em] text-[#a54f23]">ジモカ</p>
             <p className="truncate text-sm font-black text-[#3d2718]">
-              {user ? `${user.displayName} でログイン中` : "じもとトーク名刺"}
+              {user ? `${user.displayName} でログイン中` : "じもとトークカード"}
             </p>
           </div>
           {user && (

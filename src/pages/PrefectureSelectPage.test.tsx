@@ -30,9 +30,9 @@ describe("PrefectureSelectPage", () => {
     expect(screen.getByLabelText("あなたの名前")).toBeDefined();
   });
 
-  it("ジモカ名刺の案内が表示される", () => {
+  it("ジモカの案内が表示される", () => {
     renderPage();
-    expect(screen.getByText("ジモカ名刺")).toBeDefined();
+    expect(screen.getByText("ジモカ")).toBeDefined();
     expect(screen.getByRole("heading", { name: "北海道" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "関東" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "近畿" })).toBeDefined();
@@ -65,7 +65,7 @@ describe("PrefectureSelectPage", () => {
       target: { value: "みぞじり" },
     });
     fireEvent.click(screen.getByRole("button", { name: "大阪府" }));
-    fireEvent.click(screen.getByRole("button", { name: "この内容で名刺をつくる" }));
+    fireEvent.click(screen.getByRole("button", { name: "この内容でカードをつくる" }));
 
     expect(screen.getByText("preview page")).toBeDefined();
     expect(window.localStorage.getItem("jimoto:selectedName")).toBe("みぞじり");
