@@ -8,11 +8,11 @@ const sampleMeishi: MeishiData = {
   topics: [
     {
       topic: { id: "t1", text: "たこ焼きは毎日食べる", category: "食文化" },
-      agrees: true,
+      isNormal: true,
     },
     {
       topic: { id: "t2", text: "エスカレーターは右に立つ", category: "習慣" },
-      agrees: false,
+      isNormal: false,
     },
   ],
   createdAt: "2026-03-14T00:00:00+09:00",

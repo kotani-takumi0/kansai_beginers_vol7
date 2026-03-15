@@ -42,11 +42,11 @@ function MiniCard({ meishi }: { readonly meishi: MeishiData }) {
       )}
       <p className="mt-0.5 text-sm font-bold text-white">{meishi.prefecture}</p>
       <div className="mt-1 flex gap-0.5">
-        {meishi.topics.map(({ agrees }, i) => (
+        {meishi.topics.map(({ isNormal }, i) => (
           <span
             key={i}
             className={`inline-block h-1.5 w-1.5 rounded-full ${
-              agrees ? "bg-emerald-400/60" : "bg-orange-400/60"
+              isNormal ? "bg-emerald-400/60" : "bg-orange-400/60"
             }`}
           />
         ))}

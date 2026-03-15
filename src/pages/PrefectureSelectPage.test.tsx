@@ -31,11 +31,11 @@ describe("PrefectureSelectPage", () => {
     expect(screen.getByLabelText("まずは名前を教えてください")).toBeDefined();
   });
 
-  it("ご当地イラスト付きの案内が表示される", () => {
+  it("じもとショック名刺の案内が表示される", () => {
     renderPage();
-    expect(screen.getByText("ご当地イラスト名刺")).toBeDefined();
-    expect(screen.getByText("たこ焼き")).toBeDefined();
-    expect(screen.getByText("シーサー")).toBeDefined();
+    expect(screen.getByText("じもとショック名刺")).toBeDefined();
+    expect(screen.getByText("大阪府")).toBeDefined();
+    expect(screen.getByText("沖縄県")).toBeDefined();
   });
 
   it("名前と都道府県が揃うまで進めない", () => {
@@ -50,8 +50,8 @@ describe("PrefectureSelectPage", () => {
     fireEvent.change(screen.getByLabelText("まずは名前を教えてください"), {
       target: { value: "みぞじり" },
     });
-    fireEvent.click(screen.getByRole("button", { name: "大阪府" }));
-    fireEvent.click(screen.getByRole("button", { name: "大阪府の切符で出発する" }));
+    fireEvent.click(screen.getByRole("button", { name: /大阪府/ }));
+    fireEvent.click(screen.getByRole("button", { name: "大阪府の診断をはじめる" }));
 
     expect(screen.getByText("topics page")).toBeDefined();
     expect(window.localStorage.getItem("jimoto:selectedName")).toBe("みぞじり");

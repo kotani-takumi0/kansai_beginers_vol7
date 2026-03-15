@@ -79,11 +79,11 @@ function ArrivalStage({
             {partnerMeishi.prefecture}
           </p>
           <div className="mt-2 flex gap-1">
-            {partnerMeishi.topics.map(({ agrees }, i) => (
+            {partnerMeishi.topics.map(({ isNormal }, i) => (
               <span
                 key={i}
                 className={`inline-block h-2 w-2 rounded-full ${
-                  agrees ? "bg-emerald-400/60" : "bg-orange-400/60"
+                  isNormal ? "bg-emerald-400/60" : "bg-orange-400/60"
                 }`}
               />
             ))}

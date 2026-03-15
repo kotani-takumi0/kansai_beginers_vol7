@@ -11,12 +11,12 @@ const mockMeishi: MeishiData = {
   prefecture: "大阪府",
   topics: [
     {
-      topic: { id: "1", text: "たこ焼きは主食", category: "食文化" },
-      agrees: true,
+      topic: { id: "1", text: "お好み焼きをおかずにご飯を食べる", category: "食文化" },
+      isNormal: true,
     },
     {
-      topic: { id: "2", text: "エスカレーターは右に立つ", category: "習慣" },
-      agrees: false,
+      topic: { id: "2", text: "エスカレーターは右に立つ", category: "くらし" },
+      isNormal: false,
     },
   ],
   createdAt: "2026-03-14T00:00:00.000Z",
@@ -52,23 +52,18 @@ describe("ReceivePage", () => {
     const encoded = encode(mockMeishi);
     renderWithParams(`?d=${encoded}`);
     expect(screen.getByText("名刺が届きました！")).toBeDefined();
-    expect(screen.getByText("大阪府")).toBeDefined();
-    expect(screen.getByText("たこ焼きは主食")).toBeDefined();
-    expect(screen.getByText("エスカレーターは右に立つ")).toBeDefined();
+    expect(screen.getAllByText(/大阪府/).length).toBeGreaterThan(0);
+    // 「普通」のトピックのみ表示
+    expect(screen.getByText("お好み焼きをおかずにご飯を食べる")).toBeDefined();
   });
 
-  it("立場（同意/反対）が正しく表示される", () => {
+  it("「普通」のトピックのみ表示される", () => {
     const encoded = encode(mockMeishi);
     renderWithParams(`?d=${encoded}`);
-    expect(screen.getByText("同意")).toBeDefined();
-    expect(screen.getByText("反対")).toBeDefined();
-  });
-
-  it("カテゴリが表示される", () => {
-    const encoded = encode(mockMeishi);
-    renderWithParams(`?d=${encoded}`);
+    // isNormal=true のもの
+    expect(screen.getByText("お好み焼きをおかずにご飯を食べる")).toBeDefined();
+    // isNormal=false は「普通」リストに表示されないが、カテゴリは見える場合がある
     expect(screen.getByText("食文化")).toBeDefined();
-    expect(screen.getByText("習慣")).toBeDefined();
   });
 
   it("「自分の名刺も作る」ボタンが表示される", () => {

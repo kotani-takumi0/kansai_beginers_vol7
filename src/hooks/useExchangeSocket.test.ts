@@ -57,7 +57,7 @@ const myMeishi: MeishiData = {
   topics: [
     {
       topic: { id: "t1", text: "たこ焼きは毎日食べる", category: "食文化" },
-      agrees: true,
+      isNormal: true,
     },
   ],
   createdAt: "2026-03-14T00:00:00+09:00",
@@ -69,7 +69,7 @@ const partnerMeishi: MeishiData = {
   topics: [
     {
       topic: { id: "t2", text: "おばんざいは家庭料理", category: "食文化" },
-      agrees: false,
+      isNormal: false,
     },
   ],
   createdAt: "2026-03-14T01:00:00+09:00",
