@@ -32,7 +32,7 @@ export function ReceivePage() {
   }, [searchParams]);
 
   const hasSamePrefectureError =
-    Boolean(myMeishi) && Boolean(meishi) && myMeishi.prefecture === meishi.prefecture;
+    Boolean(myMeishi) && Boolean(meishi) && myMeishi?.prefecture === meishi?.prefecture;
 
   if (error || !meishi) {
     return (
