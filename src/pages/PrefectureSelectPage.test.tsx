@@ -33,8 +33,23 @@ describe("PrefectureSelectPage", () => {
   it("じもとショック名刺の案内が表示される", () => {
     renderPage();
     expect(screen.getByText("じもとショック名刺")).toBeDefined();
+    expect(screen.getByRole("heading", { name: "北海道" })).toBeDefined();
+    expect(screen.getByRole("heading", { name: "関東" })).toBeDefined();
+    expect(screen.getByRole("heading", { name: "近畿" })).toBeDefined();
     expect(screen.getByText("大阪府")).toBeDefined();
     expect(screen.getByText("沖縄県")).toBeDefined();
+  });
+
+  it("検索時も地区ごとに都道府県を絞り込める", () => {
+    renderPage();
+
+    fireEvent.change(screen.getByPlaceholderText("都道府県名で検索..."), {
+      target: { value: "大阪" },
+    });
+
+    expect(screen.getByRole("heading", { name: "近畿" })).toBeDefined();
+    expect(screen.getByText("大阪府")).toBeDefined();
+    expect(screen.queryByText("東京都")).toBeNull();
   });
 
   it("名前と都道府県が揃うまで進めない", () => {

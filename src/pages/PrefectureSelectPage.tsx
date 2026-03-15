@@ -2,16 +2,25 @@ import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { loadMyMeishi, loadSelectedName, saveMyMeishi, saveSelectedName } from "../utils/appStorage";
 
-const PREFECTURES = [
-  "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
-  "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
-  "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県",
-  "岐阜県", "静岡県", "愛知県", "三重県",
-  "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県",
-  "鳥取県", "島根県", "岡山県", "広島県", "山口県",
-  "徳島県", "香川県", "愛媛県", "高知県",
-  "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
-];
+const PREFECTURE_REGIONS = [
+  { name: "北海道", prefectures: ["北海道"] },
+  {
+    name: "東北",
+    prefectures: ["青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県"],
+  },
+  {
+    name: "関東",
+    prefectures: ["茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県"],
+  },
+  {
+    name: "中部",
+    prefectures: ["新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県", "静岡県", "愛知県"],
+  },
+  { name: "近畿", prefectures: ["三重県", "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県"] },
+  { name: "中国", prefectures: ["鳥取県", "島根県", "岡山県", "広島県", "山口県"] },
+  { name: "四国", prefectures: ["徳島県", "香川県", "愛媛県", "高知県"] },
+  { name: "九州・沖縄", prefectures: ["福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"] },
+] as const;
 
 function createMeishiId() {
   if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -31,9 +40,13 @@ export function PrefectureSelectPage() {
     return <Navigate to="/preview" replace />;
   }
 
-  const filteredPrefectures = filterText
-    ? PREFECTURES.filter((p) => p.includes(filterText))
-    : PREFECTURES;
+  const normalizedFilter = filterText.trim();
+  const filteredRegions = PREFECTURE_REGIONS.map((region) => ({
+    ...region,
+    prefectures: normalizedFilter
+      ? region.prefectures.filter((prefecture) => prefecture.includes(normalizedFilter))
+      : [...region.prefectures],
+  })).filter((region) => region.prefectures.length > 0);
 
   const handleNext = () => {
     if (selectedPrefecture && name.trim()) {
@@ -109,7 +122,7 @@ export function PrefectureSelectPage() {
               <h2 className="text-lg font-black">出身地をえらぶ</h2>
             </div>
             <div className="rounded-full border-2 border-[#744b2e] bg-white px-3 py-1 text-xs font-black">
-              47都道府県
+              8地区 / 47都道府県
             </div>
           </div>
 
@@ -123,23 +136,42 @@ export function PrefectureSelectPage() {
             />
           </div>
 
-          <div className="grid grid-cols-3 gap-2 max-h-[300px] overflow-y-auto">
-            {filteredPrefectures.map((pref) => {
-              const isSelected = selectedPrefecture === pref;
-              return (
-                <button
-                  key={pref}
-                  onClick={() => setSelectedPrefecture(pref)}
-                  className={`rounded-[14px] border-[2px] px-2 py-2.5 text-center text-[13px] font-bold transition ${
-                    isSelected
-                      ? "border-[#744b2e] bg-[#d94841] text-white shadow-[0_3px_0_#8e2a24]"
-                      : "border-[#d5b98b] bg-white text-[#5a402d] shadow-[0_2px_0_#ead3ac] active:translate-y-[1px]"
-                  }`}
-                >
-                  {pref}
-                </button>
-              );
-            })}
+          <div className="max-h-[360px] space-y-4 overflow-y-auto pr-1">
+            {filteredRegions.length > 0 ? (
+              filteredRegions.map((region) => (
+                <section key={region.name} aria-label={`${region.name}地方`} className="space-y-2">
+                  <div className="sticky top-0 z-[1] flex items-center justify-between rounded-[14px] bg-[#f7edd6] px-3 py-2">
+                    <h3 className="text-sm font-black tracking-[0.08em] text-[#744b2e]">{region.name}</h3>
+                    <span className="text-[11px] font-black text-[#a54f23]">
+                      {region.prefectures.length}件
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2">
+                    {region.prefectures.map((prefecture) => {
+                      const isSelected = selectedPrefecture === prefecture;
+                      return (
+                        <button
+                          key={prefecture}
+                          type="button"
+                          onClick={() => setSelectedPrefecture(prefecture)}
+                          className={`rounded-[14px] border-[2px] px-2 py-2.5 text-center text-[13px] font-bold transition ${
+                            isSelected
+                              ? "border-[#744b2e] bg-[#d94841] text-white shadow-[0_3px_0_#8e2a24]"
+                              : "border-[#d5b98b] bg-white text-[#5a402d] shadow-[0_2px_0_#ead3ac] active:translate-y-[1px]"
+                          }`}
+                        >
+                          {prefecture}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </section>
+              ))
+            ) : (
+              <div className="rounded-[18px] border-2 border-dashed border-[#d5b98b] bg-[#fffaf0] px-4 py-6 text-center text-sm font-bold text-[#8a6847]">
+                該当する都道府県が見つかりません
+              </div>
+            )}
           </div>
         </section>
       </div>
