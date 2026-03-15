@@ -8,6 +8,7 @@ import {
 } from "react";
 import type { AuthResponse, AuthSession, AuthUser } from "../types";
 import { fetchCurrentUser, loginUser, registerUser } from "../utils/authApi";
+import { clearUserProfileState } from "../utils/appStorage";
 import { clearAuthSession, loadAuthSession, saveAuthSession } from "../utils/authStorage";
 
 type AuthContextValue = {
@@ -55,6 +56,7 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
       })
       .catch(() => {
         clearAuthSession();
+        clearUserProfileState();
         setSession(null);
       })
       .finally(() => {
@@ -70,13 +72,16 @@ export function AuthProvider({ children }: { readonly children: ReactNode }) {
       isBootstrapping,
       async login(email: string, password: string) {
         const response = await loginUser({ email, password });
+        clearUserProfileState();
         applySession(response, setSession);
       },
       async register(displayName: string, email: string, password: string) {
         const response = await registerUser({ displayName, email, password });
+        clearUserProfileState();
         applySession(response, setSession);
       },
       logout() {
+        clearUserProfileState();
         clearAuthSession();
         setSession(null);
       },

@@ -22,6 +22,12 @@ export function loadSelectedName(): string {
   return window.localStorage.getItem(NAME_KEY) ?? "";
 }
 
+export function clearSelectedName() {
+  if (isBrowser()) {
+    window.localStorage.removeItem(NAME_KEY);
+  }
+}
+
 // --- 自分の名刺 ---
 
 export function saveMyMeishi(meishi: MeishiData) {
@@ -91,4 +97,17 @@ export function loadExchangeHistory(): ReadonlyArray<ExchangeHistoryEntry> {
   } catch {
     return [];
   }
+}
+
+export function clearExchangeHistory() {
+  if (isBrowser()) {
+    window.localStorage.removeItem(EXCHANGE_HISTORY_KEY);
+  }
+}
+
+export function clearUserProfileState() {
+  clearSelectedName();
+  clearMyMeishi();
+  clearPartnerMeishi();
+  clearExchangeHistory();
 }
