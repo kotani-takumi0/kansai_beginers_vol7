@@ -12,9 +12,9 @@ export function Layout() {
       <header className="sticky top-0 z-10 border-b border-[#ead9b3] bg-[#fff8df]/90 px-4 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-[420px] items-center justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[11px] font-black tracking-[0.24em] text-[#a54f23]">JIMOTO MEISHI</p>
+            <p className="text-[11px] font-black tracking-[0.24em] text-[#a54f23]">ジモカ</p>
             <p className="truncate text-sm font-black text-[#3d2718]">
-              {user ? `${user.displayName} でログイン中` : "地元トーク名刺"}
+              {user ? `${user.displayName} でログイン中` : "じもとトーク名刺"}
             </p>
           </div>
           {user && (

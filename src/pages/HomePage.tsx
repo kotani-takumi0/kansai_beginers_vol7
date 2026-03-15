@@ -42,7 +42,7 @@ function MeishiCard({ meishi }: { readonly meishi: MeishiData }) {
           >
             <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
               <p className="text-[10px] font-medium tracking-[0.2em] text-[#b0a08a] mb-3">
-                JIMOTO SHOCK
+                JIMOKA
               </p>
               <h2 className="text-3xl font-black tracking-tight text-[#3d2718]">
                 {meishi.prefecture}
@@ -139,8 +139,8 @@ export function HomePage() {
         </div>
 
         <div className="relative mx-auto flex min-h-[70vh] max-w-[420px] flex-col items-center justify-center px-5">
-          <p className="text-[10px] font-medium tracking-[0.2em] text-[#b0a08a] mb-2">JIMOTO SHOCK</p>
-          <h1 className="text-2xl font-black text-[#3d2718]">じもとの名刺をつくろう</h1>
+          <p className="text-[10px] font-medium tracking-[0.2em] text-[#b0a08a] mb-2">JIMOKA</p>
+          <h1 className="text-2xl font-black text-[#3d2718]">ジモカ名刺をつくろう</h1>
           <p className="mt-3 text-sm text-[#888] text-center">
             出身地と名前を入力して、あなただけの名刺を作ろう
           </p>

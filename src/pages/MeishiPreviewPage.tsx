@@ -97,7 +97,7 @@ function MeishiCard({
           >
             <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
               <p className="text-[10px] font-medium tracking-[0.2em] text-[#b0a08a] mb-3">
-                JIMOTO SHOCK
+                JIMOKA
               </p>
               <h2 className="text-3xl font-black tracking-tight text-[#3d2718]">
                 {meishi.prefecture}

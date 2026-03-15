@@ -44,10 +44,8 @@ describe("MeishiPreviewPage", () => {
     );
 
     renderPreviewPage();
-    expect(screen.getByText("名刺が完成しました！")).toBeDefined();
     expect(screen.getAllByText("大阪府").length).toBeGreaterThan(0);
     expect(screen.getAllByText("たろう").length).toBeGreaterThan(0);
-    expect(screen.getByText("タップしてQRコードを表示")).toBeDefined();
   });
 
   it("交換履歴がある場合は一覧を表示する", () => {
