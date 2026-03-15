@@ -1,44 +1,51 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import {
-  loadMyMeishi,
-  loadSelectedName,
-  saveSelectedName,
-  saveSelectedPrefecture,
-} from "../utils/appStorage";
-import { getSupportedPrefectures } from "../data/prefectureTopics";
+import { loadMyMeishi, loadSelectedName, saveMyMeishi, saveSelectedName } from "../utils/appStorage";
 
-type PrefectureStyle = {
-  readonly label: string;
-  readonly accent: string;
-  readonly emoji: string;
-};
+const PREFECTURES = [
+  "北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県",
+  "茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県",
+  "新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県",
+  "岐阜県", "静岡県", "愛知県", "三重県",
+  "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県",
+  "鳥取県", "島根県", "岡山県", "広島県", "山口県",
+  "徳島県", "香川県", "愛媛県", "高知県",
+  "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
+];
 
-const PREFECTURE_STYLES: Record<string, PrefectureStyle> = {
-  大阪府: { label: "たこ焼き", accent: "#ef476f", emoji: "🐙" },
-  北海道: { label: "メロン", accent: "#ff9f1c", emoji: "🍈" },
-  東京都: { label: "たい焼き", accent: "#ff7b54", emoji: "🐟" },
-  福岡県: { label: "ラーメン", accent: "#118ab2", emoji: "🍜" },
-  沖縄県: { label: "シーサー", accent: "#06d6a0", emoji: "🦁" },
-};
-
-const SUPPORTED_PREFECTURES = getSupportedPrefectures();
+function createMeishiId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+  return `meishi-${Date.now()}`;
+}
 
 export function PrefectureSelectPage() {
   const navigate = useNavigate();
   const [name, setName] = useState(loadSelectedName());
   const [selectedPrefecture, setSelectedPrefecture] = useState<string | null>(null);
+  const [filterText, setFilterText] = useState("");
   const savedMeishi = loadMyMeishi();
 
   if (savedMeishi) {
     return <Navigate to="/preview" replace />;
   }
 
+  const filteredPrefectures = filterText
+    ? PREFECTURES.filter((p) => p.includes(filterText))
+    : PREFECTURES;
+
   const handleNext = () => {
     if (selectedPrefecture && name.trim()) {
       saveSelectedName(name.trim());
-      saveSelectedPrefecture(selectedPrefecture);
-      navigate("/topics");
+      const meishi = {
+        id: createMeishiId(),
+        name: name.trim(),
+        prefecture: selectedPrefecture,
+        createdAt: new Date().toISOString(),
+      };
+      saveMyMeishi(meishi);
+      navigate("/preview");
     }
   };
 
@@ -59,7 +66,7 @@ export function PrefectureSelectPage() {
             <p className="text-[11px] font-black tracking-[0.28em]">JIMOTO SHOCK</p>
             <h1 className="mt-1 text-[28px] font-black leading-none">じもとショック名刺</h1>
             <p className="mt-2 text-sm font-bold text-[#fff4dc]">
-              あなたの「普通」が、誰かの「衝撃」になる。地元のあたりまえを名刺にしよう。
+              名刺を交換すると、AIが2人の地元をもとに「話のタネ」を生成。初対面の会話が盛り上がる！
             </p>
           </div>
 
@@ -67,9 +74,9 @@ export function PrefectureSelectPage() {
             <div className="rounded-[24px] border-2 border-dashed border-[#744b2e] bg-[#fff0c7] px-4 py-4">
               <p className="text-xs font-black tracking-[0.22em] text-[#a54f23]">HOW IT WORKS</p>
               <div className="mt-2 space-y-2 text-sm font-bold text-[#7c5a39]">
-                <p>① 出身地を選んで「地元あるある」に答える</p>
-                <p>② あなたの「普通」が名刺になる</p>
-                <p>③ 交換して、相手の「普通」にショックを受ける！</p>
+                <p>① 名前と出身地を入力して名刺をつくる</p>
+                <p>② QRコードで名刺を交換する</p>
+                <p>③ AIが2人の地元から「話のタネ」を生成！</p>
               </div>
             </div>
           </div>
@@ -80,7 +87,7 @@ export function PrefectureSelectPage() {
             htmlFor="selected-name"
             className="text-sm font-black tracking-[0.14em] text-[#a54f23]"
           >
-            まずは名前を教えてください
+            あなたの名前
           </label>
           <div className="mt-3 rounded-[20px] border-2 border-[#744b2e] bg-[#fff3d1] p-1">
             <input
@@ -96,38 +103,40 @@ export function PrefectureSelectPage() {
         </section>
 
         <section className="rounded-[28px] border-[3px] border-[#744b2e] bg-[#fffdf6] p-4 shadow-[0_8px_0_#d2b17e]">
-          <div className="mb-4 flex items-center justify-between rounded-[20px] bg-[#f9e2ad] px-4 py-3">
+          <div className="mb-3 flex items-center justify-between rounded-[20px] bg-[#f9e2ad] px-4 py-3">
             <div>
               <p className="text-xs font-black tracking-[0.18em] text-[#a54f23]">SELECT</p>
               <h2 className="text-lg font-black">出身地をえらぶ</h2>
             </div>
             <div className="rounded-full border-2 border-[#744b2e] bg-white px-3 py-1 text-xs font-black">
-              {SUPPORTED_PREFECTURES.length}地域
+              47都道府県
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-3">
-            {SUPPORTED_PREFECTURES.map((pref) => {
-              const style = PREFECTURE_STYLES[pref];
-              const isSelected = selectedPrefecture === pref;
+          <div className="mb-3 rounded-[16px] border-2 border-[#d5b98b] bg-white px-3 py-2">
+            <input
+              type="text"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              placeholder="都道府県名で検索..."
+              className="w-full text-[14px] text-[#3d2718] outline-none placeholder:text-[#b59777]"
+            />
+          </div>
 
+          <div className="grid grid-cols-3 gap-2 max-h-[300px] overflow-y-auto">
+            {filteredPrefectures.map((pref) => {
+              const isSelected = selectedPrefecture === pref;
               return (
                 <button
                   key={pref}
                   onClick={() => setSelectedPrefecture(pref)}
-                  className={`flex items-center gap-3 rounded-[20px] border-[3px] px-4 py-4 text-left transition ${
+                  className={`rounded-[14px] border-[2px] px-2 py-2.5 text-center text-[13px] font-bold transition ${
                     isSelected
-                      ? "border-[#744b2e] bg-[#d94841] text-white shadow-[0_4px_0_#8e2a24]"
-                      : "border-[#d5b98b] bg-white text-[#5a402d] shadow-[0_3px_0_#ead3ac] active:translate-y-[1px]"
+                      ? "border-[#744b2e] bg-[#d94841] text-white shadow-[0_3px_0_#8e2a24]"
+                      : "border-[#d5b98b] bg-white text-[#5a402d] shadow-[0_2px_0_#ead3ac] active:translate-y-[1px]"
                   }`}
                 >
-                  <span className="text-2xl">{style?.emoji}</span>
-                  <div>
-                    <p className="text-base font-black">{pref}</p>
-                    <p className={`text-xs font-bold ${isSelected ? "text-white/70" : "text-[#8a6847]"}`}>
-                      {style?.label}
-                    </p>
-                  </div>
+                  {pref}
                 </button>
               );
             })}
@@ -150,7 +159,7 @@ export function PrefectureSelectPage() {
             }`}
           >
             {selectedPrefecture
-              ? `${selectedPrefecture}の診断をはじめる`
+              ? "この内容で名刺をつくる"
               : "名前と出身地を入力してください"}
           </button>
         </div>

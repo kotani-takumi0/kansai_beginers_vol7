@@ -69,7 +69,7 @@ export function ScanPage() {
 
       const myMeishi = loadMyMeishi();
       if (myMeishi) {
-        navigate("/comparison", {
+        navigate("/topics", {
           state: { myMeishi, partnerMeishi },
         });
       } else {
@@ -88,55 +88,69 @@ export function ScanPage() {
   }, []);
 
   return (
-    <div className="mx-auto max-w-[420px] pb-8">
-      <div className="px-6 pt-5 pb-1 text-center">
-        <span className="text-[17px] font-semibold text-[#1a1a1a]">QRコード読み取り</span>
-      </div>
-      <p className="mb-6 text-center text-sm font-medium text-[#888]">
-        相手の名刺カード裏面を読み取ってね
-      </p>
-
-      <div className="mx-5 mb-4 overflow-hidden rounded-2xl border border-[#ececea] bg-white">
-        <div id="qr-reader" ref={containerRef} />
+    <div
+      className="relative min-h-full overflow-hidden bg-[#f7edd6] pb-8 text-[#3d2718]"
+      style={{ fontFamily: '"Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif' }}
+    >
+      <div className="pointer-events-none absolute inset-0 opacity-70">
+        <div className="absolute top-[-110px] left-[-70px] h-60 w-60 rounded-full bg-[#ffe09a]" />
+        <div className="absolute top-44 right-[-90px] h-64 w-64 rounded-full bg-[#ffd7b5]" />
+        <div className="absolute bottom-20 left-[-100px] h-72 w-72 rounded-full bg-[#bde0c5]" />
       </div>
 
-      {scanState === "error" && (
-        <div className="mx-5 mb-4 rounded-2xl border border-red-200 bg-red-50 p-4 text-center">
-          <p className="text-sm font-medium text-red-600">{errorMessage}</p>
+      <div className="relative mx-auto flex max-w-[420px] flex-col gap-4 px-4 pt-4">
+        <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
+          <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
+            <p className="text-[11px] font-black tracking-[0.28em]">SCAN QR</p>
+            <h1 className="mt-1 text-[27px] font-black leading-tight">名刺を読み取る</h1>
+            <p className="mt-2 text-sm font-bold text-[#fff4dc]">
+              相手のQRコードをカメラで読み取ってね
+            </p>
+          </div>
+        </section>
+
+        <div className="overflow-hidden rounded-[24px] border-[3px] border-[#744b2e] bg-white shadow-[0_6px_0_#d2b17e]">
+          <div id="qr-reader" ref={containerRef} />
         </div>
-      )}
-
-      <div className="flex flex-col gap-3 px-5">
-        {scanState === "ready" && (
-          <button
-            type="button"
-            onClick={() => void startScanner()}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-4 text-[15px] font-semibold text-white shadow-lg transition active:scale-[0.98]"
-          >
-            カメラを起動する
-          </button>
-        )}
 
         {scanState === "error" && (
-          <button
-            type="button"
-            onClick={() => void startScanner()}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-4 text-[15px] font-semibold text-white shadow-lg transition active:scale-[0.98]"
-          >
-            もう一度試す
-          </button>
+          <div className="rounded-[24px] border-[3px] border-red-300 bg-red-50 p-4 text-center">
+            <p className="text-sm font-bold text-red-600">{errorMessage}</p>
+          </div>
         )}
 
-        <button
-          type="button"
-          onClick={() => {
-            void stopScanner();
-            navigate("/preview");
-          }}
-          className="flex items-center justify-center gap-2 rounded-2xl border border-[#e0e0dc] bg-white px-4 py-3.5 text-[14px] font-semibold text-[#555] transition active:scale-[0.98]"
-        >
-          名刺に戻る
-        </button>
+        <div className="flex flex-col gap-3">
+          {scanState === "ready" && (
+            <button
+              type="button"
+              onClick={() => void startScanner()}
+              className="w-full rounded-[24px] border-[3px] border-[#744b2e] bg-[#d94841] px-5 py-4 text-[16px] font-black text-white shadow-[0_6px_0_#8e2a24] transition active:translate-y-[2px] active:shadow-[0_3px_0_#8e2a24]"
+            >
+              カメラを起動する
+            </button>
+          )}
+
+          {scanState === "error" && (
+            <button
+              type="button"
+              onClick={() => void startScanner()}
+              className="w-full rounded-[24px] border-[3px] border-[#744b2e] bg-[#d94841] px-5 py-4 text-[16px] font-black text-white shadow-[0_6px_0_#8e2a24] transition active:translate-y-[2px] active:shadow-[0_3px_0_#8e2a24]"
+            >
+              もう一度試す
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={() => {
+              void stopScanner();
+              navigate("/preview");
+            }}
+            className="w-full rounded-[24px] border-[3px] border-[#d5b98b] bg-white px-5 py-4 text-[16px] font-black text-[#744b2e] shadow-[0_6px_0_#ead3ac] transition active:translate-y-[2px] active:shadow-[0_3px_0_#ead3ac]"
+          >
+            名刺に戻る
+          </button>
+        </div>
       </div>
     </div>
   );

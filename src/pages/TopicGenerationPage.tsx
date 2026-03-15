@@ -1,85 +1,80 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import type { Topic, TopicWithStance } from "../types";
-import { loadSelectedPrefecture, saveSelectedTopics } from "../utils/appStorage";
-import { getTopics } from "../utils/topicGenerator";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { buildBackendUrl } from "../utils/backendUrl";
+import { saveExchangeHistoryEntry } from "../utils/appStorage";
+import type { MeishiData, ConversationTopic } from "../types";
 
-type Stance = boolean | null;
-
-const STANCE_COPY = {
-  normal: {
-    label: "普通でしょ？",
-    description: "当たり前すぎて疑問にも思わない",
-  },
-  notNormal: {
-    label: "普通じゃない",
-    description: "自分の県でもそれはない",
-  },
-} as const;
+type PageState = "loading" | "done" | "error";
 
 export function TopicGenerationPage() {
+  const location = useLocation();
   const navigate = useNavigate();
-  const [prefecture, setPrefecture] = useState<string | null>(null);
-  const [topics, setTopics] = useState<ReadonlyArray<Topic>>([]);
-  const [stances, setStances] = useState<Record<string, Stance>>({});
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const myMeishi = location.state?.myMeishi as MeishiData | undefined;
+  const partnerMeishi = location.state?.partnerMeishi as MeishiData | undefined;
+  const cachedTopics = location.state?.topics as ReadonlyArray<ConversationTopic> | undefined;
+
+  const [pageState, setPageState] = useState<PageState>(cachedTopics ? "done" : "loading");
+  const [topics, setTopics] = useState<ReadonlyArray<ConversationTopic>>(cachedTopics ?? []);
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
-    const savedPrefecture = loadSelectedPrefecture();
-
-    if (!savedPrefecture) {
+    if (!myMeishi || !partnerMeishi) {
       navigate("/");
       return;
     }
 
-    setPrefecture(savedPrefecture);
+    if (cachedTopics) return;
 
-    try {
-      const prefectureTopics = getTopics(savedPrefecture);
-      setTopics(prefectureTopics);
-      setStances(
-        Object.fromEntries(prefectureTopics.map((topic) => [topic.id, null])),
-      );
-    } catch {
-      setErrorMessage("この都道府県のトピックが見つかりません。");
+    const my = myMeishi;
+    const partner = partnerMeishi;
+    const controller = new AbortController();
+
+    async function fetchTopics() {
+      try {
+        const response = await fetch(buildBackendUrl("/api/topics"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            myPrefecture: my.prefecture,
+            partnerPrefecture: partner.prefecture,
+            myName: my.name,
+            partnerName: partner.name,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("APIエラー");
+        }
+
+        const data = (await response.json()) as { topics: ConversationTopic[] };
+        setTopics(data.topics);
+        setPageState("done");
+
+        saveExchangeHistoryEntry({
+          id: `${my.id}:${partner.id}`,
+          exchangedAt: new Date().toISOString(),
+          myMeishi: my,
+          partnerMeishi: partner,
+          topics: data.topics,
+        });
+      } catch (err) {
+        if ((err as Error).name === "AbortError") return;
+        setPageState("error");
+        setErrorMessage("話題の生成に失敗しました。もう一度お試しください。");
+      }
     }
-  }, [navigate]);
 
-  const completedCount = useMemo(
-    () => topics.filter((topic) => stances[topic.id] !== null).length,
-    [topics, stances],
-  );
+    void fetchTopics();
 
-  const canProceed = topics.length > 0 && completedCount === topics.length;
+    return () => controller.abort();
+  }, [myMeishi, partnerMeishi, cachedTopics, navigate]);
 
-  const handleSelectStance = (topicId: string, isNormal: boolean) => {
-    setStances((current) => ({
-      ...current,
-      [topicId]: isNormal,
-    }));
-  };
-
-  const handleNext = () => {
-    if (!canProceed) {
-      return;
-    }
-
-    const selectedTopics: ReadonlyArray<TopicWithStance> = topics.map((topic) => ({
-      topic,
-      isNormal: stances[topic.id] === true,
-    }));
-
-    saveSelectedTopics(selectedTopics);
-    navigate("/preview");
-  };
-
-  if (!prefecture) {
-    return null;
-  }
+  if (!myMeishi || !partnerMeishi) return null;
 
   return (
     <div
-      className="relative min-h-full overflow-hidden bg-[#f7edd6] pb-24 text-[#3d2718]"
+      className="relative min-h-full overflow-hidden bg-[#f7edd6] pb-8 text-[#3d2718]"
       style={{ fontFamily: '"Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif' }}
     >
       <div className="pointer-events-none absolute inset-0 opacity-70">
@@ -91,135 +86,75 @@ export function TopicGenerationPage() {
       <div className="relative mx-auto flex max-w-[420px] flex-col gap-4 px-4 pt-4">
         <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
           <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
-            <p className="text-[11px] font-black tracking-[0.28em]">JIMOTO CHECK</p>
-            <span className="mt-1 block text-[17px] font-semibold">じもと診断</span>
-            <h1 className="mt-1 text-[27px] font-black leading-tight">{prefecture}のあるある</h1>
+            <p className="text-[11px] font-black tracking-[0.28em]">CONVERSATION TOPICS</p>
+            <h1 className="mt-1 text-[27px] font-black leading-tight">
+              {myMeishi.prefecture} × {partnerMeishi.prefecture}
+            </h1>
             <p className="mt-2 text-sm font-bold text-[#fff4dc]">
-              これ、あなたにとっては「普通」ですか？
+              {myMeishi.name}さんと{partnerMeishi.name}さんの話のタネ
             </p>
           </div>
         </section>
 
-        <div className="flex items-center justify-between rounded-[24px] border-[3px] border-[#744b2e] bg-[#fffdf6] px-4 py-3 shadow-[0_8px_0_#d2b17e]">
-          <div>
-            <p className="text-xs font-black tracking-[0.18em] text-[#a54f23]">回答状況</p>
-            <p className="text-sm font-black text-[#3d2718]">
-              {completedCount} / {topics.length} 問
+        {pageState === "loading" && (
+          <div className="flex flex-col items-center gap-4 py-12">
+            <div className="h-12 w-12 animate-spin rounded-full border-4 border-[#d5b98b] border-t-[#d94841]" />
+            <p className="text-lg font-black text-[#744b2e]">AIが話のタネを考え中...</p>
+            <p className="text-sm text-[#8a6847]">
+              {myMeishi.prefecture}と{partnerMeishi.prefecture}の違いから<br />
+              盛り上がる話題を探しています
             </p>
-          </div>
-          <div className="flex gap-1">
-            {topics.map((topic) => (
-              <span
-                key={topic.id}
-                className={`inline-block h-3 w-3 rounded-full border-2 ${
-                  stances[topic.id] === null
-                    ? "border-[#d5b98b] bg-white"
-                    : stances[topic.id]
-                      ? "border-[#1f8f5f] bg-[#1f8f5f]"
-                      : "border-[#e85d3a] bg-[#e85d3a]"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-
-        {errorMessage && (
-          <div className="rounded-[24px] border-2 border-red-300 bg-red-50 p-4 text-sm text-red-700">
-            <p className="font-black">エラー</p>
-            <p className="mt-1">{errorMessage}</p>
           </div>
         )}
 
-        <section className="space-y-3">
-          {topics.map((topic, index) => {
-            const selectedStance = stances[topic.id];
+        {pageState === "error" && (
+          <div className="rounded-[24px] border-[3px] border-red-300 bg-red-50 p-5 text-center">
+            <p className="text-lg font-black text-red-600">エラー</p>
+            <p className="mt-2 text-sm text-red-500">{errorMessage}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setPageState("loading");
+                setErrorMessage("");
+                navigate(0);
+              }}
+              className="mt-4 rounded-2xl bg-[#d94841] px-6 py-3 text-sm font-bold text-white"
+            >
+              もう一度試す
+            </button>
+          </div>
+        )}
 
-            return (
+        {pageState === "done" && (
+          <section className="space-y-3">
+            {topics.map((topic, index) => (
               <article
                 key={topic.id}
                 className="rounded-[24px] border-[3px] border-[#744b2e] bg-[#fffdf6] p-4 shadow-[0_6px_0_#d2b17e]"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[#f3dfb0] text-[11px] font-black text-[#744b2e]">
-                      {index + 1}
-                    </span>
-                    <span className="text-[11px] font-black text-[#8a6847]">
-                      {topic.category}
-                    </span>
-                  </div>
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-bold ${
-                      selectedStance === null
-                        ? "bg-[#f0f0ee] text-[#aaa]"
-                        : selectedStance
-                          ? "bg-emerald-50 text-emerald-600"
-                          : "bg-orange-50 text-orange-600"
-                    }`}
-                  >
-                    {selectedStance === null ? "未回答" : selectedStance ? "普通" : "普通じゃない"}
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-[#f3dfb0] text-[11px] font-black text-[#744b2e]">
+                    {index + 1}
                   </span>
+                  <span className="text-xl">{topic.emoji}</span>
                 </div>
-
-                <p className="mt-3 text-[15px] font-semibold leading-relaxed text-[#1a1a1a]">
+                <p className="text-[15px] font-semibold leading-relaxed text-[#1a1a1a]">
                   {topic.text}
                 </p>
-
-                <div className="mt-4 grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleSelectStance(topic.id, true)}
-                    className={`rounded-[18px] border-2 px-3 py-3 text-left transition ${
-                      selectedStance === true
-                        ? "border-emerald-600 bg-emerald-500 text-white"
-                        : "border-[#d5b98b] bg-[#fff7e6] text-[#555]"
-                    }`}
-                  >
-                    <p className="text-sm font-bold">{STANCE_COPY.normal.label}</p>
-                    <p className={`mt-0.5 text-[11px] ${selectedStance === true ? "text-white/80" : "text-[#888]"}`}>
-                      {STANCE_COPY.normal.description}
-                    </p>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => handleSelectStance(topic.id, false)}
-                    className={`rounded-[18px] border-2 px-3 py-3 text-left transition ${
-                      selectedStance === false
-                        ? "border-[#b53c19] bg-[#e85d3a] text-white"
-                        : "border-[#d5b98b] bg-[#fff7e6] text-[#555]"
-                    }`}
-                  >
-                    <p className="text-sm font-bold">{STANCE_COPY.notNormal.label}</p>
-                    <p className={`mt-0.5 text-[11px] ${selectedStance === false ? "text-white/80" : "text-[#888]"}`}>
-                      {STANCE_COPY.notNormal.description}
-                    </p>
-                  </button>
-                </div>
               </article>
-            );
-          })}
-        </section>
-      </div>
+            ))}
+          </section>
+        )}
 
-      <div
-        className="fixed right-0 bottom-0 left-0 bg-gradient-to-t from-[#f7edd6] via-[#f7edd6] to-transparent px-4 pt-6"
-        style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}
-      >
-        <div className="mx-auto max-w-[420px]">
+        {pageState === "done" && (
           <button
             type="button"
-            onClick={handleNext}
-            disabled={!canProceed}
-            className={`w-full rounded-[24px] border-[3px] px-5 py-4 text-[16px] font-black transition ${
-              canProceed
-                ? "border-[#744b2e] bg-[#1f8f5f] text-white shadow-[0_6px_0_#166647] active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
-                : "border-[#b8a282] bg-[#e7dcc8] text-[#9f8d76]"
-            }`}
+            onClick={() => navigate("/preview")}
+            className="w-full rounded-[24px] border-[3px] border-[#744b2e] bg-[#1f8f5f] px-5 py-4 text-[16px] font-black text-white shadow-[0_6px_0_#166647] transition active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
           >
-            {canProceed ? "この内容で名刺をつくる" : "全ての質問に答えてください"}
+            名刺に戻る
           </button>
-        </div>
+        )}
       </div>
     </div>
   );
