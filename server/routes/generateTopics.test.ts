@@ -1,24 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import express from "express";
 import request from "supertest";
 import { createGenerateTopicsRouter } from "./generateTopics";
 
-// OpenAI SDK のモック
-const mockCreate = vi.fn();
-vi.mock("openai", () => ({
-  default: class {
-    chat = { completions: { create: mockCreate } };
-  },
-}));
-
 const VALID_PREFECTURES = [
   "北海道", "青森県", "東京都", "大阪府", "沖縄県",
-];
-
-const mockTopicsResponse = [
-  { id: "1", text: "たこ焼きは主食である", category: "食文化" },
-  { id: "2", text: "エスカレーターは右に立つ", category: "習慣" },
-  { id: "3", text: "「知らんけど」は敬語である", category: "方言" },
 ];
 
 const createApp = () => {
@@ -29,34 +15,7 @@ const createApp = () => {
 };
 
 describe("POST /api/generate-topics", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    process.env.OPENAI_API_KEY = "test-key";
-  });
-
-  it("OPENAI_API_KEY が未設定でもルーター作成では落ちず、API呼び出し時に503を返す", async () => {
-    delete process.env.OPENAI_API_KEY;
-
-    const app = createApp();
-    const res = await request(app)
-      .post("/api/generate-topics")
-      .send({ prefecture: "大阪府" });
-
-    expect(res.status).toBe(503);
-    expect(res.body.error).toContain("OPENAI_API_KEY");
-  });
-
-  it("有効な都道府県名で3〜5個のTopicが返る", async () => {
-    mockCreate.mockResolvedValue({
-      choices: [
-        {
-          message: {
-            content: JSON.stringify(mockTopicsResponse),
-          },
-        },
-      ],
-    });
-
+  it("有効な都道府県名で5個のTopicが返る", async () => {
     const app = createApp();
     const res = await request(app)
       .post("/api/generate-topics")
@@ -64,7 +23,7 @@ describe("POST /api/generate-topics", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.prefecture).toBe("大阪府");
-    expect(res.body.topics).toHaveLength(3);
+    expect(res.body.topics).toHaveLength(5);
     expect(res.body.topics[0]).toHaveProperty("id");
     expect(res.body.topics[0]).toHaveProperty("text");
     expect(res.body.topics[0]).toHaveProperty("category");
@@ -90,29 +49,7 @@ describe("POST /api/generate-topics", () => {
     expect(res.body.error).toBeDefined();
   });
 
-  it("AI API障害時に500エラーとメッセージが返る", async () => {
-    mockCreate.mockRejectedValue(new Error("API connection failed"));
-
-    const app = createApp();
-    const res = await request(app)
-      .post("/api/generate-topics")
-      .send({ prefecture: "東京都" });
-
-    expect(res.status).toBe(500);
-    expect(res.body.error).toBeDefined();
-  });
-
   it("レスポンスがTopic型（id, text, category）に準拠している", async () => {
-    mockCreate.mockResolvedValue({
-      choices: [
-        {
-          message: {
-            content: JSON.stringify(mockTopicsResponse),
-          },
-        },
-      ],
-    });
-
     const app = createApp();
     const res = await request(app)
       .post("/api/generate-topics")
@@ -130,16 +67,6 @@ describe("POST /api/generate-topics", () => {
   });
 
   it("47都道府県すべてが有効な入力として受け付けられる", async () => {
-    mockCreate.mockResolvedValue({
-      choices: [
-        {
-          message: {
-            content: JSON.stringify(mockTopicsResponse),
-          },
-        },
-      ],
-    });
-
     const app = createApp();
     for (const pref of VALID_PREFECTURES) {
       const res = await request(app)
@@ -148,5 +75,18 @@ describe("POST /api/generate-topics", () => {
 
       expect(res.status).toBe(200);
     }
+  });
+
+  it("都道府県名がトピックテキストに反映されている", async () => {
+    const app = createApp();
+    const res = await request(app)
+      .post("/api/generate-topics")
+      .send({ prefecture: "東京都" });
+
+    expect(res.status).toBe(200);
+    const hasPrefix = res.body.topics.some(
+      (t: { text: string }) => t.text.includes("東京都")
+    );
+    expect(hasPrefix).toBe(true);
   });
 });

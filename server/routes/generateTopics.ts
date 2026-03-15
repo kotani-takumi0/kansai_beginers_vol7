@@ -1,6 +1,5 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
-import OpenAI from "openai";
 import type { Topic } from "../../src/types";
 
 const PREFECTURES = [
@@ -14,56 +13,30 @@ const PREFECTURES = [
   "福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県",
 ] as const;
 
-const PROMPT_TEMPLATE = `あなたは日本の地域文化に詳しい専門家です。
-以下の都道府県の出身者が「自分では普通だと思っているけど、他の地域の人からすると議論になる・驚かれるネタ」を3〜5個生成してください。
+const CATEGORY_LABELS = ["食文化", "習慣", "ことば", "くらし", "地元あるある"];
 
-都道府県: {{prefecture}}
-
-以下のJSON配列形式で返してください。他のテキストは含めないでください。
-[
-  {
-    "id": "1",
-    "text": "ネタの内容",
-    "category": "カテゴリ（食文化・方言・習慣・文化・交通など）"
-  }
-]`;
+const FALLBACK_PATTERNS = [
+  "{prefecture}では、お好み焼き定食はアリ",
+  "{prefecture}の人は、地元チェーンの話になると急に熱量が上がる",
+  "{prefecture}では、方言を少し混ぜたほうが親しみやすい",
+  "都会より田舎の方が住みやすい",
+  "{prefecture}では、有名スポットを日常使いしている感覚がある",
+];
 
 const isValidPrefecture = (value: unknown): value is string =>
   typeof value === "string" && PREFECTURES.includes(value as typeof PREFECTURES[number]);
 
-const parseTopicsFromResponse = (responseText: string): ReadonlyArray<Topic> => {
-  const parsed: unknown = JSON.parse(responseText);
-
-  if (!Array.isArray(parsed)) {
-    throw new Error("AIのレスポンスが配列形式ではありません");
-  }
-
-  return parsed.map((item: Record<string, unknown>) => {
-    if (
-      typeof item.id !== "string" ||
-      typeof item.text !== "string" ||
-      typeof item.category !== "string"
-    ) {
-      throw new Error("Topic型に準拠していないデータが含まれています");
-    }
-    return { id: item.id, text: item.text, category: item.category };
-  });
-};
-
-const createOpenAIClient = () => {
-  if (!process.env.OPENAI_API_KEY) {
-    return null;
-  }
-
-  return new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-};
+const buildTopics = (prefecture: string): ReadonlyArray<Topic> =>
+  FALLBACK_PATTERNS.map((pattern, index) => ({
+    id: `${prefecture}-${index + 1}`,
+    text: pattern.replaceAll("{prefecture}", prefecture),
+    category: CATEGORY_LABELS[index % CATEGORY_LABELS.length],
+  }));
 
 export const createGenerateTopicsRouter = (): Router => {
   const router = Router();
 
-  router.post("/", async (req: Request, res: Response): Promise<void> => {
+  router.post("/", (req: Request, res: Response): void => {
     const { prefecture } = req.body as { prefecture: unknown };
 
     if (!isValidPrefecture(prefecture)) {
@@ -73,44 +46,8 @@ export const createGenerateTopicsRouter = (): Router => {
       return;
     }
 
-    try {
-      const client = createOpenAIClient();
-
-      if (!client) {
-        res.status(503).json({
-          error: "ネタ生成APIの設定が未完了です。OPENAI_API_KEY を設定してください。",
-        });
-        return;
-      }
-
-      const completion = await client.chat.completions.create({
-        model: "gpt-4o-mini",
-        max_tokens: 1024,
-        messages: [
-          {
-            role: "user",
-            content: PROMPT_TEMPLATE.replace("{{prefecture}}", prefecture),
-          },
-        ],
-      });
-
-      const content = completion.choices[0]?.message?.content;
-      if (!content) {
-        res.status(500).json({
-          error: "AIからのレスポンスを取得できませんでした。再試行してください。",
-        });
-        return;
-      }
-
-      const topics = parseTopicsFromResponse(content);
-
-      res.json({ topics, prefecture });
-    } catch (error) {
-      console.error("AI API error:", error);
-      res.status(500).json({
-        error: "ネタ生成に失敗しました。しばらく待ってから再試行してください。",
-      });
-    }
+    const topics = buildTopics(prefecture);
+    res.json({ topics, prefecture });
   });
 
   return router;
