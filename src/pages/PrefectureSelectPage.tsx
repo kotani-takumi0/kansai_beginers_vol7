@@ -76,8 +76,8 @@ export function PrefectureSelectPage() {
       <div className="relative mx-auto flex max-w-[420px] flex-col gap-4 px-4 pt-4">
         <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
           <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
-            <p className="text-[11px] font-black tracking-[0.28em]">JIMOTO SHOCK</p>
-            <h1 className="mt-1 text-[28px] font-black leading-none">じもとショック名刺</h1>
+            <p className="text-[11px] font-black tracking-[0.28em]">JIMOKA</p>
+            <h1 className="mt-1 text-[28px] font-black leading-none">ジモカ名刺</h1>
             <p className="mt-2 text-sm font-bold text-[#fff4dc]">
               名刺を交換すると、AIが2人の地元をもとに「話のタネ」を生成。初対面の会話が盛り上がる！
             </p>
