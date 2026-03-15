@@ -164,7 +164,7 @@ export function TopicGenerationPage() {
             onClick={() => navigate("/preview", { state: { showQr: true } })}
             className="w-full rounded-[24px] border-[3px] border-[#744b2e] bg-[#1f8f5f] px-5 py-4 text-[16px] font-black text-white shadow-[0_6px_0_#166647] transition active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
           >
-            自分の名刺を見せる
+            自分のカードを見せる
           </button>
         )}
       </div>
