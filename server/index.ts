@@ -15,9 +15,13 @@ const isProduction = process.env.NODE_ENV === "production";
 
 app.use(express.json());
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+function getOpenAIClient(): OpenAI {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error("OPENAI_API_KEY が設定されていません");
+  }
+  return new OpenAI({ apiKey });
+}
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
@@ -37,7 +41,8 @@ app.post("/api/topics", async (req, res) => {
   }
 
   try {
-    const completion = await openai.chat.completions.create({
+    const client = getOpenAIClient();
+    const completion = await client.chat.completions.create({
       model: "gpt-4o-mini",
       temperature: 0.9,
       max_tokens: 1024,
