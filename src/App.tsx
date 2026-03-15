@@ -4,6 +4,7 @@ import { ProtectedRoute } from "./components/auth/ProtectedRoute";
 import { Layout } from "./components/common/Layout";
 import { AuthProvider } from "./hooks/useAuth";
 import { LoginPage } from "./pages/LoginPage";
+import { HomePage } from "./pages/HomePage";
 import { MeishiPreviewPage } from "./pages/MeishiPreviewPage";
 import { PrefectureSelectPage } from "./pages/PrefectureSelectPage";
 import { ReceivePage } from "./pages/ReceivePage";
@@ -24,7 +25,8 @@ function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route element={<Layout />}>
-              <Route path="/" element={<PrefectureSelectPage />} />
+              <Route path="/" element={<HomePage />} />
+              <Route path="/create" element={<PrefectureSelectPage />} />
               <Route path="/topics" element={<TopicGenerationPage />} />
               <Route path="/preview" element={<MeishiPreviewPage />} />
             </Route>

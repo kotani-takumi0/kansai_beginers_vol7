@@ -213,7 +213,7 @@ export function MeishiPreviewPage() {
           <div className="mt-5 flex flex-col gap-3">
             <button
               type="button"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/create")}
               className="rounded-xl bg-[#e85d3a] px-5 py-3.5 text-[15px] font-semibold text-white"
             >
               名刺をつくる
@@ -299,7 +299,7 @@ export function MeishiPreviewPage() {
             type="button"
             onClick={() => {
               clearMyMeishi();
-              navigate("/");
+              navigate("/create");
             }}
             className="flex items-center justify-center gap-2 rounded-2xl border border-[#e0e0dc] bg-white px-4 py-3.5 text-[14px] font-semibold text-[#e85d3a] transition active:scale-[0.98]"
           >

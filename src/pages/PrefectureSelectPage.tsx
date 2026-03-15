@@ -58,7 +58,7 @@ export function PrefectureSelectPage() {
         createdAt: new Date().toISOString(),
       };
       saveMyMeishi(meishi);
-      navigate("/preview", { state: { justCreated: true } });
+      navigate("/");
     }
   };
 
