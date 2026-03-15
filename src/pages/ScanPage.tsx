@@ -69,7 +69,7 @@ export function ScanPage() {
 
       const myMeishi = loadMyMeishi();
       if (myMeishi) {
-        navigate("/gacha", {
+        navigate("/comparison", {
           state: { myMeishi, partnerMeishi },
         });
       } else {
