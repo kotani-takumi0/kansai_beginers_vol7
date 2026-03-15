@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { toShareUrl } from "../utils/meishiEncoder";
+import { buildBackendUrl } from "../utils/backendUrl";
 import type { ExchangeHistoryEntry, MeishiData } from "../types";
 import {
   loadExchangeHistory,
@@ -9,6 +10,7 @@ import {
   loadPartnerMeishi,
   clearPartnerMeishi,
   clearMyMeishi,
+  savePartnerMeishi,
 } from "../utils/appStorage";
 
 function CompareIcon() {
@@ -172,10 +174,34 @@ export function MeishiPreviewPage() {
   const location = useLocation();
   const showQr = location.state?.showQr === true;
   const meishi = loadMyMeishi();
-  const partnerMeishi = loadPartnerMeishi();
+  const [partnerMeishi, setPartnerMeishi] = useState<MeishiData | null>(loadPartnerMeishi());
   const exchangeHistory = loadExchangeHistory();
   const [isFlipped, setIsFlipped] = useState(showQr);
   const [showHistory, setShowHistory] = useState(false);
+
+  // 相手からの名刺をポーリングで確認
+  const checkForExchange = useCallback(async () => {
+    if (!meishi || partnerMeishi) return;
+    try {
+      const res = await fetch(buildBackendUrl(`/api/exchange/${meishi.id}`));
+      const data = (await res.json()) as { found: boolean; partnerMeishi?: MeishiData };
+      if (data.found && data.partnerMeishi) {
+        savePartnerMeishi(data.partnerMeishi);
+        setPartnerMeishi(data.partnerMeishi);
+      }
+    } catch {
+      // ポーリング失敗は無視
+    }
+  }, [meishi, partnerMeishi]);
+
+  useEffect(() => {
+    if (!meishi || partnerMeishi) return;
+    // 初回チェック
+    void checkForExchange();
+    // 3秒ごとにポーリング
+    const interval = setInterval(() => void checkForExchange(), 3000);
+    return () => clearInterval(interval);
+  }, [meishi, partnerMeishi, checkForExchange]);
 
   if (!meishi) {
     return (
@@ -248,9 +274,11 @@ export function MeishiPreviewPage() {
             <button
               type="button"
               onClick={() => {
+                const partner = partnerMeishi;
                 clearPartnerMeishi();
+                setPartnerMeishi(null);
                 navigate("/topics", {
-                  state: { myMeishi: meishi, partnerMeishi },
+                  state: { myMeishi: meishi, partnerMeishi: partner },
                 });
               }}
               className="flex items-center justify-center gap-2 rounded-2xl bg-[#d94841] px-4 py-4 text-[15px] font-black text-white shadow-[0_6px_0_#8e2a24] transition active:translate-y-[2px] active:shadow-[0_3px_0_#8e2a24]"

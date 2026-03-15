@@ -1,10 +1,13 @@
 // @vitest-environment jsdom
-import { describe, it, expect, afterEach } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ReceivePage } from "./ReceivePage";
 import { encode } from "../utils/meishiEncoder";
 import type { MeishiData } from "../types";
+
+// fetch をモック
+vi.spyOn(globalThis, "fetch").mockResolvedValue({ ok: true, json: async () => ({ ok: true }) } as Response);
 
 const mockMeishi: MeishiData = {
   id: "test-id",
@@ -21,6 +24,11 @@ const renderWithParams = (search: string) =>
   );
 
 describe("ReceivePage", () => {
+  beforeEach(() => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+  });
+
   afterEach(() => {
     cleanup();
   });
@@ -47,10 +55,20 @@ describe("ReceivePage", () => {
     expect(screen.getAllByText(/はなこ/).length).toBeGreaterThan(0);
   });
 
-  it("「ログインして名刺を作る」ボタンが表示される（名刺未作成時）", () => {
+  it("自分の名刺がない場合は「自分の名刺も作る」ボタンを表示する", () => {
     const encoded = encode(mockMeishi);
     renderWithParams(`?d=${encoded}`);
-    expect(screen.getByText("ログインして名刺を作る")).toBeDefined();
+    expect(screen.getByText("自分の名刺も作る")).toBeDefined();
+  });
+
+  it("自分の名刺がある場合は「話のタネを見る」ボタンを表示する", () => {
+    window.localStorage.setItem(
+      "jimoto:myMeishi",
+      JSON.stringify({ id: "my-1", name: "たろう", prefecture: "東京都", createdAt: "2026-03-14T00:00:00.000Z" })
+    );
+    const encoded = encode(mockMeishi);
+    renderWithParams(`?d=${encoded}`);
+    expect(screen.getByText("話のタネを見る")).toBeDefined();
   });
 
   it("エラー時に「自分の名刺を作る」ボタンが表示される", () => {

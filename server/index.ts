@@ -30,6 +30,54 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/auth", createAuthRouter());
 
+// --- 名刺交換 API ---
+// メモリ内ストア: { [受け取る側のmeishiId]: 送った側のmeishiデータ }
+const pendingExchanges = new Map<string, { meishi: unknown; createdAt: number }>();
+
+// 古いエントリを5分で自動削除
+const EXCHANGE_TTL_MS = 5 * 60 * 1000;
+
+function cleanupExpiredExchanges() {
+  const now = Date.now();
+  for (const [key, value] of pendingExchanges) {
+    if (now - value.createdAt > EXCHANGE_TTL_MS) {
+      pendingExchanges.delete(key);
+    }
+  }
+}
+
+// 名刺を交換に登録（スキャンした側が呼ぶ）
+app.post("/api/exchange", (req, res) => {
+  const { myMeishi, partnerMeishiId } = req.body as {
+    myMeishi: unknown;
+    partnerMeishiId: string;
+  };
+
+  if (!myMeishi || !partnerMeishiId) {
+    res.status(400).json({ error: "名刺データが不足しています" });
+    return;
+  }
+
+  cleanupExpiredExchanges();
+  pendingExchanges.set(partnerMeishiId, { meishi: myMeishi, createdAt: Date.now() });
+  res.json({ ok: true });
+});
+
+// 自分宛の名刺があるか確認（読み取られた側がポーリングで呼ぶ）
+app.get("/api/exchange/:meishiId", (req, res) => {
+  const { meishiId } = req.params;
+  cleanupExpiredExchanges();
+
+  const entry = pendingExchanges.get(meishiId);
+  if (!entry) {
+    res.json({ found: false });
+    return;
+  }
+
+  pendingExchanges.delete(meishiId);
+  res.json({ found: true, partnerMeishi: entry.meishi });
+});
+
 app.post("/api/topics", async (req, res) => {
   const { myPrefecture, partnerPrefecture, myName, partnerName } = req.body as {
     myPrefecture: string;
