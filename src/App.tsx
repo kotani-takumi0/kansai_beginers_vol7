@@ -8,7 +8,6 @@ import { MeishiPreviewPage } from "./pages/MeishiPreviewPage";
 import { PrefectureSelectPage } from "./pages/PrefectureSelectPage";
 import { ReceivePage } from "./pages/ReceivePage";
 import { RegisterPage } from "./pages/RegisterPage";
-import { ScanPage } from "./pages/ScanPage";
 import { TopicGenerationPage } from "./pages/TopicGenerationPage";
 
 function App() {
@@ -28,7 +27,6 @@ function App() {
               <Route path="/" element={<PrefectureSelectPage />} />
               <Route path="/topics" element={<TopicGenerationPage />} />
               <Route path="/preview" element={<MeishiPreviewPage />} />
-              <Route path="/scan" element={<ScanPage />} />
             </Route>
           </Route>
         </Routes>

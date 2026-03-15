@@ -10,7 +10,6 @@ const renderPreviewPage = () =>
       <Routes>
         <Route path="/preview" element={<MeishiPreviewPage />} />
         <Route path="/topics" element={<div>topics page</div>} />
-        <Route path="/scan" element={<div>scan page</div>} />
         <Route path="/" element={<div>home page</div>} />
       </Routes>
     </MemoryRouter>
@@ -48,23 +47,7 @@ describe("MeishiPreviewPage", () => {
     expect(screen.getByText("名刺が完成しました！")).toBeDefined();
     expect(screen.getAllByText("大阪府").length).toBeGreaterThan(0);
     expect(screen.getAllByText("たろう").length).toBeGreaterThan(0);
-    expect(screen.getByText("QRコードを読み取る")).toBeDefined();
-  });
-
-  it("QR読み取りボタンでスキャン画面へ進める", () => {
-    window.localStorage.setItem(
-      "jimoto:myMeishi",
-      JSON.stringify({
-        id: "my-1",
-        name: "たろう",
-        prefecture: "大阪府",
-        createdAt: "2026-03-14T00:00:00.000Z",
-      })
-    );
-
-    renderPreviewPage();
-    fireEvent.click(screen.getByText("QRコードを読み取る"));
-    expect(screen.getByText("scan page")).toBeDefined();
+    expect(screen.getByText("タップしてQRコードを表示")).toBeDefined();
   });
 
   it("交換履歴がある場合は一覧を表示する", () => {

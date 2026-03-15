@@ -11,19 +11,6 @@ import {
   clearMyMeishi,
 } from "../utils/appStorage";
 
-function QrIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="7" height="7" />
-      <rect x="14" y="3" width="7" height="7" />
-      <rect x="3" y="14" width="7" height="7" />
-      <rect x="14" y="14" width="3" height="3" />
-      <line x1="21" y1="14" x2="21" y2="17" />
-      <line x1="14" y1="21" x2="17" y2="21" />
-    </svg>
-  );
-}
-
 function CompareIcon() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -266,14 +253,6 @@ export function MeishiPreviewPage() {
               {partnerMeishi.name}さんとの話のタネを見る
             </button>
           )}
-          <button
-            type="button"
-            onClick={() => navigate("/scan")}
-            className="flex items-center justify-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-4 text-[15px] font-semibold text-white shadow-lg transition active:scale-[0.98]"
-          >
-            <QrIcon />
-            QRコードを読み取る
-          </button>
           <button
             type="button"
             onClick={() => {
