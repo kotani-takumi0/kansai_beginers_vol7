@@ -1,4 +1,6 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import os from "node:os";
+import path from "node:path";
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import express from "express";
 import request from "supertest";
 import { createAuthRouter, resetAuthStore } from "./auth";
@@ -11,8 +13,15 @@ const createApp = () => {
 };
 
 describe("auth routes", () => {
+  const authStoreFile = path.join(os.tmpdir(), "jimoto-auth-test-users.json");
+
   beforeEach(() => {
+    process.env.AUTH_STORE_FILE = authStoreFile;
     resetAuthStore();
+  });
+
+  afterEach(() => {
+    delete process.env.AUTH_STORE_FILE;
   });
 
   it("新規登録に成功するとユーザーとトークンを返す", async () => {
@@ -99,5 +108,26 @@ describe("auth routes", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.user.email).toBe("me@example.com");
+  });
+
+  it("登録したユーザーはサーバー再起動後もログインできる", async () => {
+    const firstApp = createApp();
+
+    await request(firstApp).post("/api/auth/register").send({
+      email: "persist@example.com",
+      password: "password123",
+      displayName: "永続ユーザー",
+    });
+
+    resetAuthStore({ clearPersistedUsers: false });
+
+    const restartedApp = createApp();
+    const res = await request(restartedApp).post("/api/auth/login").send({
+      email: "persist@example.com",
+      password: "password123",
+    });
+
+    expect(res.status).toBe(200);
+    expect(res.body.user.displayName).toBe("永続ユーザー");
   });
 });
