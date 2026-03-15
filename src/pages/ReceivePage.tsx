@@ -1,12 +1,22 @@
 import { useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { decode } from "../utils/meishiEncoder";
-import { savePartnerMeishi } from "../utils/appStorage";
+import { savePartnerMeishi, loadMyMeishi } from "../utils/appStorage";
+import { buildBackendUrl } from "../utils/backendUrl";
 import type { MeishiData } from "../types";
+
+function notifyExchange(myMeishi: MeishiData, partnerMeishiId: string) {
+  void fetch(buildBackendUrl("/api/exchange"), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ myMeishi, partnerMeishiId }),
+  });
+}
 
 export function ReceivePage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const myMeishi = loadMyMeishi();
 
   const { meishi, error } = useMemo(() => {
     const encoded = searchParams.get("d");
@@ -35,6 +45,21 @@ export function ReceivePage() {
       </div>
     );
   }
+
+  const handleReceiveAndGo = () => {
+    savePartnerMeishi(meishi);
+
+    if (myMeishi) {
+      // 自分の名刺をサーバーに登録（相手が受け取れるようにする）
+      notifyExchange(myMeishi, meishi.id);
+      // 直接話題生成へ
+      navigate("/topics", {
+        state: { myMeishi, partnerMeishi: meishi },
+      });
+    } else {
+      navigate("/");
+    }
+  };
 
   return (
     <div
@@ -67,16 +92,15 @@ export function ReceivePage() {
         </section>
 
         <button
-          onClick={() => {
-            savePartnerMeishi(meishi);
-            navigate("/");
-          }}
+          onClick={handleReceiveAndGo}
           className="w-full rounded-[24px] border-[3px] border-[#744b2e] bg-[#1f8f5f] px-5 py-4 text-[16px] font-black text-white shadow-[0_6px_0_#166647] transition active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
         >
-          自分の名刺も作る
+          {myMeishi ? "話のタネを見る" : "自分の名刺も作る"}
         </button>
         <p className="text-[#888] text-xs text-center">
-          名刺を作ると、AIが2人の話のタネを生成するよ！
+          {myMeishi
+            ? "あなたの名刺も相手に届きます"
+            : "名刺を作ると、AIが2人の話のタネを生成するよ！"}
         </p>
       </div>
     </div>
