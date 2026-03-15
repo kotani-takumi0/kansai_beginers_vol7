@@ -30,9 +30,9 @@ describe("PrefectureSelectPage", () => {
     expect(screen.getByLabelText("あなたの名前")).toBeDefined();
   });
 
-  it("じもとショック名刺の案内が表示される", () => {
+  it("ジモカ名刺の案内が表示される", () => {
     renderPage();
-    expect(screen.getByText("じもとショック名刺")).toBeDefined();
+    expect(screen.getByText("ジモカ名刺")).toBeDefined();
     expect(screen.getByRole("heading", { name: "北海道" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "関東" })).toBeDefined();
     expect(screen.getByRole("heading", { name: "近畿" })).toBeDefined();
