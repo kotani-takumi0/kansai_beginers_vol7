@@ -26,7 +26,7 @@ const SCAN_STATUS = {
     accent: "#0b6e4f",
     background: "#dff6e8",
     title: "名刺を受け取りました",
-    description: "比較画面へ移動しています。",
+    description: "AIが話のタネを生成しています...",
   },
   error: {
     label: "再トライ",
@@ -117,7 +117,7 @@ export function ScanPage() {
 
       const myMeishi = loadMyMeishi();
       if (myMeishi) {
-        navigate("/comparison", {
+        navigate("/topics", {
           state: { myMeishi, partnerMeishi },
         });
       } else {
@@ -153,9 +153,9 @@ export function ScanPage() {
           <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
             <p className="text-[11px] font-black tracking-[0.28em]">SCAN STATION</p>
             <span className="mt-1 block text-[17px] font-semibold">QRコード読み取り</span>
-            <h1 className="mt-1 text-[27px] font-black leading-tight">相手の地元名刺を受け取る</h1>
+            <h1 className="mt-1 text-[27px] font-black leading-tight">相手の名刺を受け取る</h1>
             <p className="mt-2 text-sm font-bold text-[#fff4dc]">
-              名刺カードの裏面を読み取って、比較トークを始めよう。
+              名刺カードの裏面を読み取って、AIに話のタネを作ってもらおう。
             </p>
           </div>
 

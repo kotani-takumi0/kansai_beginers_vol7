@@ -9,7 +9,6 @@ const renderPage = () =>
     <MemoryRouter initialEntries={["/"]}>
       <Routes>
         <Route path="/" element={<PrefectureSelectPage />} />
-        <Route path="/topics" element={<div>topics page</div>} />
         <Route path="/preview" element={<div>preview page</div>} />
       </Routes>
     </MemoryRouter>
@@ -28,7 +27,7 @@ describe("PrefectureSelectPage", () => {
 
   it("名前入力欄が表示される", () => {
     renderPage();
-    expect(screen.getByLabelText("まずは名前を教えてください")).toBeDefined();
+    expect(screen.getByLabelText("あなたの名前")).toBeDefined();
   });
 
   it("じもとショック名刺の案内が表示される", () => {
@@ -44,17 +43,19 @@ describe("PrefectureSelectPage", () => {
     expect(button.disabled).toBe(true);
   });
 
-  it("名前を入力して都道府県を選ぶと次へ進める", () => {
+  it("名前を入力して都道府県を選ぶと名刺が作成されプレビューへ遷移する", () => {
     renderPage();
 
-    fireEvent.change(screen.getByLabelText("まずは名前を教えてください"), {
+    fireEvent.change(screen.getByLabelText("あなたの名前"), {
       target: { value: "みぞじり" },
     });
-    fireEvent.click(screen.getByRole("button", { name: /大阪府/ }));
-    fireEvent.click(screen.getByRole("button", { name: "大阪府の診断をはじめる" }));
+    fireEvent.click(screen.getByRole("button", { name: "大阪府" }));
+    fireEvent.click(screen.getByRole("button", { name: "この内容で名刺をつくる" }));
 
-    expect(screen.getByText("topics page")).toBeDefined();
+    expect(screen.getByText("preview page")).toBeDefined();
     expect(window.localStorage.getItem("jimoto:selectedName")).toBe("みぞじり");
-    expect(window.sessionStorage.getItem("jimoto:selectedPrefecture")).toBe("大阪府");
+    const saved = JSON.parse(window.localStorage.getItem("jimoto:myMeishi") ?? "{}");
+    expect(saved.prefecture).toBe("大阪府");
+    expect(saved.name).toBe("みぞじり");
   });
 });

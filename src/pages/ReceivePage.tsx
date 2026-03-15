@@ -36,8 +36,6 @@ export function ReceivePage() {
     );
   }
 
-  const normalTopics = meishi.topics.filter((t) => t.isNormal);
-
   return (
     <div
       className="relative min-h-full overflow-hidden bg-[#f7edd6] text-[#3d2718]"
@@ -54,26 +52,17 @@ export function ReceivePage() {
             <p className="text-[11px] font-black tracking-[0.28em]">CARD RECEIVED</p>
             <h1 className="mt-1 text-[27px] font-black leading-tight">名刺が届きました！</h1>
             <p className="mt-2 text-sm font-bold text-[#fff4dc]">
-              {meishi.prefecture}の{meishi.name ?? "人"}から名刺が届いたよ
+              {meishi.prefecture}の{meishi.name}さんから名刺が届いたよ
             </p>
           </div>
 
-          <div className="p-4 space-y-3">
-            <p className="text-sm font-black text-[#a54f23]">
-              {meishi.name ?? meishi.prefecture}の「普通」:
-            </p>
-            {normalTopics.map(({ topic }) => (
-              <div
-                key={topic.id}
-                className="rounded-[18px] border-2 border-[#d5b98b] bg-white px-4 py-3"
-              >
-                <span className="text-[11px] font-bold text-[#8a6847]">{topic.category}</span>
-                <p className="mt-1 text-[15px] font-semibold text-[#1a1a1a]">{topic.text}</p>
-              </div>
-            ))}
-            {normalTopics.length === 0 && (
-              <p className="text-sm text-[#888]">「普通」なものがありません</p>
-            )}
+          <div className="p-5 flex flex-col items-center gap-3">
+            <div className="rounded-2xl bg-gradient-to-br from-[#2d2d3a] via-[#3a3a4a] to-[#2d2d3a] px-8 py-6 text-center shadow-lg">
+              <p className="text-[9px] tracking-[0.15em] text-white/40">FROM</p>
+              <p className="mt-2 text-2xl font-bold text-white">{meishi.prefecture}</p>
+              <div className="mt-3 h-px w-12 mx-auto bg-white/20" />
+              <p className="mt-3 text-base font-medium text-white/80">{meishi.name}</p>
+            </div>
           </div>
         </section>
 
@@ -87,7 +76,7 @@ export function ReceivePage() {
           自分の名刺も作る
         </button>
         <p className="text-[#888] text-xs text-center">
-          名刺を作ると、相手の「普通」にリアクションできるよ！
+          名刺を作ると、AIが2人の話のタネを生成するよ！
         </p>
       </div>
     </div>

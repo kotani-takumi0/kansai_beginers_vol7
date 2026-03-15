@@ -29,7 +29,7 @@ describe("ScanPage", () => {
     );
 
     expect(screen.getByText("QRコード読み取り")).toBeDefined();
-    expect(screen.getByText("相手の地元名刺を受け取る")).toBeDefined();
+    expect(screen.getByText("相手の名刺を受け取る")).toBeDefined();
     expect(screen.getByText("カメラを起動する")).toBeDefined();
     expect(screen.getByText("読み取りのコツ")).toBeDefined();
   });

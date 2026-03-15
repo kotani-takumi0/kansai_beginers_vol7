@@ -8,17 +8,8 @@ import type { MeishiData } from "../types";
 
 const mockMeishi: MeishiData = {
   id: "test-id",
+  name: "はなこ",
   prefecture: "大阪府",
-  topics: [
-    {
-      topic: { id: "1", text: "お好み焼きをおかずにご飯を食べる", category: "食文化" },
-      isNormal: true,
-    },
-    {
-      topic: { id: "2", text: "エスカレーターは右に立つ", category: "くらし" },
-      isNormal: false,
-    },
-  ],
   createdAt: "2026-03-14T00:00:00.000Z",
 };
 
@@ -53,17 +44,7 @@ describe("ReceivePage", () => {
     renderWithParams(`?d=${encoded}`);
     expect(screen.getByText("名刺が届きました！")).toBeDefined();
     expect(screen.getAllByText(/大阪府/).length).toBeGreaterThan(0);
-    // 「普通」のトピックのみ表示
-    expect(screen.getByText("お好み焼きをおかずにご飯を食べる")).toBeDefined();
-  });
-
-  it("「普通」のトピックのみ表示される", () => {
-    const encoded = encode(mockMeishi);
-    renderWithParams(`?d=${encoded}`);
-    // isNormal=true のもの
-    expect(screen.getByText("お好み焼きをおかずにご飯を食べる")).toBeDefined();
-    // isNormal=false は「普通」リストに表示されないが、カテゴリは見える場合がある
-    expect(screen.getByText("食文化")).toBeDefined();
+    expect(screen.getAllByText(/はなこ/).length).toBeGreaterThan(0);
   });
 
   it("「自分の名刺も作る」ボタンが表示される", () => {

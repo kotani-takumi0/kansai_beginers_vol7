@@ -1,17 +1,13 @@
-import { useMemo, useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { toShareUrl } from "../utils/meishiEncoder";
 import type { ExchangeHistoryEntry, MeishiData } from "../types";
 import {
   loadExchangeHistory,
-  loadSelectedName,
-  loadSelectedPrefecture,
-  loadSelectedTopics,
+  loadMyMeishi,
   loadPartnerMeishi,
   clearPartnerMeishi,
-  saveMyMeishi,
-  loadMyMeishi,
   clearMyMeishi,
 } from "../utils/appStorage";
 
@@ -77,13 +73,6 @@ function formatHistoryDate(value: string) {
   });
 }
 
-function createMeishiId() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-  return `meishi-${Date.now()}`;
-}
-
 function MeishiCard({
   meishi,
   shareUrl,
@@ -95,8 +84,6 @@ function MeishiCard({
   readonly isFlipped: boolean;
   readonly onFlip: () => void;
 }) {
-  const normalTopics = meishi.topics.filter((t) => t.isNormal);
-
   return (
     <div className="flex justify-center px-8 pb-2">
       <div
@@ -111,7 +98,7 @@ function MeishiCard({
             transform: isFlipped ? "rotateY(180deg)" : "rotateY(0deg)",
           }}
         >
-          {/* 表面 - わたしの「普通」 */}
+          {/* 表面 */}
           <div
             className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#2d2d3a] via-[#3a3a4a] to-[#2d2d3a] shadow-[0_8px_32px_rgba(0,0,0,.18)]"
             style={{
@@ -123,33 +110,13 @@ function MeishiCard({
               JIMOTO SHOCK
             </span>
 
-            <div className="absolute top-4 right-5 text-right">
-              <p className="text-[9px] tracking-[0.15em] text-white/40">NORMAL</p>
-              <p className="text-xl font-bold text-white/80">{normalTopics.length}</p>
-            </div>
-
-            <div className="absolute top-12 left-5 right-5">
-              {meishi.name && (
-                <p className="text-sm font-medium text-white/60">{meishi.name}</p>
-              )}
-              <h2 className="mt-1 text-2xl font-bold tracking-tight text-white">
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
+              <p className="text-[9px] tracking-[0.15em] text-white/40 mb-2">HELLO, I'M FROM</p>
+              <h2 className="text-3xl font-bold tracking-tight text-white">
                 {meishi.prefecture}
               </h2>
-              <p className="mt-1 text-[11px] text-white/40">わたしの「普通」</p>
-            </div>
-
-            <div className="absolute top-32 right-5 bottom-12 left-5 flex flex-col justify-center gap-2">
-              {normalTopics.map(({ topic }) => (
-                <div
-                  key={topic.id}
-                  className="rounded-xl border border-white/10 bg-white/5 px-3 py-2"
-                >
-                  <p className="text-[11px] leading-relaxed text-white/80">{topic.text}</p>
-                </div>
-              ))}
-              {normalTopics.length === 0 && (
-                <p className="text-center text-sm text-white/40">「普通」なものがありません</p>
-              )}
+              <div className="mt-4 h-px w-16 bg-white/20" />
+              <p className="mt-4 text-lg font-medium text-white/80">{meishi.name}</p>
             </div>
 
             <span className="absolute bottom-4 left-5 text-[11px] font-medium text-white/30">
@@ -177,7 +144,7 @@ function MeishiCard({
             </div>
 
             <span className="absolute bottom-3 left-0 right-0 text-center text-[10px] font-medium text-white/40">
-              {meishi.prefecture}
+              {meishi.prefecture} / {meishi.name}
             </span>
           </div>
         </div>
@@ -187,52 +154,39 @@ function MeishiCard({
 }
 
 function ExchangeHistoryCard({ entry }: { readonly entry: ExchangeHistoryEntry }) {
+  const navigate = useNavigate();
   return (
-    <div className="rounded-2xl border border-[#ececea] bg-[#f8f8f6] p-4">
+    <button
+      type="button"
+      onClick={() =>
+        navigate("/topics", {
+          state: { myMeishi: entry.myMeishi, partnerMeishi: entry.partnerMeishi, topics: entry.topics },
+        })
+      }
+      className="w-full rounded-2xl border border-[#ececea] bg-[#f8f8f6] p-4 text-left transition active:scale-[0.98]"
+    >
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-sm font-bold text-[#1a1a1a]">
-            {entry.partnerMeishi.prefecture}の人と交換
+            {entry.partnerMeishi.name}（{entry.partnerMeishi.prefecture}）
           </p>
           <p className="mt-1 text-xs text-[#888]">{formatHistoryDate(entry.exchangedAt)}</p>
         </div>
         <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#555]">
-          😲{entry.shockCount} / 🤔{entry.knewItCount}
+          話題{entry.topics.length}件
         </span>
       </div>
-    </div>
+    </button>
   );
 }
 
 export function MeishiPreviewPage() {
   const navigate = useNavigate();
-  const prefecture = loadSelectedPrefecture();
-  const topics = loadSelectedTopics();
+  const meishi = loadMyMeishi();
   const partnerMeishi = loadPartnerMeishi();
   const exchangeHistory = loadExchangeHistory();
   const [isFlipped, setIsFlipped] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
-  const savedMeishi = loadMyMeishi();
-
-  const meishi = useMemo<MeishiData | null>(() => {
-    if (prefecture && topics.length > 0) {
-      return {
-        id: createMeishiId(),
-        name: loadSelectedName() || savedMeishi?.name,
-        prefecture,
-        topics,
-        createdAt: new Date().toISOString(),
-      };
-    }
-
-    return savedMeishi;
-  }, [prefecture, savedMeishi, topics]);
-
-  useEffect(() => {
-    if (meishi) {
-      saveMyMeishi(meishi);
-    }
-  }, [meishi]);
 
   if (!meishi) {
     return (
@@ -240,7 +194,7 @@ export function MeishiPreviewPage() {
         <div className="w-full rounded-2xl border border-[#ececea] bg-white p-6">
           <h2 className="text-center text-lg font-bold text-[#1a1a1a]">名刺データがありません</h2>
           <p className="mt-2 text-center text-sm text-[#888]">
-            先に出身地を選んで、診断を受けてください。
+            先に名前と出身地を入力してください。
           </p>
           <div className="mt-5 flex flex-col gap-3">
             <button
@@ -248,15 +202,13 @@ export function MeishiPreviewPage() {
               onClick={() => navigate("/")}
               className="rounded-xl bg-[#e85d3a] px-5 py-3.5 text-[15px] font-semibold text-white"
             >
-              最初からつくる
+              名刺をつくる
             </button>
           </div>
         </div>
       </div>
     );
   }
-
-  const normalTopics = meishi.topics.filter((t) => t.isNormal);
 
   return (
     <div
@@ -272,11 +224,10 @@ export function MeishiPreviewPage() {
       <div className="relative mx-auto max-w-[420px] px-4 pt-4">
         <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
           <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
-            <p className="text-[11px] font-black tracking-[0.28em]">SHOCK CARD</p>
-            <span className="mt-1 block text-[17px] font-semibold">じもとショック名刺</span>
-            <h1 className="mt-1 text-[27px] font-black leading-tight">{meishi.prefecture}の名刺が完成</h1>
+            <p className="text-[11px] font-black tracking-[0.28em]">YOUR CARD</p>
+            <h1 className="mt-1 text-[27px] font-black leading-tight">名刺が完成しました！</h1>
             <p className="mt-2 text-sm font-bold text-[#fff4dc]">
-              あなたの「普通」が{normalTopics.length}個見つかりました。交換して相手を驚かせよう！
+              QRコードを見せて名刺を交換しよう。交換するとAIが話のタネを生成するよ！
             </p>
           </div>
         </section>
@@ -305,14 +256,14 @@ export function MeishiPreviewPage() {
               type="button"
               onClick={() => {
                 clearPartnerMeishi();
-                navigate("/comparison", {
+                navigate("/topics", {
                   state: { myMeishi: meishi, partnerMeishi },
                 });
               }}
-              className="flex items-center justify-center gap-2 rounded-2xl bg-[#e85d3a] px-4 py-4 text-[15px] font-semibold text-white"
+              className="flex items-center justify-center gap-2 rounded-2xl bg-[#d94841] px-4 py-4 text-[15px] font-black text-white shadow-[0_6px_0_#8e2a24] transition active:translate-y-[2px] active:shadow-[0_3px_0_#8e2a24]"
             >
               <CompareIcon />
-              相手の名刺にリアクションする
+              {partnerMeishi.name}さんとの話のタネを見る
             </button>
           )}
           <button
@@ -336,40 +287,8 @@ export function MeishiPreviewPage() {
           </button>
         </div>
 
-        <div className="mx-5 rounded-2xl border border-[#ececea] bg-white p-5">
-          <h3 className="mb-4 text-base font-bold text-[#1a1a1a]">診断結果</h3>
-          <div className="divide-y divide-[#f0f0ee]">
-            {meishi.topics.map(({ topic, isNormal }, index) => (
-              <div key={topic.id} className="flex items-start justify-between gap-3 py-3.5">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[#f0f0ee] text-[11px] font-bold text-[#888]">
-                      {index + 1}
-                    </span>
-                    <span className="text-[11px] font-semibold text-[#888]">
-                      {topic.category}
-                    </span>
-                  </div>
-                  <p className="mt-1.5 text-[15px] leading-relaxed text-[#1a1a1a]">
-                    {topic.text}
-                  </p>
-                </div>
-                <span
-                  className={`mt-0.5 shrink-0 rounded-full px-2.5 py-1 text-xs font-bold ${
-                    isNormal
-                      ? "bg-emerald-50 text-emerald-600"
-                      : "bg-orange-50 text-orange-600"
-                  }`}
-                >
-                  {isNormal ? "普通" : "普通じゃない"}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {exchangeHistory.length > 0 && (
-          <div className="mx-5 mt-4">
+          <div className="mx-5">
             <button
               type="button"
               onClick={() => setShowHistory((prev) => !prev)}
