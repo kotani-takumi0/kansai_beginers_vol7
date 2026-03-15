@@ -51,7 +51,7 @@ describe("PrefectureSelectPage", () => {
       target: { value: "みぞじり" },
     });
     fireEvent.click(screen.getByRole("button", { name: "大阪府" }));
-    fireEvent.click(screen.getByRole("button", { name: "大阪府で決定！" }));
+    fireEvent.click(screen.getByRole("button", { name: "大阪府の切符で出発する" }));
 
     expect(screen.getByText("topics page")).toBeDefined();
     expect(window.localStorage.getItem("jimoto:selectedName")).toBe("みぞじり");

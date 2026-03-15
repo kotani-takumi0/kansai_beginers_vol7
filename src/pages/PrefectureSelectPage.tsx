@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { useNavigate, Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import {
-  saveSelectedPrefecture,
   loadMyMeishi,
   loadSelectedName,
   saveSelectedName,
+  saveSelectedPrefecture,
 } from "../utils/appStorage";
 
 type Sticker = {
@@ -18,30 +18,47 @@ type Sticker = {
 const PREFECTURE_GROUPS = [
   {
     region: "北海道・東北",
+    badgeColor: "bg-[#2d8fcb]",
     prefectures: ["北海道", "青森県", "岩手県", "宮城県", "秋田県", "山形県", "福島県"],
   },
   {
     region: "関東",
+    badgeColor: "bg-[#f07f29]",
     prefectures: ["茨城県", "栃木県", "群馬県", "埼玉県", "千葉県", "東京都", "神奈川県"],
   },
   {
     region: "中部",
-    prefectures: ["新潟県", "富山県", "石川県", "福井県", "山梨県", "長野県", "岐阜県", "静岡県", "愛知県"],
+    badgeColor: "bg-[#4d9955]",
+    prefectures: [
+      "新潟県",
+      "富山県",
+      "石川県",
+      "福井県",
+      "山梨県",
+      "長野県",
+      "岐阜県",
+      "静岡県",
+      "愛知県",
+    ],
   },
   {
     region: "近畿",
+    badgeColor: "bg-[#c85050]",
     prefectures: ["三重県", "滋賀県", "京都府", "大阪府", "兵庫県", "奈良県", "和歌山県"],
   },
   {
     region: "中国",
+    badgeColor: "bg-[#6f63c6]",
     prefectures: ["鳥取県", "島根県", "岡山県", "広島県", "山口県"],
   },
   {
     region: "四国",
+    badgeColor: "bg-[#ffb000]",
     prefectures: ["徳島県", "香川県", "愛媛県", "高知県"],
   },
   {
     region: "九州・沖縄",
+    badgeColor: "bg-[#009688]",
     prefectures: ["福岡県", "佐賀県", "長崎県", "熊本県", "大分県", "宮崎県", "鹿児島県", "沖縄県"],
   },
 ];
@@ -298,7 +315,7 @@ export function PrefectureSelectPage() {
               type="text"
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="例: みぞじり"
+              placeholder="例: たろう"
               className="w-full rounded-[16px] bg-white px-4 py-3 text-[16px] font-bold text-[#3d2718] outline-none placeholder:text-[#b59777]"
               maxLength={20}
             />
@@ -322,9 +339,14 @@ export function PrefectureSelectPage() {
                 key={group.region}
                 className="rounded-[24px] border-2 border-[#744b2e] bg-[#fff9ea] p-4"
               >
-                <h3 className="mb-3 border-b-2 border-[#ead3ac] pb-2 text-sm font-black text-[#a54f23]">
-                  {group.region}
-                </h3>
+                <div className="mb-3 flex items-center gap-3">
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-black tracking-[0.14em] text-white ${group.badgeColor}`}
+                  >
+                    {group.region}
+                  </span>
+                  <div className="h-[2px] flex-1 bg-[repeating-linear-gradient(90deg,#744b2e_0_10px,transparent_10px_18px)]" />
+                </div>
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                   {group.prefectures.map((pref) => {
                     const isSelected = selectedPrefecture === pref;
@@ -333,7 +355,7 @@ export function PrefectureSelectPage() {
                       <button
                         key={pref}
                         onClick={() => setSelectedPrefecture(pref)}
-                        className={`min-h-[48px] rounded-[18px] border-2 px-1 py-2 text-sm font-black transition ${
+                        className={`min-h-[52px] rounded-[18px] border-2 px-1 py-2 text-sm font-black transition ${
                           isSelected
                             ? "border-[#744b2e] bg-[#d94841] text-white shadow-[0_4px_0_#8e2a24]"
                             : "border-[#d5b98b] bg-white text-[#5a402d] shadow-[0_3px_0_#ead3ac] active:translate-y-[1px]"
@@ -354,7 +376,7 @@ export function PrefectureSelectPage() {
         className="fixed right-0 bottom-0 left-0 bg-gradient-to-t from-[#f7edd6] via-[#f7edd6] to-transparent px-4 pt-6"
         style={{ paddingBottom: "calc(env(safe-area-inset-bottom, 0px) + 1rem)" }}
       >
-        <div className="mx-auto max-w-[420px]">
+        <div className="mx-auto max-w-[440px]">
           <button
             onClick={handleNext}
             disabled={!selectedPrefecture || !name.trim()}
@@ -365,7 +387,7 @@ export function PrefectureSelectPage() {
             }`}
           >
             {selectedPrefecture
-              ? `${selectedPrefecture}で決定！`
+              ? `${selectedPrefecture}の切符で出発する`
               : "名前と出身地を入力してください"}
           </button>
         </div>
