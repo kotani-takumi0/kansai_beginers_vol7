@@ -71,6 +71,20 @@ describe("ReceivePage", () => {
     expect(screen.getByText("話のタネを見る")).toBeDefined();
   });
 
+  it("自分と相手が同じ県ならエラーメッセージを表示して進めない", () => {
+    window.localStorage.setItem(
+      "jimoto:myMeishi",
+      JSON.stringify({ id: "my-1", name: "たろう", prefecture: "大阪府", createdAt: "2026-03-14T00:00:00.000Z" })
+    );
+    const encoded = encode(mockMeishi);
+
+    renderWithParams(`?d=${encoded}`);
+
+    expect(screen.getByText("相手と同じ県を選択できません。")).toBeDefined();
+    expect((screen.getByRole("button", { name: "話のタネを見る" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(window.sessionStorage.getItem("jimoto:partnerMeishi")).toBeNull();
+  });
+
   it("エラー時に「自分のカードを作る」ボタンが表示される", () => {
     renderWithParams("");
     expect(screen.getByText("自分のカードを作る")).toBeDefined();
