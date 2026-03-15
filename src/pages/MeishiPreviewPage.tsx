@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { QRCodeSVG } from "qrcode.react";
 import { toShareUrl } from "../utils/meishiEncoder";
 import type { ExchangeHistoryEntry, MeishiData } from "../types";
@@ -182,10 +182,12 @@ function ExchangeHistoryCard({ entry }: { readonly entry: ExchangeHistoryEntry }
 
 export function MeishiPreviewPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const showQr = location.state?.showQr === true;
   const meishi = loadMyMeishi();
   const partnerMeishi = loadPartnerMeishi();
   const exchangeHistory = loadExchangeHistory();
-  const [isFlipped, setIsFlipped] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(showQr);
   const [showHistory, setShowHistory] = useState(false);
 
   if (!meishi) {
@@ -224,10 +226,14 @@ export function MeishiPreviewPage() {
       <div className="relative mx-auto max-w-[420px] px-4 pt-4">
         <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
           <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
-            <p className="text-[11px] font-black tracking-[0.28em]">YOUR CARD</p>
-            <h1 className="mt-1 text-[27px] font-black leading-tight">名刺が完成しました！</h1>
+            <p className="text-[11px] font-black tracking-[0.28em]">{showQr ? "SHOW YOUR CARD" : "YOUR CARD"}</p>
+            <h1 className="mt-1 text-[27px] font-black leading-tight">
+              {showQr ? "相手にQRを見せよう！" : "名刺が完成しました！"}
+            </h1>
             <p className="mt-2 text-sm font-bold text-[#fff4dc]">
-              QRコードを見せて名刺を交換しよう。交換するとAIが話のタネを生成するよ！
+              {showQr
+                ? "相手にこのQRコードをスキャンしてもらおう。お互いに同じ話題で盛り上がれるよ！"
+                : "QRコードを見せて名刺を交換しよう。交換するとAIが話のタネを生成するよ！"}
             </p>
           </div>
         </section>
