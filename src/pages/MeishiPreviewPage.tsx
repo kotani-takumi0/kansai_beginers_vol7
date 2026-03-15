@@ -206,7 +206,7 @@ export function MeishiPreviewPage() {
     return (
       <div className="mx-auto flex min-h-[60vh] max-w-[420px] flex-col items-center justify-center px-5">
         <div className="w-full rounded-2xl border border-[#ececea] bg-white p-6">
-          <h2 className="text-center text-lg font-bold text-[#1a1a1a]">名刺データがありません</h2>
+          <h2 className="text-center text-lg font-bold text-[#1a1a1a]">カードがありません</h2>
           <p className="mt-2 text-center text-sm text-[#888]">
             先に名前と出身地を入力してください。
           </p>
@@ -216,7 +216,7 @@ export function MeishiPreviewPage() {
               onClick={() => navigate("/create")}
               className="rounded-xl bg-[#e85d3a] px-5 py-3.5 text-[15px] font-semibold text-white"
             >
-              名刺をつくる
+              カードをつくる
             </button>
           </div>
         </div>
@@ -243,12 +243,12 @@ export function MeishiPreviewPage() {
                 {showQr ? "SHOW YOUR CARD" : "CARD CREATED"}
               </p>
               <h1 className="mt-1 text-[27px] font-black leading-tight">
-                {showQr ? "相手にQRを見せよう！" : "名刺が完成しました！"}
+                {showQr ? "相手にQRを見せよう！" : "カードが完成しました！"}
               </h1>
               <p className="mt-2 text-sm font-bold text-[#fff4dc]">
                 {showQr
                   ? "相手にこのQRコードをスキャンしてもらおう。お互いに同じ話題で盛り上がれるよ！"
-                  : "QRコードを見せて名刺を交換しよう。交換するとAIが話のタネを生成するよ！"}
+                  : "QRコードを見せてカードを交換しよう。交換するとAIが話のタネを生成するよ！"}
               </p>
             </div>
           </section>

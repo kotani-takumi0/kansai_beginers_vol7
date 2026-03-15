@@ -77,9 +77,9 @@ export function PrefectureSelectPage() {
         <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
           <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
             <p className="text-[11px] font-black tracking-[0.28em]">JIMOKA</p>
-            <h1 className="mt-1 text-[28px] font-black leading-none">ジモカ名刺</h1>
+            <h1 className="mt-1 text-[28px] font-black leading-none">ジモカ</h1>
             <p className="mt-2 text-sm font-bold text-[#fff4dc]">
-              名刺を交換すると、AIが2人の地元をもとに「話のタネ」を生成。初対面の会話が盛り上がる！
+              カードを交換すると、AIが2人の地元をもとに「話のタネ」を生成。初対面の会話が盛り上がる！
             </p>
           </div>
 
@@ -87,8 +87,8 @@ export function PrefectureSelectPage() {
             <div className="rounded-[24px] border-2 border-dashed border-[#744b2e] bg-[#fff0c7] px-4 py-4">
               <p className="text-xs font-black tracking-[0.22em] text-[#a54f23]">HOW IT WORKS</p>
               <div className="mt-2 space-y-2 text-sm font-bold text-[#7c5a39]">
-                <p>① 名前と出身地を入力して名刺をつくる</p>
-                <p>② QRコードで名刺を交換する</p>
+                <p>① 名前と出身地を入力してカードをつくる</p>
+                <p>② QRコードでカードを交換する</p>
                 <p>③ AIが2人の地元から「話のタネ」を生成！</p>
               </div>
             </div>
@@ -191,7 +191,7 @@ export function PrefectureSelectPage() {
             }`}
           >
             {selectedPrefecture
-              ? "この内容で名刺をつくる"
+              ? "この内容でカードをつくる"
               : "名前と出身地を入力してください"}
           </button>
         </div>
