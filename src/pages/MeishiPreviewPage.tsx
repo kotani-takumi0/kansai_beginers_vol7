@@ -62,39 +62,6 @@ function formatHistoryDate(value: string) {
   });
 }
 
-function formatCardSerial(meishi: MeishiData) {
-  const seed = `${meishi.id}${meishi.prefecture}${meishi.name ?? ""}`.replace(/\D/g, "");
-  const digits = (seed + "483726159204").slice(0, 12);
-  return digits.replace(/(\d{4})(?=\d)/g, "$1 ");
-}
-
-function formatValidThru(value: string) {
-  const date = new Date(value);
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const year = String(date.getFullYear()).slice(-2);
-  return `${month}/${year}`;
-}
-
-function CardChip() {
-  return (
-    <div className="relative h-11 w-14 rounded-[12px] border border-[#efd39a]/60 bg-[linear-gradient(135deg,#f8df9a_0%,#c9a35a_55%,#f7e2a8_100%)] shadow-[inset_0_1px_1px_rgba(255,255,255,0.55)]">
-      <div className="absolute inset-x-2 top-3 h-px bg-[#8f6c2f]/60" />
-      <div className="absolute inset-x-2 bottom-3 h-px bg-[#8f6c2f]/60" />
-      <div className="absolute inset-y-2 left-4 w-px bg-[#8f6c2f]/50" />
-      <div className="absolute inset-y-2 right-4 w-px bg-[#8f6c2f]/50" />
-    </div>
-  );
-}
-
-function CardNetworkMark() {
-  return (
-    <div className="relative h-8 w-14" aria-hidden="true">
-      <span className="absolute left-0 top-0 h-8 w-8 rounded-full bg-[#ff8e63]/85" />
-      <span className="absolute left-5 top-0 h-8 w-8 rounded-full bg-[#ffd166]/85 mix-blend-screen" />
-    </div>
-  );
-}
-
 function MeishiCard({
   meishi,
   shareUrl,
@@ -106,9 +73,6 @@ function MeishiCard({
   readonly isFlipped: boolean;
   readonly onFlip: () => void;
 }) {
-  const cardSerial = formatCardSerial(meishi);
-  const validThru = formatValidThru(meishi.createdAt);
-
   return (
     <div className="flex justify-center px-8 pb-2">
       <div
@@ -125,95 +89,50 @@ function MeishiCard({
         >
           {/* 表面 */}
           <div
-            className="relative w-full overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(135deg,#16263a_0%,#284b63_40%,#4d7c8a_100%)] shadow-[0_18px_40px_rgba(22,38,58,0.32)]"
+            className="relative w-full overflow-hidden rounded-2xl border border-[#e8e4de] bg-[#fffdf8] shadow-[0_2px_12px_rgba(0,0,0,.06)]"
             style={{
               aspectRatio: "1.586 / 1",
               backfaceVisibility: "hidden",
             }}
           >
-            <div className="pointer-events-none absolute inset-0">
-              <div className="absolute -left-12 top-5 h-28 w-28 rounded-full bg-white/10 blur-2xl" />
-              <div className="absolute right-[-30px] bottom-[-16px] h-36 w-36 rounded-full bg-[#ffd166]/20 blur-2xl" />
-              <div className="absolute inset-x-0 top-14 h-px bg-white/10" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
+              <p className="text-[10px] font-medium tracking-[0.2em] text-[#b0a08a] mb-3">
+                JIMOTO SHOCK
+              </p>
+              <h2 className="text-3xl font-black tracking-tight text-[#3d2718]">
+                {meishi.prefecture}
+              </h2>
+              <div className="mt-4 h-px w-12 bg-[#d94841]/40" />
+              <p className="mt-4 text-lg font-semibold text-[#5a4635]">{meishi.name}</p>
             </div>
 
-            <div className="relative flex h-full flex-col p-5 text-white">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-[10px] font-black tracking-[0.24em] text-white/55">JIMOTO BANK</p>
-                  <p className="mt-1 text-xs font-semibold tracking-[0.18em] text-[#d9edf5]/75">LOCAL TALK CARD</p>
-                </div>
-                <CardNetworkMark />
-              </div>
-
-              <div className="mt-5 flex items-center justify-between">
-                <CardChip />
-                <div className="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-[10px] font-black tracking-[0.18em] text-[#eef9ff]">
-                  MEMBER
-                </div>
-              </div>
-
-              <div className="mt-6">
-                <p className="text-[11px] font-semibold tracking-[0.26em] text-[#dbeef9]/72">CARD HOLDER</p>
-                <p className="mt-1 text-xl font-black tracking-[0.02em] text-white">{meishi.name}</p>
-              </div>
-
-              <div className="mt-4">
-                <p className="text-[11px] font-semibold tracking-[0.26em] text-[#dbeef9]/72">HOME PREFECTURE</p>
-                <p className="mt-1 text-[28px] font-black leading-none tracking-[0.02em] text-white">
-                  {meishi.prefecture}
-                </p>
-              </div>
-
-              <div className="mt-auto grid grid-cols-[1fr_auto] items-end gap-3">
-                <div>
-                  <p className="text-[10px] font-semibold tracking-[0.28em] text-[#dbeef9]/65">CARD NUMBER</p>
-                  <p className="mt-1 text-sm font-black tracking-[0.24em] text-[#fff7ea]">{cardSerial}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[9px] font-semibold tracking-[0.24em] text-[#dbeef9]/65">VALID THRU</p>
-                  <p className="mt-1 text-sm font-black tracking-[0.2em] text-[#fff7ea]">{validThru}</p>
-                </div>
-              </div>
-            </div>
+            <span className="absolute bottom-4 left-0 right-0 text-center text-[10px] font-medium text-[#c0b8a8]">
+              {new Date(meishi.createdAt).toLocaleDateString("ja-JP")}
+            </span>
           </div>
 
           {/* 裏面 - QRコード */}
           <div
-            className="absolute inset-0 w-full overflow-hidden rounded-[28px] border border-white/10 bg-[linear-gradient(135deg,#1f1d24_0%,#3a3346_42%,#575060_100%)] shadow-[0_18px_40px_rgba(20,18,28,0.35)]"
+            className="absolute inset-0 w-full overflow-hidden rounded-2xl border border-[#e8e4de] bg-[#fffdf8] shadow-[0_2px_12px_rgba(0,0,0,.06)]"
             style={{
               aspectRatio: "1.586 / 1",
               backfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
             }}
           >
-            <div className="absolute left-0 right-0 top-6 h-10 bg-black/70" />
+            <p className="absolute top-4 left-0 right-0 text-center text-[10px] font-medium tracking-[0.2em] text-[#b0a08a]">
+              SCAN ME
+            </p>
 
-            <div className="relative flex h-full flex-col p-5 text-white">
-              <div className="mt-12 flex items-start justify-between gap-4">
-                <div className="rounded-[14px] bg-white px-3 py-2 text-[#241f2d] shadow-[0_8px_20px_rgba(0,0,0,0.18)]">
-                  <QRCodeSVG value={shareUrl} size={96} level="M" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-[10px] font-black tracking-[0.26em] text-white/55">SCAN TO EXCHANGE</p>
-                  <p className="mt-2 text-lg font-black text-white">名刺を読み取って会話スタート</p>
-                  <p className="mt-2 text-sm font-bold leading-relaxed text-white/72">
-                    このQRを相手に見せると、同じ話題で盛り上がれるトークカードを渡せます。
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-auto flex items-end justify-between gap-3">
-                <div>
-                  <p className="text-[10px] font-semibold tracking-[0.24em] text-white/50">CARD HOLDER</p>
-                  <p className="mt-1 text-sm font-black text-white">{meishi.name}</p>
-                </div>
-                <div className="text-right">
-                  <p className="text-[10px] font-semibold tracking-[0.24em] text-white/50">HOME PREFECTURE</p>
-                  <p className="mt-1 text-sm font-black text-white">{meishi.prefecture}</p>
-                </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="rounded-xl border border-[#e8e4de] p-3">
+                <QRCodeSVG value={shareUrl} size={120} level="M" />
               </div>
             </div>
+
+            <span className="absolute bottom-4 left-0 right-0 text-center text-[10px] font-medium text-[#c0b8a8]">
+              {meishi.prefecture} / {meishi.name}
+            </span>
           </div>
         </div>
       </div>
@@ -252,6 +171,7 @@ export function MeishiPreviewPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const showQr = location.state?.showQr === true;
+  const justCreated = location.state?.justCreated === true;
   const meishi = loadMyMeishi();
   const [partnerMeishi, setPartnerMeishi] = useState<MeishiData | null>(loadPartnerMeishi());
   const exchangeHistory = loadExchangeHistory();
@@ -315,21 +235,25 @@ export function MeishiPreviewPage() {
         <div className="absolute bottom-20 left-[-100px] h-72 w-72 rounded-full bg-[#bde0c5]" />
       </div>
 
-      <div className="relative mx-auto max-w-[420px] px-4 pt-4">
-        <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
-          <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
-            <p className="text-[10px] font-black tracking-[0.24em] text-[#fff3df]/80">{showQr ? "SHOW YOUR CARD" : "YOUR CARD"}</p>
-            <h1 className="mt-1 text-[22px] font-extrabold leading-tight text-[#fff6ea]">
-              {showQr ? "相手にQRを見せよう！" : "名刺が完成しました！"}
-            </h1>
-            <p className="mt-2 text-sm font-bold text-[#fff4dc]">
-              {showQr
-                ? "相手にこのQRコードをスキャンしてもらおう。お互いに同じ話題で盛り上がれるよ！"
-                : "QRコードを見せて名刺を交換しよう。交換するとAIが話のタネを生成するよ！"}
-            </p>
-          </div>
-        </section>
-      </div>
+      {(justCreated || showQr) && (
+        <div className="relative mx-auto max-w-[420px] px-4 pt-4">
+          <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
+            <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
+              <p className="text-[11px] font-black tracking-[0.28em]">
+                {showQr ? "SHOW YOUR CARD" : "CARD CREATED"}
+              </p>
+              <h1 className="mt-1 text-[27px] font-black leading-tight">
+                {showQr ? "相手にQRを見せよう！" : "名刺が完成しました！"}
+              </h1>
+              <p className="mt-2 text-sm font-bold text-[#fff4dc]">
+                {showQr
+                  ? "相手にこのQRコードをスキャンしてもらおう。お互いに同じ話題で盛り上がれるよ！"
+                  : "QRコードを見せて名刺を交換しよう。交換するとAIが話のタネを生成するよ！"}
+              </p>
+            </div>
+          </section>
+        </div>
+      )}
 
       <div className="relative mx-auto max-w-[420px] mt-4 pb-8">
         <MeishiCard
