@@ -31,6 +31,13 @@ describe("PrefectureSelectPage", () => {
     expect(screen.getByLabelText("まずは名前を教えてください")).toBeDefined();
   });
 
+  it("ご当地イラスト付きの案内が表示される", () => {
+    renderPage();
+    expect(screen.getByText("ご当地イラスト名刺")).toBeDefined();
+    expect(screen.getByText("たこ焼き")).toBeDefined();
+    expect(screen.getByText("シーサー")).toBeDefined();
+  });
+
   it("名前と都道府県が揃うまで進めない", () => {
     renderPage();
     const button = screen.getByText("名前と出身地を入力してください") as HTMLButtonElement;
