@@ -28,7 +28,7 @@ export function clearSelectedName() {
   }
 }
 
-// --- 自分の名刺 ---
+// --- 自分のカード ---
 
 export function saveMyMeishi(meishi: MeishiData) {
   if (isBrowser()) {
@@ -53,7 +53,7 @@ export function clearMyMeishi() {
   }
 }
 
-// --- 相手の名刺 ---
+// --- 相手のカード ---
 
 export function savePartnerMeishi(meishi: MeishiData) {
   if (isBrowser()) {

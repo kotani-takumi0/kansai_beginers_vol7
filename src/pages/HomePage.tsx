@@ -140,16 +140,16 @@ export function HomePage() {
 
         <div className="relative mx-auto flex min-h-[70vh] max-w-[420px] flex-col items-center justify-center px-5">
           <p className="text-[10px] font-medium tracking-[0.2em] text-[#b0a08a] mb-2">JIMOTO SHOCK</p>
-          <h1 className="text-2xl font-black text-[#3d2718]">じもとの名刺をつくろう</h1>
+          <h1 className="text-2xl font-black text-[#3d2718]">じもとのカードをつくろう</h1>
           <p className="mt-3 text-sm text-[#888] text-center">
-            出身地と名前を入力して、あなただけの名刺を作ろう
+            出身地と名前を入力して、あなただけのカードを作ろう
           </p>
           <button
             type="button"
             onClick={() => navigate("/create")}
             className="mt-8 rounded-2xl bg-[#d94841] px-8 py-4 text-[15px] font-black text-white shadow-[0_6px_0_#8e2a24] transition active:translate-y-[2px] active:shadow-[0_3px_0_#8e2a24]"
           >
-            名刺をつくる
+            カードをつくる
           </button>
         </div>
       </div>

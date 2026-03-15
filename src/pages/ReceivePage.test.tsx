@@ -55,13 +55,13 @@ describe("ReceivePage", () => {
     expect(screen.getAllByText(/はなこ/).length).toBeGreaterThan(0);
   });
 
-  it("自分の名刺がない場合は「自分の名刺も作る」ボタンを表示する", () => {
+  it("自分のカードがない場合は「自分のカードも作る」ボタンを表示する", () => {
     const encoded = encode(mockMeishi);
     renderWithParams(`?d=${encoded}`);
     expect(screen.getByText("自分のカードも作る")).toBeDefined();
   });
 
-  it("自分の名刺がある場合は「話のタネを見る」ボタンを表示する", () => {
+  it("自分のカードがある場合は「話のタネを見る」ボタンを表示する", () => {
     window.localStorage.setItem(
       "jimoto:myMeishi",
       JSON.stringify({ id: "my-1", name: "たろう", prefecture: "東京都", createdAt: "2026-03-14T00:00:00.000Z" })
@@ -71,7 +71,7 @@ describe("ReceivePage", () => {
     expect(screen.getByText("話のタネを見る")).toBeDefined();
   });
 
-  it("エラー時に「自分の名刺を作る」ボタンが表示される", () => {
+  it("エラー時に「自分のカードを作る」ボタンが表示される", () => {
     renderWithParams("");
     expect(screen.getByText("自分のカードを作る")).toBeDefined();
   });

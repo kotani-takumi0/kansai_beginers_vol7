@@ -32,7 +32,7 @@ describe("MeishiPreviewPage", () => {
     expect(screen.getByText("カードをつくる")).toBeDefined();
   });
 
-  it("保存済みデータがある場合は名刺プレビューを表示する", () => {
+  it("保存済みデータがある場合はカードプレビューを表示する", () => {
     window.localStorage.setItem(
       "jimoto:myMeishi",
       JSON.stringify({

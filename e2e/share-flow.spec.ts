@@ -32,14 +32,14 @@ function encodeMeishi(data: MeishiData): string {
 }
 
 test.describe("URL/QR共有フロー", () => {
-  test("共有URL → 名刺受信 → 名刺表示", async ({ page }) => {
+  test("共有URL → カード受信 → カード表示", async ({ page }) => {
     const encoded = encodeMeishi(sampleMeishi);
 
     // 共有URLにアクセス
     await page.goto(`/receive?d=${encoded}`);
 
     // 受信画面が表示される
-    await expect(page.getByText("名刺が届きました！")).toBeVisible();
+    await expect(page.getByText("カードが届きました！")).toBeVisible();
     await expect(page.getByText("京都府", { exact: true })).toBeVisible();
 
     // ネタが表示される
@@ -47,20 +47,20 @@ test.describe("URL/QR共有フロー", () => {
     await expect(page.getByText("バスの乗り方が独特")).toBeVisible();
     await expect(page.getByText("道案内でお寺を目印にする")).toBeVisible();
 
-    // 「自分の名刺も作る」ボタンが表示される
+    // 「自分のカードも作る」ボタンが表示される
     await expect(
-      page.getByRole("button", { name: "自分の名刺も作る" })
+      page.getByRole("button", { name: "自分のカードも作る" })
     ).toBeVisible();
   });
 
-  test("共有URL → 自分の名刺作成 → 比較画面へ遷移", async ({ page }) => {
+  test("共有URL → 自分のカード作成 → 比較画面へ遷移", async ({ page }) => {
     const encoded = encodeMeishi(sampleMeishi);
 
-    // 1. 共有URLにアクセスし「自分の名刺も作る」
+    // 1. 共有URLにアクセスし「自分のカードも作る」
     await page.goto(`/receive?d=${encoded}`);
-    await page.getByRole("button", { name: "自分の名刺も作る" }).click();
+    await page.getByRole("button", { name: "自分のカードも作る" }).click();
 
-    // 2. トップページに遷移し名刺を作成
+    // 2. トップページに遷移しカードを作成
     await expect(page).toHaveURL("/");
     await page.getByRole("button", { name: "大阪府" }).click();
     await page.getByRole("button", { name: /大阪府で決定/ }).click();
@@ -77,17 +77,17 @@ test.describe("URL/QR共有フロー", () => {
     }
 
     await page
-      .getByRole("button", { name: "この内容で名刺をつくる" })
+      .getByRole("button", { name: "この内容でカードをつくる" })
       .click();
 
-    // 4. プレビュー画面で「名刺を比較する」ボタンが表示される（partnerMeishiが保存されているため）
+    // 4. プレビュー画面で「カードを比較する」ボタンが表示される（partnerMeishiが保存されているため）
     await expect(page).toHaveURL("/preview");
     await expect(
-      page.getByRole("button", { name: "名刺を比較する" })
+      page.getByRole("button", { name: "カードを比較する" })
     ).toBeVisible();
 
     // 5. 比較画面に遷移
-    await page.getByRole("button", { name: "名刺を比較する" }).click();
+    await page.getByRole("button", { name: "カードを比較する" }).click();
     await expect(page).toHaveURL("/comparison");
     await expect(page.getByText("比較結果")).toBeVisible();
   });
@@ -96,7 +96,7 @@ test.describe("URL/QR共有フロー", () => {
     await page.goto("/receive?d=invalid-data");
     await expect(page.getByText("エラー")).toBeVisible();
     await expect(
-      page.getByText("名刺データの読み取りに失敗しました")
+      page.getByText("カードデータの読み取りに失敗しました")
     ).toBeVisible();
   });
 });

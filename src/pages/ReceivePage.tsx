@@ -50,7 +50,7 @@ export function ReceivePage() {
     savePartnerMeishi(meishi);
 
     if (myMeishi) {
-      // 自分の名刺をサーバーに登録（相手が受け取れるようにする）
+      // 自分のカードをサーバーに登録（相手が受け取れるようにする）
       notifyExchange(myMeishi, meishi.id);
       // 直接話題生成へ
       navigate("/topics", {

@@ -59,7 +59,7 @@ app.get("/api/health", (_req, res) => {
 
 app.use("/api/auth", createAuthRouter());
 
-// --- 名刺交換 API ---
+// --- カード交換 API ---
 // メモリ内ストア: { [受け取る側のmeishiId]: 送った側のmeishiデータ }
 const pendingExchanges = new Map<string, { meishi: unknown; createdAt: number }>();
 
@@ -75,7 +75,7 @@ function cleanupExpiredExchanges() {
   }
 }
 
-// 名刺を交換に登録（スキャンした側が呼ぶ）
+// カードを交換に登録（スキャンした側が呼ぶ）
 app.post("/api/exchange", (req, res) => {
   const { myMeishi, partnerMeishiId } = req.body as {
     myMeishi: unknown;
@@ -83,7 +83,7 @@ app.post("/api/exchange", (req, res) => {
   };
 
   if (!myMeishi || !partnerMeishiId) {
-    res.status(400).json({ error: "名刺データが不足しています" });
+    res.status(400).json({ error: "カードデータが不足しています" });
     return;
   }
 
@@ -92,7 +92,7 @@ app.post("/api/exchange", (req, res) => {
   res.json({ ok: true });
 });
 
-// 自分宛の名刺があるか確認（読み取られた側がポーリングで呼ぶ）
+// 自分宛のカードがあるか確認（読み取られた側がポーリングで呼ぶ）
 app.get("/api/exchange/:meishiId", (req, res) => {
   const { meishiId } = req.params;
   cleanupExpiredExchanges();

@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("名刺作成フロー", () => {
-  test("都道府県選択 → ネタ生成 → 立場選択 → 名刺プレビュー完成", async ({
+test.describe("カード作成フロー", () => {
+  test("都道府県選択 → ネタ生成 → 立場選択 → カードプレビュー完成", async ({
     page,
   }) => {
     // 1. トップページ（都道府県選択）
@@ -30,9 +30,9 @@ test.describe("名刺作成フロー", () => {
       await agreeButtons.nth(i).click();
     }
 
-    // 4. 名刺作成ボタン押下
+    // 4. カード作成ボタン押下
     await page
-      .getByRole("button", { name: "この内容で名刺をつくる" })
+      .getByRole("button", { name: "この内容でカードをつくる" })
       .click();
 
     // 5. プレビュー画面に遷移
@@ -42,7 +42,7 @@ test.describe("名刺作成フロー", () => {
 
     // 共有ボタンが表示される
     await expect(
-      page.getByRole("button", { name: "この名刺を共有する" })
+      page.getByRole("button", { name: "このカードを共有する" })
     ).toBeVisible();
   });
 });
