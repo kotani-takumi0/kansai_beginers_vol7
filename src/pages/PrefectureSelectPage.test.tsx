@@ -58,7 +58,7 @@ describe("PrefectureSelectPage", () => {
     expect(button.disabled).toBe(true);
   });
 
-  it("名前を入力して都道府県を選ぶと名刺が作成されプレビューへ遷移する", () => {
+  it("名前を入力して都道府県を選ぶとカードが作成されプレビューへ遷移する", () => {
     renderPage();
 
     fireEvent.change(screen.getByLabelText("あなたの名前"), {

@@ -1,4 +1,4 @@
-/** 名刺データ（シンプル版） */
+/** カードデータ（シンプル版） */
 export interface MeishiData {
   readonly id: string;
   readonly name: string;

@@ -178,7 +178,7 @@ export function MeishiPreviewPage() {
   const [isFlipped, setIsFlipped] = useState(showQr);
   const [showHistory, setShowHistory] = useState(false);
 
-  // 相手からの名刺をポーリングで確認
+  // 相手からのカードをポーリングで確認
   const checkForExchange = useCallback(async () => {
     if (!meishi || partnerMeishi) return;
     try {

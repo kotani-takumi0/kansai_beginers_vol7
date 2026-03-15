@@ -32,16 +32,16 @@ function encodeMeishi(data: MeishiData): string {
 }
 
 test.describe("比較表示", () => {
-  test("URL受信 → 名刺作成 → 比較画面で一致/不一致がハイライトされる", async ({
+  test("URL受信 → カード作成 → 比較画面で一致/不一致がハイライトされる", async ({
     page,
   }) => {
     const encoded = encodeMeishi(partnerMeishi);
 
     // 1. 受信ページでpartnerMeishiを保存
     await page.goto(`/receive?d=${encoded}`);
-    await page.getByRole("button", { name: "自分の名刺も作る" }).click();
+    await page.getByRole("button", { name: "自分のカードも作る" }).click();
 
-    // 2. 名刺作成フロー
+    // 2. カード作成フロー
     await expect(page).toHaveURL("/");
     await page.getByRole("button", { name: "大阪府" }).click();
     await page.getByRole("button", { name: /大阪府で決定/ }).click();
@@ -55,12 +55,12 @@ test.describe("比較表示", () => {
     }
 
     await page
-      .getByRole("button", { name: "この内容で名刺をつくる" })
+      .getByRole("button", { name: "この内容でカードをつくる" })
       .click();
 
     // 3. プレビューから比較へ
     await expect(page).toHaveURL("/preview");
-    await page.getByRole("button", { name: "名刺を比較する" }).click();
+    await page.getByRole("button", { name: "カードを比較する" }).click();
 
     // 4. 比較結果の検証
     await expect(page).toHaveURL("/comparison");
@@ -79,9 +79,9 @@ test.describe("比較表示", () => {
     const messageCount = await messages.count();
     expect(messageCount).toBeGreaterThan(0);
 
-    // 「もう一度名刺を作る」ボタンが表示される
+    // 「もう一度カードを作る」ボタンが表示される
     await expect(
-      page.getByRole("button", { name: "もう一度名刺を作る" })
+      page.getByRole("button", { name: "もう一度カードを作る" })
     ).toBeVisible();
   });
 
@@ -89,7 +89,7 @@ test.describe("比較表示", () => {
     await page.goto("/comparison");
     await expect(page.getByText("比較データがありません")).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "名刺を作る" })
+      page.getByRole("button", { name: "カードを作る" })
     ).toBeVisible();
   });
 });

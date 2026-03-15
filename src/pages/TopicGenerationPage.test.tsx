@@ -43,7 +43,7 @@ describe("TopicGenerationPage", () => {
     expect(screen.getByText("エスカレーター右左論争")).toBeDefined();
   });
 
-  it("名刺データがない場合はホームにリダイレクトする", () => {
+  it("カードデータがない場合はホームにリダイレクトする", () => {
     renderWithState({});
     expect(screen.getByText("home page")).toBeDefined();
   });
