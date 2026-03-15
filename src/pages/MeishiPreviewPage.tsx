@@ -269,8 +269,13 @@ export function MeishiPreviewPage() {
           className="mx-auto mb-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-[#888] transition active:scale-95"
         >
           <FlipHint />
-          タップして{isFlipped ? "表に戻す" : "QRコードを表示"}
+          {isFlipped ? "← カードに戻す" : "カードをめくってQRを見せよう →"}
         </button>
+        {isFlipped && (
+          <p className="mb-4 text-center text-[11px] text-[#999]">
+            相手のスマホの標準カメラで読み取ってもらってね
+          </p>
+        )}
 
         <div className="flex flex-col gap-3 px-5 pb-4">
           {partnerMeishi && (
