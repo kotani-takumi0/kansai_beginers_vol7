@@ -147,12 +147,24 @@ export function TopicGenerationPage() {
         )}
 
         {pageState === "done" && (
+          <section className="rounded-[24px] border-[3px] border-[#744b2e] bg-[#fff0c7] p-5 shadow-[0_6px_0_#d2b17e]">
+            <p className="text-xs font-black tracking-[0.22em] text-[#a54f23]">NEXT STEP</p>
+            <p className="mt-2 text-[15px] font-bold text-[#3d2718]">
+              次は相手にあなたのQRコードを見せよう！
+            </p>
+            <p className="mt-1 text-sm text-[#7c5a39]">
+              お互いにスキャンすると、同じ話題で盛り上がれるよ
+            </p>
+          </section>
+        )}
+
+        {pageState === "done" && (
           <button
             type="button"
-            onClick={() => navigate("/preview")}
+            onClick={() => navigate("/preview", { state: { showQr: true } })}
             className="w-full rounded-[24px] border-[3px] border-[#744b2e] bg-[#1f8f5f] px-5 py-4 text-[16px] font-black text-white shadow-[0_6px_0_#166647] transition active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
           >
-            名刺に戻る
+            自分の名刺を見せる
           </button>
         )}
       </div>
