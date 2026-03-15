@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import { loadMyMeishi, loadSelectedName, saveMyMeishi, saveSelectedName } from "../utils/appStorage";
+import {
+  loadMyMeishi,
+  loadPartnerMeishi,
+  loadSelectedName,
+  saveMyMeishi,
+  saveSelectedName,
+} from "../utils/appStorage";
 
 const PREFECTURE_REGIONS = [
   { name: "北海道", prefectures: ["北海道"] },
@@ -35,6 +41,9 @@ export function PrefectureSelectPage() {
   const [selectedPrefecture, setSelectedPrefecture] = useState<string | null>(null);
   const [filterText, setFilterText] = useState("");
   const savedMeishi = loadMyMeishi();
+  const partnerMeishi = loadPartnerMeishi();
+  const hasSamePrefectureError =
+    Boolean(selectedPrefecture) && selectedPrefecture === partnerMeishi?.prefecture;
 
   if (savedMeishi) {
     return <Navigate to="/preview" replace />;
@@ -49,7 +58,7 @@ export function PrefectureSelectPage() {
   })).filter((region) => region.prefectures.length > 0);
 
   const handleNext = () => {
-    if (selectedPrefecture && name.trim()) {
+    if (selectedPrefecture && name.trim() && !hasSamePrefectureError) {
       saveSelectedName(name.trim());
       const meishi = {
         id: createMeishiId(),
@@ -173,6 +182,11 @@ export function PrefectureSelectPage() {
               </div>
             )}
           </div>
+          {hasSamePrefectureError && (
+            <p className="mt-3 text-sm font-bold text-[#d94841]">
+              相手と同じ県を選択できません。
+            </p>
+          )}
         </section>
       </div>
 
@@ -183,9 +197,9 @@ export function PrefectureSelectPage() {
         <div className="mx-auto max-w-[440px]">
           <button
             onClick={handleNext}
-            disabled={!selectedPrefecture || !name.trim()}
+            disabled={!selectedPrefecture || !name.trim() || hasSamePrefectureError}
             className={`w-full rounded-[24px] border-[3px] px-5 py-4 text-[16px] font-black transition ${
-              selectedPrefecture && name.trim()
+              selectedPrefecture && name.trim() && !hasSamePrefectureError
                 ? "border-[#744b2e] bg-[#1f8f5f] text-white shadow-[0_6px_0_#166647] active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
                 : "border-[#b8a282] bg-[#e7dcc8] text-[#9f8d76]"
             }`}
