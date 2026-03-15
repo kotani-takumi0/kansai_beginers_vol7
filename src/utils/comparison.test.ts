@@ -1,129 +1,101 @@
 import { describe, it, expect } from "vitest";
-import { compareMeishi } from "./comparison";
-import type { MeishiData } from "../types";
+import { buildComparisonResult } from "./comparison";
+import type { MeishiData, ShockReaction } from "../types";
 
 const createMeishi = (
   prefecture: string,
-  stances: { text: string; category: string; agrees: boolean }[]
+  stances: { text: string; category: string; isNormal: boolean }[]
 ): MeishiData => ({
   id: crypto.randomUUID(),
   prefecture,
   topics: stances.map((s) => ({
     topic: { id: crypto.randomUUID(), text: s.text, category: s.category },
-    agrees: s.agrees,
+    isNormal: s.isNormal,
   })),
   createdAt: new Date().toISOString(),
 });
 
-describe("compareMeishi", () => {
-  it("完全一致: すべてのネタで立場が同じ場合", () => {
-    const topics = [
-      { text: "たこ焼きは主食", category: "食文化", agrees: true },
-      { text: "エスカレーターは右に立つ", category: "習慣", agrees: false },
-      { text: "〜やねん は標準語", category: "方言", agrees: true },
+describe("buildComparisonResult", () => {
+  it("全てショックの場合、shockCountが一致する", () => {
+    const my = createMeishi("東京都", [
+      { text: "もんじゃ焼き", category: "食文化", isNormal: true },
+    ]);
+    const partner = createMeishi("大阪府", [
+      { text: "お好み焼き定食", category: "食文化", isNormal: true },
+      { text: "エスカレーター右", category: "習慣", isNormal: true },
+    ]);
+
+    const reactions: ReadonlyArray<ShockReaction> = [
+      { topic: partner.topics[0].topic, isShocked: true },
+      { topic: partner.topics[1].topic, isShocked: true },
     ];
-    const my = createMeishi("大阪府", topics);
-    const partner = createMeishi("大阪府", topics);
 
-    const result = compareMeishi(my, partner);
+    const result = buildComparisonResult(my, partner, reactions);
 
-    expect(result.matchCount).toBe(3);
-    expect(result.mismatchCount).toBe(0);
-    expect(result.matches).toHaveLength(3);
-    expect(result.matches.every((m) => m.isMatch)).toBe(true);
+    expect(result.shockCount).toBe(2);
+    expect(result.knewItCount).toBe(0);
+  });
+
+  it("全て知ってた場合、knewItCountが一致する", () => {
+    const my = createMeishi("大阪府", [
+      { text: "たこ焼き", category: "食文化", isNormal: true },
+    ]);
+    const partner = createMeishi("北海道", [
+      { text: "ジンギスカンBBQ", category: "食文化", isNormal: true },
+      { text: "100km近い", category: "習慣", isNormal: true },
+    ]);
+
+    const reactions: ReadonlyArray<ShockReaction> = [
+      { topic: partner.topics[0].topic, isShocked: false },
+      { topic: partner.topics[1].topic, isShocked: false },
+    ];
+
+    const result = buildComparisonResult(my, partner, reactions);
+
+    expect(result.shockCount).toBe(0);
+    expect(result.knewItCount).toBe(2);
+  });
+
+  it("混合パターン: shockCount + knewItCount = reactions数", () => {
+    const my = createMeishi("福岡県", [
+      { text: "ラーメン替え玉", category: "食文化", isNormal: true },
+    ]);
+    const partner = createMeishi("沖縄県", [
+      { text: "ステーキはシメ", category: "食文化", isNormal: true },
+      { text: "なんくるないさ", category: "ことば", isNormal: true },
+      { text: "台風ワクワク", category: "くらし", isNormal: true },
+    ]);
+
+    const reactions: ReadonlyArray<ShockReaction> = [
+      { topic: partner.topics[0].topic, isShocked: true },
+      { topic: partner.topics[1].topic, isShocked: false },
+      { topic: partner.topics[2].topic, isShocked: true },
+    ];
+
+    const result = buildComparisonResult(my, partner, reactions);
+
+    expect(result.shockCount).toBe(2);
+    expect(result.knewItCount).toBe(1);
+    expect(result.shockCount + result.knewItCount).toBe(3);
+  });
+
+  it("空のリアクションの場合、両方0になる", () => {
+    const my = createMeishi("東京都", []);
+    const partner = createMeishi("大阪府", []);
+
+    const result = buildComparisonResult(my, partner, []);
+
+    expect(result.shockCount).toBe(0);
+    expect(result.knewItCount).toBe(0);
+  });
+
+  it("myMeishiとpartnerMeishiが正しく設定される", () => {
+    const my = createMeishi("東京都", []);
+    const partner = createMeishi("大阪府", []);
+
+    const result = buildComparisonResult(my, partner, []);
+
     expect(result.myMeishi).toBe(my);
     expect(result.partnerMeishi).toBe(partner);
-  });
-
-  it("完全不一致: すべてのネタで立場が異なる場合", () => {
-    const my = createMeishi("大阪府", [
-      { text: "たこ焼きは主食", category: "食文化", agrees: true },
-      { text: "エスカレーターは右に立つ", category: "習慣", agrees: true },
-    ]);
-    const partner = createMeishi("東京都", [
-      { text: "たこ焼きは主食", category: "食文化", agrees: false },
-      { text: "エスカレーターは右に立つ", category: "習慣", agrees: false },
-    ]);
-
-    const result = compareMeishi(my, partner);
-
-    expect(result.matchCount).toBe(0);
-    expect(result.mismatchCount).toBe(2);
-    expect(result.matches.every((m) => !m.isMatch)).toBe(true);
-  });
-
-  it("混合パターン: 一致と不一致が混在する場合", () => {
-    const my = createMeishi("大阪府", [
-      { text: "たこ焼きは主食", category: "食文化", agrees: true },
-      { text: "エスカレーターは右に立つ", category: "習慣", agrees: true },
-      { text: "〜やねん は標準語", category: "方言", agrees: false },
-    ]);
-    const partner = createMeishi("京都府", [
-      { text: "たこ焼きは主食", category: "食文化", agrees: true },
-      { text: "エスカレーターは右に立つ", category: "習慣", agrees: false },
-      { text: "〜やねん は標準語", category: "方言", agrees: false },
-    ]);
-
-    const result = compareMeishi(my, partner);
-
-    expect(result.matchCount).toBe(2);
-    expect(result.mismatchCount).toBe(1);
-    expect(result.matchCount + result.mismatchCount).toBe(3);
-  });
-
-  it("matchCount + mismatchCount = 全ネタ数 を満たす", () => {
-    const my = createMeishi("大阪府", [
-      { text: "ネタ1", category: "食文化", agrees: true },
-      { text: "ネタ2", category: "習慣", agrees: false },
-      { text: "ネタ3", category: "方言", agrees: true },
-      { text: "ネタ4", category: "文化", agrees: false },
-      { text: "ネタ5", category: "観光", agrees: true },
-    ]);
-    const partner = createMeishi("東京都", [
-      { text: "ネタ1", category: "食文化", agrees: false },
-      { text: "ネタ2", category: "習慣", agrees: false },
-      { text: "ネタ3", category: "方言", agrees: false },
-      { text: "ネタ4", category: "文化", agrees: true },
-      { text: "ネタ5", category: "観光", agrees: true },
-    ]);
-
-    const result = compareMeishi(my, partner);
-
-    expect(result.matchCount + result.mismatchCount).toBe(5);
-    expect(result.matches).toHaveLength(5);
-  });
-
-  it("各TopicMatchが正しいフィールドを持つ", () => {
-    const my = createMeishi("大阪府", [
-      { text: "たこ焼きは主食", category: "食文化", agrees: true },
-    ]);
-    const partner = createMeishi("東京都", [
-      { text: "たこ焼きは主食", category: "食文化", agrees: false },
-    ]);
-
-    const result = compareMeishi(my, partner);
-    const match = result.matches[0];
-
-    expect(match.topicText).toBe("たこ焼きは主食");
-    expect(match.category).toBe("食文化");
-    expect(match.myStance).toBe(true);
-    expect(match.partnerStance).toBe(false);
-    expect(match.isMatch).toBe(false);
-  });
-
-  it("ネタの順番が異なっても正しく比較する（インデックスベース）", () => {
-    const my = createMeishi("大阪府", [
-      { text: "ネタA", category: "食文化", agrees: true },
-      { text: "ネタB", category: "習慣", agrees: false },
-    ]);
-    const partner = createMeishi("東京都", [
-      { text: "ネタA", category: "食文化", agrees: true },
-      { text: "ネタB", category: "習慣", agrees: true },
-    ]);
-
-    const result = compareMeishi(my, partner);
-
-    expect(result.matchCount).toBe(1);
-    expect(result.mismatchCount).toBe(1);
   });
 });

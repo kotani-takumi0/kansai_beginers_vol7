@@ -28,7 +28,7 @@ export function ReceivePage() {
         <p className="text-gray-600 mb-6">{error}</p>
         <button
           onClick={() => navigate("/")}
-          className="px-6 py-3 min-h-[44px] bg-blue-500 text-white rounded-xl font-bold"
+          className="px-6 py-3 min-h-[44px] bg-[#e85d3a] text-white rounded-xl font-bold"
         >
           自分の名刺を作る
         </button>
@@ -36,62 +36,60 @@ export function ReceivePage() {
     );
   }
 
+  const normalTopics = meishi.topics.filter((t) => t.isNormal);
+
   return (
-    <div className="flex flex-col items-center px-4 py-8 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-2">名刺が届きました！</h1>
-      <p className="text-gray-500 text-sm mb-8">
-        {meishi.prefecture}の人から名刺が届いたよ
-      </p>
-
-      {/* 受信した名刺カード */}
-      <div className="w-full bg-white rounded-2xl shadow-lg p-6 mb-8">
-        <div className="text-center mb-4">
-          <span className="inline-block px-4 py-1 bg-blue-100 text-blue-700 rounded-full text-sm font-bold">
-            {meishi.prefecture}
-          </span>
-        </div>
-
-        <ul className="space-y-3">
-          {meishi.topics.map((item) => (
-            <li
-              key={item.topic.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-xl"
-            >
-              <div className="flex-1">
-                <p className="text-xs text-gray-400 mb-1">
-                  {item.topic.category}
-                </p>
-                <p className="text-sm font-medium text-gray-800">
-                  {item.topic.text}
-                </p>
-              </div>
-              <span
-                className={`ml-3 px-3 py-1 rounded-full text-xs font-bold ${
-                  item.agrees
-                    ? "bg-green-100 text-green-700"
-                    : "bg-red-100 text-red-700"
-                }`}
-              >
-                {item.agrees ? "同意" : "反対"}
-              </span>
-            </li>
-          ))}
-        </ul>
+    <div
+      className="relative min-h-full overflow-hidden bg-[#f7edd6] text-[#3d2718]"
+      style={{ fontFamily: '"Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif' }}
+    >
+      <div className="pointer-events-none absolute inset-0 opacity-70">
+        <div className="absolute top-[-110px] left-[-70px] h-60 w-60 rounded-full bg-[#ffe09a]" />
+        <div className="absolute top-44 right-[-90px] h-64 w-64 rounded-full bg-[#ffd7b5]" />
       </div>
 
-      {/* 自分の名刺作成への誘導 */}
-      <button
-        onClick={() => {
-          savePartnerMeishi(meishi);
-          navigate("/");
-        }}
-        className="w-full py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold text-lg transition-colors mb-4"
-      >
-        自分の名刺も作る
-      </button>
-      <p className="text-gray-400 text-xs text-center">
-        名刺を作ると、2人の名刺を比較できるよ！
-      </p>
+      <div className="relative mx-auto flex max-w-[420px] flex-col gap-4 px-4 py-8">
+        <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
+          <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
+            <p className="text-[11px] font-black tracking-[0.28em]">CARD RECEIVED</p>
+            <h1 className="mt-1 text-[27px] font-black leading-tight">名刺が届きました！</h1>
+            <p className="mt-2 text-sm font-bold text-[#fff4dc]">
+              {meishi.prefecture}の{meishi.name ?? "人"}から名刺が届いたよ
+            </p>
+          </div>
+
+          <div className="p-4 space-y-3">
+            <p className="text-sm font-black text-[#a54f23]">
+              {meishi.name ?? meishi.prefecture}の「普通」:
+            </p>
+            {normalTopics.map(({ topic }) => (
+              <div
+                key={topic.id}
+                className="rounded-[18px] border-2 border-[#d5b98b] bg-white px-4 py-3"
+              >
+                <span className="text-[11px] font-bold text-[#8a6847]">{topic.category}</span>
+                <p className="mt-1 text-[15px] font-semibold text-[#1a1a1a]">{topic.text}</p>
+              </div>
+            ))}
+            {normalTopics.length === 0 && (
+              <p className="text-sm text-[#888]">「普通」なものがありません</p>
+            )}
+          </div>
+        </section>
+
+        <button
+          onClick={() => {
+            savePartnerMeishi(meishi);
+            navigate("/");
+          }}
+          className="w-full rounded-[24px] border-[3px] border-[#744b2e] bg-[#1f8f5f] px-5 py-4 text-[16px] font-black text-white shadow-[0_6px_0_#166647] transition active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
+        >
+          自分の名刺も作る
+        </button>
+        <p className="text-[#888] text-xs text-center">
+          名刺を作ると、相手の「普通」にリアクションできるよ！
+        </p>
+      </div>
     </div>
   );
 }

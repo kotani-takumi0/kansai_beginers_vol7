@@ -1,4 +1,6 @@
-import type { ExchangeHistoryEntry, MeishiData, TopicWithStance } from "../types";
+import type { ExchangeHistoryEntry, MeishiData, TopicWithStance, ShockReaction } from "../types";
+
+const SHOCK_REACTIONS_KEY = "jimoto:shockReactions";
 
 const PREFECTURE_KEY = "jimoto:selectedPrefecture";
 const NAME_KEY = "jimoto:selectedName";
@@ -161,6 +163,32 @@ export function loadExchangeHistory(): ReadonlyArray<ExchangeHistoryEntry> {
   try {
     const parsed = JSON.parse(raw) as ReadonlyArray<ExchangeHistoryEntry>;
     return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveShockReactions(reactions: ReadonlyArray<ShockReaction>) {
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.sessionStorage.setItem(SHOCK_REACTIONS_KEY, JSON.stringify(reactions));
+}
+
+export function loadShockReactions(): ReadonlyArray<ShockReaction> {
+  if (!isBrowser()) {
+    return [];
+  }
+
+  const raw = window.sessionStorage.getItem(SHOCK_REACTIONS_KEY);
+
+  if (!raw) {
+    return [];
+  }
+
+  try {
+    return JSON.parse(raw) as ReadonlyArray<ShockReaction>;
   } catch {
     return [];
   }

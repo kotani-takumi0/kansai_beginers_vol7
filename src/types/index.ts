@@ -1,14 +1,14 @@
-/** AI が生成する議論ネタ */
+/** 地元あるあるトピック */
 export interface Topic {
   readonly id: string;
   readonly text: string;
   readonly category: string;
 }
 
-/** ネタ＋ユーザーの立場 */
+/** トピック＋ユーザーの回答（普通かどうか） */
 export interface TopicWithStance {
   readonly topic: Topic;
-  readonly agrees: boolean;
+  readonly isNormal: boolean;
 }
 
 /** 名刺データ */
@@ -20,22 +20,19 @@ export interface MeishiData {
   readonly createdAt: string; // ISO 8601
 }
 
-/** ネタごとの比較結果 */
-export interface TopicMatch {
-  readonly topicText: string;
-  readonly category: string;
-  readonly myStance: boolean;
-  readonly partnerStance: boolean;
-  readonly isMatch: boolean;
+/** ショックリアクション */
+export interface ShockReaction {
+  readonly topic: Topic;
+  readonly isShocked: boolean;
 }
 
 /** 2人の名刺比較結果 */
 export interface ComparisonResult {
   readonly myMeishi: MeishiData;
   readonly partnerMeishi: MeishiData;
-  readonly matches: ReadonlyArray<TopicMatch>;
-  readonly matchCount: number;
-  readonly mismatchCount: number;
+  readonly reactions: ReadonlyArray<ShockReaction>;
+  readonly shockCount: number;
+  readonly knewItCount: number;
 }
 
 /** 交換履歴 */
@@ -44,12 +41,6 @@ export interface ExchangeHistoryEntry {
   readonly exchangedAt: string; // ISO 8601
   readonly myMeishi: MeishiData;
   readonly partnerMeishi: MeishiData;
-  readonly matchCount: number;
-  readonly mismatchCount: number;
-}
-
-/** AI ネタ生成APIのレスポンス */
-export interface GenerateTopicsResponse {
-  readonly topics: ReadonlyArray<Topic>;
-  readonly prefecture: string;
+  readonly shockCount: number;
+  readonly knewItCount: number;
 }

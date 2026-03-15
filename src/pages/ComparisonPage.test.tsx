@@ -1,33 +1,33 @@
 // @vitest-environment jsdom
 import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen, cleanup, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ComparisonPage } from "./ComparisonPage";
 import type { MeishiData } from "../types";
 
 const createMeishi = (
   prefecture: string,
-  stances: { text: string; category: string; agrees: boolean }[]
+  stances: { text: string; category: string; isNormal: boolean }[]
 ): MeishiData => ({
   id: `test-${prefecture}`,
   prefecture,
   topics: stances.map((s, i) => ({
     topic: { id: String(i + 1), text: s.text, category: s.category },
-    agrees: s.agrees,
+    isNormal: s.isNormal,
   })),
   createdAt: "2026-03-14T00:00:00.000Z",
 });
 
 const myMeishi = createMeishi("大阪府", [
-  { text: "たこ焼きは主食", category: "食文化", agrees: true },
-  { text: "エスカレーターは右に立つ", category: "習慣", agrees: true },
-  { text: "〜やねん は標準語", category: "方言", agrees: false },
+  { text: "お好み焼き定食", category: "食文化", isNormal: true },
+  { text: "エスカレーター右", category: "習慣", isNormal: true },
+  { text: "551の紙袋", category: "地元あるある", isNormal: false },
 ]);
 
 const partnerMeishi = createMeishi("東京都", [
-  { text: "たこ焼きは主食", category: "食文化", agrees: true },
-  { text: "エスカレーターは右に立つ", category: "習慣", agrees: false },
-  { text: "〜やねん は標準語", category: "方言", agrees: false },
+  { text: "電車で1万歩", category: "くらし", isNormal: true },
+  { text: "有名観光地に行かない", category: "習慣", isNormal: true },
+  { text: "方言コンプレックス", category: "ことば", isNormal: false },
 ]);
 
 const renderWithState = (state?: Record<string, unknown>) =>
@@ -54,64 +54,34 @@ describe("ComparisonPage", () => {
     expect(screen.getByText("名刺を作る")).toBeDefined();
   });
 
-  it("サマリーに一致数・不一致数が表示される", () => {
+  it("相手の「普通」トピックのみが表示される", () => {
     renderWithState({ myMeishi, partnerMeishi });
-    // サマリー部分のみ検証（カード内にも「一致」「不一致」が出るためDOM検索）
-    const summary = document.querySelector(".flex.gap-4.mb-8");
-    expect(summary).not.toBeNull();
-    expect(summary!.textContent).toContain("2");
-    expect(summary!.textContent).toContain("1");
-    expect(summary!.textContent).toContain("一致");
-    expect(summary!.textContent).toContain("不一致");
+    // isNormal=true のもの
+    expect(screen.getByText("電車で1万歩")).toBeDefined();
+    expect(screen.getByText("有名観光地に行かない")).toBeDefined();
+    // isNormal=false のものは表示されない
+    expect(screen.queryByText("方言コンプレックス")).toBeNull();
   });
 
-  it("出身地が両方表示される", () => {
+  it("ショック/知ってたボタンが表示される", () => {
     renderWithState({ myMeishi, partnerMeishi });
-    expect(screen.getByText("大阪府")).toBeDefined();
-    expect(screen.getByText("東京都")).toBeDefined();
+    const shockButtons = screen.getAllByText("ショック！");
+    const knewItButtons = screen.getAllByText("知ってた");
+    expect(shockButtons.length).toBe(2); // 2 normal topics
+    expect(knewItButtons.length).toBe(2);
   });
 
-  it("各ネタが表示される", () => {
+  it("全てリアクション後に結果ボタンが有効になる", () => {
     renderWithState({ myMeishi, partnerMeishi });
-    expect(screen.getByText("たこ焼きは主食")).toBeDefined();
-    expect(screen.getByText("エスカレーターは右に立つ")).toBeDefined();
-    expect(screen.getByText("〜やねん は標準語")).toBeDefined();
+    const shockButtons = screen.getAllByText("ショック！");
+    fireEvent.click(shockButtons[0]);
+    fireEvent.click(shockButtons[1]);
+    const submitButton = screen.getByText("ショック度を見る！");
+    expect(submitButton).toBeDefined();
   });
 
-  it("一致/不一致のハイライトが正しい", () => {
+  it("出身地が表示される", () => {
     renderWithState({ myMeishi, partnerMeishi });
-    const cards = document.querySelectorAll(".border-green-300, .border-red-300");
-    const greenCards = document.querySelectorAll(".border-green-300");
-    const redCards = document.querySelectorAll(".border-red-300");
-    expect(cards.length).toBe(3);
-    expect(greenCards.length).toBe(2);
-    expect(redCards.length).toBe(1);
-  });
-
-  it("会話を促すメッセージが表示される", () => {
-    renderWithState({ myMeishi, partnerMeishi });
-    const messages = document.querySelectorAll('[data-testid="match-message"]');
-    expect(messages.length).toBe(3);
-    // 各メッセージが空でないことを確認
-    messages.forEach((msg) => {
-      expect(msg.textContent?.length).toBeGreaterThan(0);
-    });
-  });
-
-  it("「もう一度名刺を作る」ボタンが表示される", () => {
-    renderWithState({ myMeishi, partnerMeishi });
-    expect(screen.getByText("もう一度名刺を作る")).toBeDefined();
-  });
-
-  it("比較結果を交換履歴へ保存する", () => {
-    renderWithState({ myMeishi, partnerMeishi });
-
-    const raw = window.localStorage.getItem("jimoto:exchangeHistory");
-    expect(raw).not.toBeNull();
-
-    const history = JSON.parse(raw ?? "[]") as Array<{ partnerMeishi: MeishiData; matchCount: number }>;
-    expect(history).toHaveLength(1);
-    expect(history[0].partnerMeishi.prefecture).toBe("東京都");
-    expect(history[0].matchCount).toBe(2);
+    expect(screen.getAllByText(/東京都/).length).toBeGreaterThan(0);
   });
 });

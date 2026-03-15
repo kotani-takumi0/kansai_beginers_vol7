@@ -43,11 +43,11 @@ describe("MeishiPreviewPage", () => {
       JSON.stringify([
         {
           topic: { id: "1", text: "たこ焼きは主食", category: "食文化" },
-          agrees: true,
+          isNormal: true,
         },
         {
           topic: { id: "2", text: "エスカレーターは右に立つ", category: "習慣" },
-          agrees: false,
+          isNormal: false,
         },
       ])
     );
@@ -55,7 +55,6 @@ describe("MeishiPreviewPage", () => {
     renderPreviewPage();
 
     expect(screen.getByText("大阪府の名刺が完成")).toBeDefined();
-    expect(screen.getByText("粉もん魂")).toBeDefined();
     expect(screen.getAllByText("大阪府").length).toBeGreaterThan(0);
     expect(screen.getAllByText("たこ焼きは主食").length).toBeGreaterThan(0);
     expect(screen.getByText("QRコードを読み取る")).toBeDefined();
@@ -68,7 +67,7 @@ describe("MeishiPreviewPage", () => {
       JSON.stringify([
         {
           topic: { id: "1", text: "たこ焼きは主食", category: "食文化" },
-          agrees: true,
+          isNormal: true,
         },
       ])
     );
@@ -88,7 +87,7 @@ describe("MeishiPreviewPage", () => {
         topics: [
           {
             topic: { id: "1", text: "たこ焼きは主食", category: "食文化" },
-            agrees: true,
+            isNormal: true,
           },
         ],
         createdAt: "2026-03-14T00:00:00.000Z",
@@ -106,7 +105,7 @@ describe("MeishiPreviewPage", () => {
             topics: [
               {
                 topic: { id: "1", text: "たこ焼きは主食", category: "食文化" },
-                agrees: true,
+                isNormal: true,
               },
             ],
             createdAt: "2026-03-14T00:00:00.000Z",
@@ -117,13 +116,13 @@ describe("MeishiPreviewPage", () => {
             topics: [
               {
                 topic: { id: "1", text: "おでんはおかず", category: "食文化" },
-                agrees: false,
+                isNormal: false,
               },
             ],
             createdAt: "2026-03-14T00:10:00.000Z",
           },
-          matchCount: 2,
-          mismatchCount: 1,
+          shockCount: 2,
+          knewItCount: 1,
         },
       ])
     );
@@ -139,6 +138,5 @@ describe("MeishiPreviewPage", () => {
     // ボタンを押して履歴を表示
     fireEvent.click(historyButton);
     expect(screen.getByText("東京都の人と交換")).toBeDefined();
-    expect(screen.getByText("2一致 / 1不一致")).toBeDefined();
   });
 });

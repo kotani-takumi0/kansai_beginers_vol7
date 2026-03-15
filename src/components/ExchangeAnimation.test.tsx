@@ -10,7 +10,7 @@ const myMeishi: MeishiData = {
   topics: [
     {
       topic: { id: "1", text: "たこ焼きは主食", category: "食文化" },
-      agrees: true,
+      isNormal: true,
     },
   ],
   createdAt: "2026-03-14T00:00:00.000Z",
@@ -22,7 +22,7 @@ const partnerMeishi: MeishiData = {
   topics: [
     {
       topic: { id: "2", text: "おばんざいは最高", category: "食文化" },
-      agrees: true,
+      isNormal: true,
     },
   ],
   createdAt: "2026-03-14T00:00:00.000Z",
