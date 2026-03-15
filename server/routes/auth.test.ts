@@ -119,7 +119,7 @@ describe("auth routes", () => {
       displayName: "永続ユーザー",
     });
 
-    resetAuthStore({ clearPersistedUsers: false });
+    resetAuthStore({ clearPersistedUsers: false, clearPersistedSessions: false });
 
     const restartedApp = createApp();
     const res = await request(restartedApp).post("/api/auth/login").send({
@@ -129,5 +129,25 @@ describe("auth routes", () => {
 
     expect(res.status).toBe(200);
     expect(res.body.user.displayName).toBe("永続ユーザー");
+  });
+
+  it("認証セッションはサーバー再起動後も有効なまま維持される", async () => {
+    const firstApp = createApp();
+
+    const registerRes = await request(firstApp).post("/api/auth/register").send({
+      email: "session-persist@example.com",
+      password: "password123",
+      displayName: "セッション維持ユーザー",
+    });
+
+    resetAuthStore({ clearPersistedUsers: false, clearPersistedSessions: false });
+
+    const restartedApp = createApp();
+    const res = await request(restartedApp)
+      .get("/api/auth/me")
+      .set("Authorization", `Bearer ${registerRes.body.token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.user.email).toBe("session-persist@example.com");
   });
 });
