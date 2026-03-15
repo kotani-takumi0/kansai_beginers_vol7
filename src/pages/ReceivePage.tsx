@@ -1,12 +1,13 @@
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { decode } from "../utils/meishiEncoder";
-import { savePartnerMeishi } from "../utils/appStorage";
+import { savePartnerMeishi, loadMyMeishi } from "../utils/appStorage";
 import type { MeishiData } from "../types";
 
 export function ReceivePage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const [redirected, setRedirected] = useState(false);
 
   const { meishi, error } = useMemo(() => {
     const encoded = searchParams.get("d");
@@ -20,6 +21,21 @@ export function ReceivePage() {
       return { meishi: null, error: "名刺データの読み取りに失敗しました" };
     }
   }, [searchParams]);
+
+  useEffect(() => {
+    if (!meishi || redirected) return;
+
+    savePartnerMeishi(meishi);
+    const myMeishi = loadMyMeishi();
+
+    if (myMeishi) {
+      setRedirected(true);
+      navigate("/topics", {
+        state: { myMeishi, partnerMeishi: meishi },
+        replace: true,
+      });
+    }
+  }, [meishi, navigate, redirected]);
 
   if (error || !meishi) {
     return (
@@ -68,12 +84,11 @@ export function ReceivePage() {
 
         <button
           onClick={() => {
-            savePartnerMeishi(meishi);
-            navigate("/");
+            navigate("/login");
           }}
           className="w-full rounded-[24px] border-[3px] border-[#744b2e] bg-[#1f8f5f] px-5 py-4 text-[16px] font-black text-white shadow-[0_6px_0_#166647] transition active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
         >
-          自分の名刺も作る
+          ログインして名刺を作る
         </button>
         <p className="text-[#888] text-xs text-center">
           名刺を作ると、AIが2人の話のタネを生成するよ！

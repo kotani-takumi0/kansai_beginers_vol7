@@ -47,10 +47,10 @@ describe("ReceivePage", () => {
     expect(screen.getAllByText(/はなこ/).length).toBeGreaterThan(0);
   });
 
-  it("「自分の名刺も作る」ボタンが表示される", () => {
+  it("「ログインして名刺を作る」ボタンが表示される（名刺未作成時）", () => {
     const encoded = encode(mockMeishi);
     renderWithParams(`?d=${encoded}`);
-    expect(screen.getByText("自分の名刺も作る")).toBeDefined();
+    expect(screen.getByText("ログインして名刺を作る")).toBeDefined();
   });
 
   it("エラー時に「自分の名刺を作る」ボタンが表示される", () => {
