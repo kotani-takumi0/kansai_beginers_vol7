@@ -1,11 +1,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createServer } from "node:http";
 import express from "express";
-import cors from "cors";
 import dotenv from "dotenv";
-import { createGenerateTopicsRouter } from "./routes/generateTopics";
-import { setupExchangeSocket } from "./socket/exchangeHandler";
 
 dotenv.config();
 
@@ -16,14 +12,11 @@ const app = express();
 const PORT = process.env.PORT ?? 3001;
 const isProduction = process.env.NODE_ENV === "production";
 
-app.use(cors());
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
-
-app.use("/api/generate-topics", createGenerateTopicsRouter());
 
 // Production: Vite ビルド済みの静的ファイルを配信
 if (isProduction) {
@@ -36,9 +29,6 @@ if (isProduction) {
   });
 }
 
-const httpServer = createServer(app);
-setupExchangeSocket(httpServer);
-
-httpServer.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
