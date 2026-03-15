@@ -9,9 +9,14 @@ type StoredUser = AuthUser & {
   passwordHash: string;
 };
 
+type StoredSession = {
+  token: string;
+  userId: string;
+};
+
 const usersByEmail = new Map<string, StoredUser>();
 const sessions = new Map<string, string>();
-let hasLoadedUsers = false;
+let hasLoadedAuthState = false;
 
 type CredentialsBody = {
   email?: unknown;
@@ -29,30 +34,60 @@ function getAuthStorePath() {
     : path.resolve(process.cwd(), "server/data/auth-users.json");
 }
 
-function loadUsersFromDisk() {
-  if (hasLoadedUsers) {
-    return;
+function getSessionStorePath() {
+  if (process.env.AUTH_SESSION_STORE_FILE) {
+    return path.resolve(process.env.AUTH_SESSION_STORE_FILE);
   }
 
-  const storePath = getAuthStorePath();
+  const userStorePath = getAuthStorePath();
+  const extension = path.extname(userStorePath);
+  const basename = extension ? userStorePath.slice(0, -extension.length) : userStorePath;
+  return `${basename}-sessions${extension || ".json"}`;
+}
 
-  if (!existsSync(storePath)) {
-    hasLoadedUsers = true;
+function persistSessionsToDisk() {
+  const sessionStorePath = getSessionStorePath();
+  mkdirSync(path.dirname(sessionStorePath), { recursive: true });
+  const serializedSessions: StoredSession[] = [...sessions.entries()].map(([token, userId]) => ({
+    token,
+    userId,
+  }));
+  writeFileSync(sessionStorePath, JSON.stringify(serializedSessions, null, 2), "utf8");
+}
+
+function loadAuthStateFromDisk() {
+  if (hasLoadedAuthState) {
     return;
   }
 
   try {
-    const raw = readFileSync(storePath, "utf8");
-    const parsed = JSON.parse(raw) as ReadonlyArray<StoredUser>;
-
     usersByEmail.clear();
-    for (const user of parsed) {
-      usersByEmail.set(user.email, user);
+
+    const userStorePath = getAuthStorePath();
+    if (existsSync(userStorePath)) {
+      const rawUsers = readFileSync(userStorePath, "utf8");
+      const parsedUsers = JSON.parse(rawUsers) as ReadonlyArray<StoredUser>;
+
+      for (const user of parsedUsers) {
+        usersByEmail.set(user.email, user);
+      }
+    }
+
+    sessions.clear();
+
+    const sessionStorePath = getSessionStorePath();
+    if (existsSync(sessionStorePath)) {
+      const rawSessions = readFileSync(sessionStorePath, "utf8");
+      const parsedSessions = JSON.parse(rawSessions) as ReadonlyArray<StoredSession>;
+
+      for (const session of parsedSessions) {
+        sessions.set(session.token, session.userId);
+      }
     }
   } catch (error) {
-    console.error("Failed to load auth users from disk:", error);
+    console.error("Failed to load auth state from disk:", error);
   } finally {
-    hasLoadedUsers = true;
+    hasLoadedAuthState = true;
   }
 }
 
@@ -77,6 +112,7 @@ function isNonEmptyString(value: unknown): value is string {
 function buildAuthResponse(user: AuthUser): AuthResponse {
   const token = randomUUID();
   sessions.set(token, user.id);
+  persistSessionsToDisk();
   return { token, user };
 }
 
@@ -91,18 +127,25 @@ function findUserById(userId: string): AuthUser | null {
   return null;
 }
 
-export function resetAuthStore(options?: { clearPersistedUsers?: boolean }) {
+export function resetAuthStore(options?: {
+  clearPersistedUsers?: boolean;
+  clearPersistedSessions?: boolean;
+}) {
   usersByEmail.clear();
   sessions.clear();
-  hasLoadedUsers = false;
+  hasLoadedAuthState = false;
 
   if (options?.clearPersistedUsers !== false) {
     rmSync(getAuthStorePath(), { force: true });
   }
+
+  if (options?.clearPersistedSessions !== false) {
+    rmSync(getSessionStorePath(), { force: true });
+  }
 }
 
 export const createAuthRouter = (): Router => {
-  loadUsersFromDisk();
+  loadAuthStateFromDisk();
 
   const router = Router();
 
@@ -186,6 +229,7 @@ export const createAuthRouter = (): Router => {
 
     if (!user) {
       sessions.delete(token);
+      persistSessionsToDisk();
       res.status(401).json({ error: "ユーザーが見つかりません。" });
       return;
     }
