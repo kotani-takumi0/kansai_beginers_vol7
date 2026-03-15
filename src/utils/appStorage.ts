@@ -8,6 +8,7 @@ const TOPICS_KEY = "jimoto:selectedTopics";
 const PARTNER_MEISHI_KEY = "jimoto:partnerMeishi";
 const MY_MEISHI_KEY = "jimoto:myMeishi";
 const EXCHANGE_HISTORY_KEY = "jimoto:exchangeHistory";
+const COMPARISON_STATE_KEY = "jimoto:comparisonState";
 
 function isBrowser() {
   return typeof window !== "undefined";
@@ -192,4 +193,45 @@ export function loadShockReactions(): ReadonlyArray<ShockReaction> {
   } catch {
     return [];
   }
+}
+
+export function saveComparisonState(myMeishi: MeishiData, partnerMeishi: MeishiData) {
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.sessionStorage.setItem(
+    COMPARISON_STATE_KEY,
+    JSON.stringify({ myMeishi, partnerMeishi }),
+  );
+}
+
+export function loadComparisonState(): { myMeishi: MeishiData; partnerMeishi: MeishiData } | null {
+  if (!isBrowser()) {
+    return null;
+  }
+
+  const raw = window.sessionStorage.getItem(COMPARISON_STATE_KEY);
+
+  if (!raw) {
+    return null;
+  }
+
+  try {
+    const parsed = JSON.parse(raw) as { myMeishi: MeishiData; partnerMeishi: MeishiData };
+    if (parsed.myMeishi && parsed.partnerMeishi) {
+      return parsed;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+export function clearComparisonState() {
+  if (!isBrowser()) {
+    return;
+  }
+
+  window.sessionStorage.removeItem(COMPARISON_STATE_KEY);
 }

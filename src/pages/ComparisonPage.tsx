@@ -1,6 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { saveExchangeHistoryEntry } from "../utils/appStorage";
+import { saveExchangeHistoryEntry, saveComparisonState, loadComparisonState, clearComparisonState } from "../utils/appStorage";
 import type { MeishiData, ShockReaction, Topic } from "../types";
 
 type ReactionState = Record<string, boolean | null>;
@@ -136,7 +136,10 @@ function ResultView({
 
       <button
         type="button"
-        onClick={() => navigate("/preview")}
+        onClick={() => {
+          clearComparisonState();
+          navigate("/preview");
+        }}
         className="w-full rounded-[24px] border-[3px] border-[#744b2e] bg-[#1f8f5f] px-5 py-4 text-[16px] font-black text-white shadow-[0_6px_0_#166647] transition active:translate-y-[2px] active:shadow-[0_3px_0_#166647]"
       >
         名刺に戻る
@@ -148,8 +151,15 @@ function ResultView({
 export function ComparisonPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const myMeishi = location.state?.myMeishi as MeishiData | undefined;
-  const partnerMeishi = location.state?.partnerMeishi as MeishiData | undefined;
+  const savedState = loadComparisonState();
+  const myMeishi = (location.state?.myMeishi as MeishiData | undefined) ?? savedState?.myMeishi;
+  const partnerMeishi = (location.state?.partnerMeishi as MeishiData | undefined) ?? savedState?.partnerMeishi;
+
+  useEffect(() => {
+    if (myMeishi && partnerMeishi) {
+      saveComparisonState(myMeishi, partnerMeishi);
+    }
+  }, [myMeishi, partnerMeishi]);
 
   const partnerNormalTopics = useMemo(() => {
     if (!partnerMeishi) return [];

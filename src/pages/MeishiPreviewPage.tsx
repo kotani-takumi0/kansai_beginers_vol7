@@ -215,17 +215,22 @@ export function MeishiPreviewPage() {
   const savedMeishi = loadMyMeishi();
 
   const meishi = useMemo<MeishiData | null>(() => {
+    // 既に保存済みの名刺があればそちらを使う（ID安定化）
+    if (savedMeishi) {
+      return savedMeishi;
+    }
+
     if (prefecture && topics.length > 0) {
       return {
         id: createMeishiId(),
-        name: loadSelectedName() || savedMeishi?.name,
+        name: loadSelectedName(),
         prefecture,
         topics,
         createdAt: new Date().toISOString(),
       };
     }
 
-    return savedMeishi;
+    return null;
   }, [prefecture, savedMeishi, topics]);
 
   useEffect(() => {
