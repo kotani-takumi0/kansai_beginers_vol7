@@ -1,4 +1,6 @@
 import { randomUUID, createHash } from "node:crypto";
+import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import path from "node:path";
 import { Router } from "express";
 import type { Request, Response } from "express";
 import type { AuthResponse, AuthUser } from "../../src/types";
@@ -9,6 +11,7 @@ type StoredUser = AuthUser & {
 
 const usersByEmail = new Map<string, StoredUser>();
 const sessions = new Map<string, string>();
+let hasLoadedUsers = false;
 
 type CredentialsBody = {
   email?: unknown;
@@ -18,6 +21,49 @@ type CredentialsBody = {
 
 function normalizeEmail(value: string): string {
   return value.trim().toLowerCase();
+}
+
+function getAuthStorePath() {
+  return process.env.AUTH_STORE_FILE
+    ? path.resolve(process.env.AUTH_STORE_FILE)
+    : path.resolve(process.cwd(), "server/data/auth-users.json");
+}
+
+function loadUsersFromDisk() {
+  if (hasLoadedUsers) {
+    return;
+  }
+
+  const storePath = getAuthStorePath();
+
+  if (!existsSync(storePath)) {
+    hasLoadedUsers = true;
+    return;
+  }
+
+  try {
+    const raw = readFileSync(storePath, "utf8");
+    const parsed = JSON.parse(raw) as ReadonlyArray<StoredUser>;
+
+    usersByEmail.clear();
+    for (const user of parsed) {
+      usersByEmail.set(user.email, user);
+    }
+  } catch (error) {
+    console.error("Failed to load auth users from disk:", error);
+  } finally {
+    hasLoadedUsers = true;
+  }
+}
+
+function persistUsersToDisk() {
+  const storePath = getAuthStorePath();
+  mkdirSync(path.dirname(storePath), { recursive: true });
+  writeFileSync(
+    storePath,
+    JSON.stringify([...usersByEmail.values()], null, 2),
+    "utf8",
+  );
 }
 
 function hashPassword(password: string): string {
@@ -45,12 +91,19 @@ function findUserById(userId: string): AuthUser | null {
   return null;
 }
 
-export function resetAuthStore() {
+export function resetAuthStore(options?: { clearPersistedUsers?: boolean }) {
   usersByEmail.clear();
   sessions.clear();
+  hasLoadedUsers = false;
+
+  if (options?.clearPersistedUsers !== false) {
+    rmSync(getAuthStorePath(), { force: true });
+  }
 }
 
 export const createAuthRouter = (): Router => {
+  loadUsersFromDisk();
+
   const router = Router();
 
   router.post("/register", (req: Request, res: Response) => {
@@ -87,6 +140,7 @@ export const createAuthRouter = (): Router => {
     };
 
     usersByEmail.set(normalizedEmail, user);
+    persistUsersToDisk();
 
     const { passwordHash: _passwordHash, ...safeUser } = user;
     res.status(201).json(buildAuthResponse(safeUser));
