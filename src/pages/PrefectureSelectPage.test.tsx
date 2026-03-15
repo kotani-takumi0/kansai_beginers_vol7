@@ -73,4 +73,22 @@ describe("PrefectureSelectPage", () => {
     expect(saved.prefecture).toBe("大阪府");
     expect(saved.name).toBe("みぞじり");
   });
+
+  it("相手と同じ県を選ぶとエラーメッセージを表示して進めない", () => {
+    window.sessionStorage.setItem(
+      "jimoto:partnerMeishi",
+      JSON.stringify({ id: "p-1", name: "はなこ", prefecture: "大阪府", createdAt: "2026-03-14T00:00:00.000Z" })
+    );
+
+    renderPage();
+
+    fireEvent.change(screen.getByLabelText("あなたの名前"), {
+      target: { value: "みぞじり" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "大阪府" }));
+
+    expect(screen.getByText("相手と同じ県を選択できません。")).toBeDefined();
+    expect((screen.getByRole("button", { name: "この内容で名刺をつくる" }) as HTMLButtonElement).disabled).toBe(true);
+    expect(window.localStorage.getItem("jimoto:myMeishi")).toBeNull();
+  });
 });
