@@ -14,6 +14,35 @@ const app = express();
 const PORT = process.env.PORT ?? 3001;
 const isProduction = process.env.NODE_ENV === "production";
 
+app.use((req, res, next) => {
+  const origin = req.header("origin");
+
+  if (!origin) {
+    next();
+    return;
+  }
+
+  const isLocalOrigin = /^https?:\/\/localhost:\d+$/.test(origin);
+  const isSameOrigin = isProduction && origin === req.protocol + "://" + req.get("host");
+
+  if (!isLocalOrigin && !isSameOrigin) {
+    next();
+    return;
+  }
+
+  res.header("Access-Control-Allow-Origin", origin);
+  res.header("Vary", "Origin");
+  res.header("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  if (req.method === "OPTIONS") {
+    res.sendStatus(204);
+    return;
+  }
+
+  next();
+});
+
 app.use(express.json());
 
 function getOpenAIClient(): OpenAI {
