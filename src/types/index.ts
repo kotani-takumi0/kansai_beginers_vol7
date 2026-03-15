@@ -21,3 +21,23 @@ export interface ExchangeHistoryEntry {
   readonly partnerMeishi: MeishiData;
   readonly topics: ReadonlyArray<ConversationTopic>;
 }
+
+/** 認証済みユーザー */
+export interface AuthUser {
+  readonly id: string;
+  readonly email: string;
+  readonly displayName: string;
+  readonly createdAt: string;
+}
+
+/** クライアントが保持する認証セッション */
+export interface AuthSession {
+  readonly token: string;
+  readonly user: AuthUser;
+}
+
+/** 認証APIレスポンス */
+export interface AuthResponse {
+  readonly token: string;
+  readonly user: AuthUser;
+}

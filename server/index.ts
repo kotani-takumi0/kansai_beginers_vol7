@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import express from "express";
 import dotenv from "dotenv";
 import OpenAI from "openai";
+import { createAuthRouter } from "./routes/auth";
 
 dotenv.config();
 
@@ -22,6 +23,8 @@ const openai = new OpenAI({
 app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
+
+app.use("/api/auth", createAuthRouter());
 
 app.post("/api/topics", async (req, res) => {
   const { myPrefecture, partnerPrefecture, myName, partnerName } = req.body as {
@@ -68,10 +71,10 @@ JSON以外は出力しないでください。`,
     const content = completion.choices[0]?.message?.content ?? "[]";
     const topics = JSON.parse(content) as Array<{ text: string; emoji: string }>;
 
-    const result = topics.map((t, i) => ({
-      id: `topic-${i}`,
-      text: t.text,
-      emoji: t.emoji,
+    const result = topics.map((topic, index) => ({
+      id: `topic-${index}`,
+      text: topic.text,
+      emoji: topic.emoji,
     }));
 
     res.json({ topics: result });
@@ -81,12 +84,10 @@ JSON以外は出力しないでください。`,
   }
 });
 
-// Production: Vite ビルド済みの静的ファイルを配信
 if (isProduction) {
   const distPath = path.resolve(__dirname, "..", "dist");
   app.use(express.static(distPath));
 
-  // SPA フォールバック: API 以外のルートは index.html を返す
   app.get("/{*splat}", (_req, res) => {
     res.sendFile(path.join(distPath, "index.html"));
   });
