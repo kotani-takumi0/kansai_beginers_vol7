@@ -89,50 +89,48 @@ function MeishiCard({
         >
           {/* 表面 */}
           <div
-            className="relative w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#2d2d3a] via-[#3a3a4a] to-[#2d2d3a] shadow-[0_8px_32px_rgba(0,0,0,.18)]"
+            className="relative w-full overflow-hidden rounded-2xl border border-[#e8e4de] bg-[#fffdf8] shadow-[0_2px_12px_rgba(0,0,0,.06)]"
             style={{
               aspectRatio: "3 / 4",
               backfaceVisibility: "hidden",
             }}
           >
-            <span className="absolute top-4 left-5 text-[10px] font-semibold tracking-[0.2em] text-white/50">
-              JIMOTO SHOCK
-            </span>
-
             <div className="absolute inset-0 flex flex-col items-center justify-center px-6">
-              <p className="text-[9px] tracking-[0.15em] text-white/40 mb-2">HELLO, I'M FROM</p>
-              <h2 className="text-3xl font-bold tracking-tight text-white">
+              <p className="text-[10px] font-medium tracking-[0.2em] text-[#b0a08a] mb-3">
+                JIMOTO SHOCK
+              </p>
+              <h2 className="text-3xl font-black tracking-tight text-[#3d2718]">
                 {meishi.prefecture}
               </h2>
-              <div className="mt-4 h-px w-16 bg-white/20" />
-              <p className="mt-4 text-lg font-medium text-white/80">{meishi.name}</p>
+              <div className="mt-4 h-px w-12 bg-[#d94841]/40" />
+              <p className="mt-4 text-lg font-semibold text-[#5a4635]">{meishi.name}</p>
             </div>
 
-            <span className="absolute bottom-4 left-5 text-[11px] font-medium text-white/30">
+            <span className="absolute bottom-4 left-0 right-0 text-center text-[10px] font-medium text-[#c0b8a8]">
               {new Date(meishi.createdAt).toLocaleDateString("ja-JP")}
             </span>
           </div>
 
           {/* 裏面 - QRコード */}
           <div
-            className="absolute inset-0 w-full overflow-hidden rounded-2xl bg-gradient-to-br from-[#3a3a2d] via-[#4a4a3a] to-[#3a3a2d] shadow-[0_8px_32px_rgba(0,0,0,.18)]"
+            className="absolute inset-0 w-full overflow-hidden rounded-2xl border border-[#e8e4de] bg-[#fffdf8] shadow-[0_2px_12px_rgba(0,0,0,.06)]"
             style={{
               aspectRatio: "3 / 4",
               backfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
             }}
           >
-            <span className="absolute top-3 left-5 text-[10px] font-semibold tracking-[0.2em] text-white/50">
+            <p className="absolute top-4 left-0 right-0 text-center text-[10px] font-medium tracking-[0.2em] text-[#b0a08a]">
               SCAN ME
-            </span>
+            </p>
 
             <div className="absolute inset-0 flex items-center justify-center">
-              <div className="rounded-xl bg-white p-2">
+              <div className="rounded-xl border border-[#e8e4de] p-3">
                 <QRCodeSVG value={shareUrl} size={120} level="M" />
               </div>
             </div>
 
-            <span className="absolute bottom-3 left-0 right-0 text-center text-[10px] font-medium text-white/40">
+            <span className="absolute bottom-4 left-0 right-0 text-center text-[10px] font-medium text-[#c0b8a8]">
               {meishi.prefecture} / {meishi.name}
             </span>
           </div>
@@ -173,6 +171,7 @@ export function MeishiPreviewPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const showQr = location.state?.showQr === true;
+  const justCreated = location.state?.justCreated === true;
   const meishi = loadMyMeishi();
   const [partnerMeishi, setPartnerMeishi] = useState<MeishiData | null>(loadPartnerMeishi());
   const exchangeHistory = loadExchangeHistory();
@@ -236,21 +235,25 @@ export function MeishiPreviewPage() {
         <div className="absolute bottom-20 left-[-100px] h-72 w-72 rounded-full bg-[#bde0c5]" />
       </div>
 
-      <div className="relative mx-auto max-w-[420px] px-4 pt-4">
-        <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
-          <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
-            <p className="text-[11px] font-black tracking-[0.28em]">{showQr ? "SHOW YOUR CARD" : "YOUR CARD"}</p>
-            <h1 className="mt-1 text-[27px] font-black leading-tight">
-              {showQr ? "相手にQRを見せよう！" : "名刺が完成しました！"}
-            </h1>
-            <p className="mt-2 text-sm font-bold text-[#fff4dc]">
-              {showQr
-                ? "相手にこのQRコードをスキャンしてもらおう。お互いに同じ話題で盛り上がれるよ！"
-                : "QRコードを見せて名刺を交換しよう。交換するとAIが話のタネを生成するよ！"}
-            </p>
-          </div>
-        </section>
-      </div>
+      {(justCreated || showQr) && (
+        <div className="relative mx-auto max-w-[420px] px-4 pt-4">
+          <section className="overflow-hidden rounded-[28px] border-[3px] border-[#744b2e] bg-[#fff8df] shadow-[0_8px_0_#c77b30]">
+            <div className="border-b-[3px] border-[#744b2e] bg-[linear-gradient(90deg,#d94841_0%,#ef8d32_52%,#ffd166_100%)] px-5 py-4 text-[#fffdf4]">
+              <p className="text-[11px] font-black tracking-[0.28em]">
+                {showQr ? "SHOW YOUR CARD" : "CARD CREATED"}
+              </p>
+              <h1 className="mt-1 text-[27px] font-black leading-tight">
+                {showQr ? "相手にQRを見せよう！" : "名刺が完成しました！"}
+              </h1>
+              <p className="mt-2 text-sm font-bold text-[#fff4dc]">
+                {showQr
+                  ? "相手にこのQRコードをスキャンしてもらおう。お互いに同じ話題で盛り上がれるよ！"
+                  : "QRコードを見せて名刺を交換しよう。交換するとAIが話のタネを生成するよ！"}
+              </p>
+            </div>
+          </section>
+        </div>
+      )}
 
       <div className="relative mx-auto max-w-[420px] mt-4 pb-8">
         <MeishiCard
