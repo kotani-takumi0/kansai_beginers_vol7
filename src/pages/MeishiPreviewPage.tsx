@@ -266,7 +266,7 @@ export function MeishiPreviewPage() {
         <button
           type="button"
           onClick={() => setIsFlipped((prev) => !prev)}
-          className="mx-auto mb-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-[#888] transition active:scale-95"
+          className="mx-auto mb-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[22px] font-medium text-[#888] transition active:scale-95"
         >
           <FlipHint />
           {isFlipped ? "← カードに戻す" : "カードをめくってQRを見せよう →"}
