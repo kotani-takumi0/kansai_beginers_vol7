@@ -76,7 +76,7 @@ function MeishiCard({
   return (
     <div className="flex justify-center px-8 pb-2">
       <div
-        className="w-full max-w-[320px] cursor-pointer"
+        className="w-full max-w-[340px] cursor-pointer"
         style={{ perspective: "1000px" }}
         onClick={onFlip}
       >
@@ -91,7 +91,7 @@ function MeishiCard({
           <div
             className="relative w-full overflow-hidden rounded-2xl border border-[#e8e4de] bg-[#fffdf8] shadow-[0_2px_12px_rgba(0,0,0,.06)]"
             style={{
-              aspectRatio: "3 / 4",
+              aspectRatio: "1.586 / 1",
               backfaceVisibility: "hidden",
             }}
           >
@@ -115,7 +115,7 @@ function MeishiCard({
           <div
             className="absolute inset-0 w-full overflow-hidden rounded-2xl border border-[#e8e4de] bg-[#fffdf8] shadow-[0_2px_12px_rgba(0,0,0,.06)]"
             style={{
-              aspectRatio: "3 / 4",
+              aspectRatio: "1.586 / 1",
               backfaceVisibility: "hidden",
               transform: "rotateY(180deg)",
             }}
